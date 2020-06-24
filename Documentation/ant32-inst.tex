@@ -1,0 +1,273 @@
+% $Id: ant32-inst.tex,v 1.4 2002/04/16 15:19:09 ellard Exp $
+
+\chapter{The Ant-32 Instruction Set}
+\label{ant32-inst}
+
+\section{Terms}
+
+Figure \ref{Terms} gives the definitions of some of the terms
+used throughout the rest of this section.
+
+\begin{figure}[ht]
+\caption{\label{Terms} Terms}
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+
+{\em src}	& General integer register \\
+\hline
+
+{\em des}	& General integer register modified by an instruction \\
+\hline
+
+{\em const16}	& Signed 16-bit constant \\
+\hline
+
+{\em uconst8}	& Unsigned 8-bit constant \\
+\hline
+
+{\em const8}	& Signed 8-bit constant \\
+\hline
+
+{\em uconst5}	& Unsigned 5-bit constant \\
+\hline
+
+\end{tabular}
+\end{center}
+\end{figure}
+
+\section{Arithmetic Operations}
+
+The arithmetic operations fall into four classes:
+
+\begin{itemize}
+
+\item 32-bit register-to-register operations, which take two 32-bit
+	register operands and generate a 32-bit result.
+
+\item 32-bit immediate operations, which take one 32-bit register
+	operand and one constant and generate a 32-bit result.
+
+\item 64-bit register-to-register operations, which take two 32-bit
+	register operands and generate a 64-bit result.
+
+\item 64-bit immediate operations, which take one 32-bit register
+	operand and one constant and generate a 64-bit result.
+
+\end{itemize}
+
+The mnemonics for the 64-bit operations all end in the ``o''
+character.  For the 64-bit operations, the {\tt des} register must be
+even, and the upper 32 bits of the result are placed in register {\tt
+des+1}.  For example, if the destination is {\tt r2}, then the
+overflow will be placed in {\tt r3}.
+
+\subsection{32-Bit Three-register Operations}
+
+The 32-bit three-register operations all use three registers:  the
+first is the destination register, and the second two are source
+registers.  Overflow or underflow is ignored.
+
+\begin{description}
+
+\item	\INSTspec{add}
+\item	\INSTspec{sub}
+\item	\INSTspec{mul}
+\item	\INSTspec{div}
+\item	\INSTspec{mod}
+\item	\INSTspec{or}
+\item	\INSTspec{nor}
+\item	\INSTspec{xor}
+\item	\INSTspec{and}
+\item	\INSTspec{shr}
+\item	\INSTspec{shru}
+\item	\INSTspec{shl}
+
+\end{description}
+
+\subsection{32-Bit Immediate Operations}
+
+The 32-bit immediate arithmetic operations take two integer registers: 
+(one source and one destination) and a signed 8-bit constant.  Overflow or underflow is ignored.
+
+\begin{description}
+
+\item \INSTspec{addi}
+\item \INSTspec{subi}
+\item \INSTspec{muli}
+\item \INSTspec{divi}
+\item \INSTspec{modi}
+\item	\INSTspec{shri}
+\item	\INSTspec{shrui}
+\item	\INSTspec{shli}
+
+\end{description}
+
+\subsection{64-Bit Three-Register Operations}
+
+The 64-bit three-register operations all use three registers operands: 
+the first is the base of the register pair used to hold the result,
+and the second two are {\em src} registers.
+
+\begin{description}
+
+\item	\INSTspec{addo}
+\item	\INSTspec{subo}
+\item	\INSTspec{mulo}
+
+\end{description}
+
+\subsection{64-Bit Immediate Operations}
+
+The 64-bit immediate arithmetic operations take two integer registers: 
+(one source and one destination) and a signed 8-bit constant.
+
+\begin{description}
+
+\item \INSTspec{addio}
+\item \INSTspec{subio}
+\item \INSTspec{mulio}
+
+\end{description}
+
+\section{Comparison Operations}
+
+The comparison operations take three registers.  The {\em des}
+register is set to 0 or 1 depending on whether the given condition
+holds for the two {\em src} registers.
+
+\begin{description}
+
+\item	\INSTspec{eq}
+\item	\INSTspec{gts}
+\item	\INSTspec{ges}
+\item	\INSTspec{gtu}
+\item	\INSTspec{geu}
+
+\end{description}
+
+\section{Branch Operations}
+
+There are two sets of change of control flow operators.  The first are
+branches relative to the address of the currently executing
+instruction, and the second are absolute jumps.  Both are constructed
+in such a way to allow for use as subroutine call instructions.
+If used for simple branching, {\tt r0} may be specified as the 
+destination register.
+Each set is further divided into register-based and immediate
+categories.  Note that unconditional branches and jumps result if
+\Reg{src1} is set to {\tt r0}.
+
+There are both register-based branches and immediate branches.
+The register-based branches take three general registers.
+If the given condition holds for \Reg{src1}
+register, then execution branches to location indicated by
+\Reg{src2} and the address of the currently executing instruction
+is placed in \Reg{des}.
+In the immediate form, execution branches to a location computed by
+multiplying the signed 16-bit constant by 4 and then adding it to the
+address of the currently executing instruction.
+
+\begin{description}
+
+\item	\INSTspec{bez}
+\item	\INSTspec{jez}
+\item	\INSTspec{bnz}
+\item	\INSTspec{jnz}
+\item	\INSTspec{bezi}
+\item	\INSTspec{bnzi}
+\end{description}
+
+\section{Load/Store Operations}
+
+The load instructions take two registers and a signed 8-bit constant. 
+The first register is assigned the value loaded from the address which
+is the sum of \Reg{src1} and the constant.
+
+\begin{description}
+
+\item	\INSTspec{ld1}
+\item	\INSTspec{ld4}
+%%% \item	\INSTspec{ldf}
+
+\end{description}
+
+The store instructions take two registers and a signed 8-bit constant. 
+The \Reg{src1} is the value to store, and it is stored at the address
+which is the sum of \Reg{src2} and the constant.
+
+\begin{description}
+
+\item	\INSTspec{st1}
+\item	\INSTspec{st4}
+%%% \item	\INSTspec{stf}
+\end{description}
+
+\begin{description}
+\item	\INSTspec{ex4}
+\end{description}
+
+\section{Constants}
+
+The lc operations take a single register and a signed 16-bit constant. 
+{\tt lcl} performs sign extension.
+
+\begin{description}
+
+\item	\INSTspec{lcl} 
+\item	\INSTspec{lch} 
+
+\end{description}
+
+\section{Special Instructions}
+
+\begin{description}
+\item	\INSTspec{trap}
+\item	\INSTspec{info}
+\end{description}
+
+\section{Optional Instructions}
+
+The following instructions are provided optionally by the architecture.
+The {\tt info} instruction can be used to determine which instructions
+are implemented on a specific processor.
+
+{\tt srand} can only be executed in supervisor mode.
+
+\begin{description}
+
+\item	\INSTspec{srand}
+\item	\INSTspec{rand}
+\item	\INSTspec{cin}
+\item	\INSTspec{cout}
+
+\end{description}
+
+\section{MMU operations (supervisor mode only)}
+
+\begin{description}
+
+\item	\INSTspec{tlbpi}
+
+\item	\INSTspec{tlble}
+
+\item	\INSTspec{tlbse}
+
+\end{description}
+
+\section{Supervisor Mode Instructions}
+
+\begin{description}
+\item	\INSTspec{leh}
+\item	\INSTspec{rfe}
+\item	\INSTspec{sti}
+\item	\INSTspec{cli}
+\item	\INSTspec{ste}
+\item	\INSTspec{cle}
+\item	\INSTspec{timer}
+\item	\INSTspec{idle}
+\item	\INSTspec{halt}
+\end{description}
+
+

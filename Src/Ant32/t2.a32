@@ -1,0 +1,32 @@
+#@ Instructions 24
+#@ Data 96
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0280048  ::  	lc      r40, 0x80000048
++           ::  0xf1288000  ::  
++           ::  0x44002800  ::  	leh     r40
++           ::  0xf02e0054  ::  	lc      r46, 0x54 #address
++           ::  0xf02f0000  ::  	lc      r47, 0          #interrupts on
++           ::  0xf0300001  ::  	lc      r48, 1          #in user mode
++           ::  0xf02a000d  ::  	lc      r42, 0x0000000d #denotes VPN 0 is fetchable, readable,
++           ::  0xf02b0000  ::  	lc      r43, 0x00000000 #denotes VPN 0 maps to physical page 0
++           ::  0x4200002a  ::  	tlbse   r0, r42         #load into entry 0
++           ::  0xf02a101e  ::  	lc      r42, 0x0000101e #denotes VPN 1 is readable, writable,
++           ::  0xf02b1000  ::  	lc      r43, 0x00001000 #denotes VPN 1 maps to physical page 2
++           ::  0x4200302a  ::  	tlbse   r48, r42        #load into entry 1
++           ::  0xf02c0002  ::  	lc      r44, 2          #load into TLB entry 2
++           ::  0xf02ae01e  ::  	lc      r42, 0x3fffe01e #denotes VPN 0x3ffff is readable, writable,
++           ::  0xf12a3fff  ::  
++           ::  0xf02be000  ::  	lc      r43, 0xffffe000 #map VPN 0x3fffe to page 0xffffe
++           ::  0x42002c2a  ::  	tlbse   r44, r42
++           ::  0x452e2f30  ::  	rfe     r46, r47, r48
++           ::  0xf0312222  ::  	lc	r49, 0x11112222
++           ::  0xf1311111  ::  
++           ::  0x4f000000  ::  	halt    #or rather don't =)
++           ::  0xf0324444  ::  	lc      r50, 0x33334444
++           ::  0xf1323333  ::  
++           ::  0x10000000  ::  	trap
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# end of file

@@ -1,0 +1,66 @@
+# $Id: ant_design.txt,v 1.4 2000/10/31 16:50:45 ellard Exp $
+#
+# Copyright 1996-2000 by the President and Fellows of Harvard College.
+# See LICENSE.txt for license information.
+#
+# Dan Ellard -- 05/16/2000
+
+				ANT DESIGN
+
+This document briefly describes the code that we give you in order to
+help you implement ANT; you may find this code useful.
+
+The complete specification of the ANT machine itself is given in the
+ANT Architecture Reference.
+
+ant.h:
+
+	The general header file for the ANT VM.  This file includes
+	definitions that define the ANT processor.  Take the time to
+	read this carefully!  In particular, make sure that you
+	understand the global variables declared at the end of this
+	file, which are used to represent the entire state of an ANT
+	VM during the execution of a program.
+
+antvm.c:
+
+	The future home of the code for your ANT VM.  As provided to
+	you, there's not much here, but the comments are important. 
+	THIS IS THE ONLY FILE THAT YOU NEED TO MODIFY TO IMPLEMENT AN
+	ORDINARY ANT VM.
+
+ant_utils.c:
+
+	Home of several functions that will be very useful to you: 
+	do_in and do_out, which implements the "in" and "out"
+	instructions, and ant_fault, which implements a convenient way
+	to print error messages and dump core when faults of any kind
+	are detected.
+
+ant_bits.h:
+
+	ant_bits.h is the home of several macros that are useful for
+	extracting specific nibbles or bytes from ANT instruction
+	words (or from any integer).
+
+ant_load.c:
+
+	Home of two useful routines: ant_load_text, and ant_clear
+	(and several routines used by ant_load_text).
+	
+	ant_load_text is a function that completely initializes the
+	ANT's state (using ant_clear) and then loads it with an ANT
+	program file.
+
+ant_dump.c:
+
+	Home of several useful routines, including ant_dump_text.
+
+	ant_dump_text is a function that dumps the current state of
+	the ANT to file, creating an ANT "core dump".  You should use
+	this function whenever your ANT dumps core.
+
+	ant_dump_text calls several other functions that dump the
+	contents of registers, data memory, and instruction memory. 
+	You may find these useful during debugging.
+

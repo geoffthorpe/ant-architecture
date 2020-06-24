@@ -1,0 +1,8 @@
+#@ Instructions 0
+#@ Data 3
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0x0a000a00  ::  
+# end of data
+# end of file

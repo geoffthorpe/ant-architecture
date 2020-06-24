@@ -1,0 +1,18 @@
+% $Id: bezi.tex,v 1.9 2001/07/18 01:58:38 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{bezi}
+\renewcommand{\INSTdesc}	{Branch Immediate if Zero}
+\renewcommand{\INSTopcode}	{0xD4}
+\renewcommand{\INSToptype}	{OneReg}
+\renewcommand{\INSTfieldA}	{src1}
+\renewcommand{\INSTfieldB}	{const16}
+
+\renewcommand{\INSTsemantic}	{
+
+	If the value of \Reg{src1} is zero, branch to the address
+	formed by adding the address of the current instruction and 4
+	$\times$ {\em const16}. 
+
+}
+
+\renewcommand{\INSTexceptions}	{}

@@ -1,0 +1,327 @@
+#format for entries in this file:
+#instruction: (instruction name)
+#type: (type of instruction)
+#format: (what arguments the instruction takes...valid values are:
+#	&op : the name of the instruction
+#	&des : destination register
+#	&src[123] : source register
+#	&const[8{16}] : constant of appropriate bit length
+#	0 : just a 0
+#	null : no argument here
+#
+#	any of these may be modified by the following:
+#	-zero : this argument should be set to zero in a div by 0 test
+#	-even : this register needs to be even numbered
+#	-mem : this argument references a memory location
+#
+#	all specifications should start at column 0
+
+instruction: add
+type: arith
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: sub
+type: arith
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: mul
+type: arith
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: div
+type: arith
+format: &op, &des, &src1, &src2-zero
+exceptions: kreg, ereg, cycle, reginv, div0
+
+instruction: mod
+type: arith
+format: &op, &des, &src1, &src2-zero
+exceptions: kreg, ereg, cycle, reginv, div0
+
+instruction: or
+type: arith
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: nor
+type: arith
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: xor
+type: arith
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: and
+type: arith
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: shr
+type: arith
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: shru
+type: arith
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: shl
+type: arith
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: addi
+type: arith-imm
+format: &op, &des, &src1, &const8
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: subi
+type: arith-imm
+format: &op, &des, &src1, &const8
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: muli
+type: arith-imm
+format: &op, &des, &src1, &const8
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: divi
+type: arith-imm
+format: &op, &des, &src1, &const8-zero
+exceptions: kreg, ereg, cycle, reginv, div0
+
+instruction: modi
+type: arith-imm
+format: &op, &des, &src1, &const8-zero
+exceptions: kreg, ereg, cycle, reginv, div0
+
+instruction: shri
+type: arith-imm
+format: &op, &des, &src1, &const8
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: shrui
+type: arith-imm
+format: &op, &des, &src1, &const8
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: shli
+type: arith-imm
+format: &op, &des, &src1, &const8
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: addo
+type: arith-over
+format: &op, &des-even, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv, regpar
+
+instruction: subo
+type: arith-over
+format: &op, &des-even, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv, regpar
+
+instruction: mulo
+type: arith-over
+format: &op, &des-even, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv, regpar
+
+instruction: addio
+type: arith-imm-over
+format: &op, &des-even, &src1, &const8
+exceptions: kreg, ereg, cycle, reginv, regpar
+
+instruction: subio
+type: arith-imm-over
+format: &op, &des-even, &src1, &const8
+exceptions: kreg, ereg, cycle, reginv, regpar
+
+instruction: mulio
+type: arith-imm-over
+format: &op, &des-even, &src1, &const8
+exceptions: kreg, ereg, cycle, reginv, regpar
+
+instruction: eq
+type: comp
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: gts
+type: comp
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: ges
+type: comp
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: gtu
+type: comp
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: geu
+type: comp
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: bez
+type: control
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: jez
+type: control
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: bnz
+type: control
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: jnz
+type: control
+format: &op, &des, &src1, &src2
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: bezi
+type: control-imm
+format: &op, &src1, &const16, null
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: bnzi
+type: control-imm
+format: &op, &src1, &const16, null
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: ld1
+type: mem
+format: &op, &des, &src1-mem, &const8
+exceptions: kreg, ereg, cycle, reginv, memseg, bus
+
+instruction: ld4
+type: mem
+format: &op, &des, &src1-mem, &const8
+exceptions: kreg, ereg, cycle, reginv, align, memseg, bus
+
+instruction: st1
+type: mem
+format: &op, &src1, &src2-mem, &const8
+exceptions: kreg, ereg, cycle, reginv, memseg, bus
+
+instruction: st4
+type: mem
+format: &op, &src1, &src2-mem, &const8
+exceptions: kreg, ereg, cycle, reginv, align, memseg, bus
+
+instruction: ex4
+type: mem
+format: &op, &des, &src1-mem, &const8
+exceptions: kreg, ereg, cycle, reginv, align, memseg, bus
+
+instruction: lcl
+type: constants
+format: &op, &des, &const16, null
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: lch
+type: constants
+format: &op, &des, &const16, null
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: trap
+type: special
+format: &op, 0, 0, 0
+exceptions:
+
+instruction: info
+type: special
+format: &op, &des, &const16, null
+exceptions: kreg, ereg, cycle, reginv
+
+instruction: rand
+type: special
+format: &op, &des, 0, 0
+exceptions: kreg, ereg, cycle, reginv, bogus
+
+instruction: srand
+type: special-super
+format: &op, &src1, &src2, &src3
+exceptions: ereg, cycle, reginv, bogus, priv
+
+instruction: cin
+type: special
+format: &op, &des, 0, 0
+exceptions: kreg, ereg, cycle, reginv, bogus
+
+instruction: cout
+type: special
+format: &op, 0, &src1, 0
+exceptions: kreg, ereg, cycle, reginv, bogus
+
+instruction: tlbpi
+type: mmu-super
+format: &op, &des, &src1, 0
+exceptions: ereg, cycle, reginv, priv, tlbdup
+
+instruction: tlble
+type: mmu-super
+format: &op, &des-even, &src1, 0
+exceptions: ereg, cycle, reginv, regpar, priv
+
+instruction: tlbse
+type: mmu-super
+format: &op, 0, &src1, &src2-even
+exceptions: ereg, cycle, reginv, regpar, priv
+
+instruction: leh
+type: special-super
+format: &op, 0, &src1, &0
+exceptions: priv
+
+instruction: rfe
+type: special-super
+format: &op, &src1, &src2, &src3
+exceptions: priv
+
+instruction: sti
+type: special-super
+format: &op, 0, 0, 0
+exceptions: priv
+
+instruction: cli
+type: special-super
+format: &op, 0, 0, 0
+exceptions: priv
+
+instruction: ste
+type: special-super
+format: &op, 0, 0, 0
+exceptions: priv
+
+instruction: cle
+type: special-super
+format: &op, 0, 0, 0
+exceptions: priv
+
+instruction: timer
+type: special-super
+format: &op, &des, &src1, 0
+exceptions: priv
+
+instruction: idle
+type: special-super
+format: &op, 0, 0, 0
+exceptions: priv
+
+instruction: halt
+type: special-super
+format: &op, 0, 0, 0
+exceptions: priv

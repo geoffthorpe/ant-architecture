@@ -1,0 +1,32 @@
+% $Id
+
+\ThreeRegisterOp{add}{Addition}{\OPCODE}{des}{src1}{src2}
+
+\index{add@{\tt add}!for Ant-8}
+
+8-bit integer addition (with overflow).
+
+\begin{enumerate}
+
+\item Let {\em temp} $~ \leftarrow$  \Reg{src1} + \Reg{src2}.
+
+	\Reg{src1} and \Reg{src2} are treated as
+	8-bit 2's complement integers.
+
+\item Detect whether overflow/underflow has taken place:
+
+\begin{tabular}{lrl}
+
+\Reg{1} $~ \leftarrow$ & 1  & if \MaxIntWord $< ~$ {\em temp} \\
+
+\Reg{1} $~ \leftarrow$ & 0  &
+	if \MinIntWord $\leq$ {\em temp} $\leq ~$ \MaxIntWord \\
+
+\Reg{1} $~ \leftarrow$ & -1 & if {\em temp} $< ~$ \MinIntWord \\
+
+\end{tabular}
+
+\item \Reg{des} $\leftarrow$ the lower eight bits of {\em temp}.
+
+\end{enumerate}
+

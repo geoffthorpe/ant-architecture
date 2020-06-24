@@ -1,0 +1,52 @@
+<HTML>
+<!-- $Id: aa8.htm,v 1.3 2002/04/17 16:26:42 ellard Exp $ -->
+<HEAD>
+<TITLE> Ant-8 Documentation - aa8</TITLE>
+</HEAD>
+<BODY>
+
+<CENTER>
+<H1> Ant-8 Documentation - aa8 </H1>
+</CENTER>
+
+<H2> Name </H2>
+
+<B>aa8</B> -- The Ant-8 assembler.
+
+<H2> Synopsis </H2>
+
+<B>aa8</B> [<EM>options</EM>] <EM>filename</EM>
+
+<H2> Description </H2>
+
+<B>aa8</B> assembles the given file (which must be an Ant-8 assembly
+language program), creating an Ant-8 machine language program that
+can be run on the Ant-8 processor. <P>
+
+The name of the output file is determined by the name of the input
+file:  if the input filename ends in <KBD>.asm</KBD>, then the
+<KBD>.asm</KBD> is replaced with <KBD>.ant</KBD>.  If the filename
+does not end in <KBD>.asm</KBD>, then the suffix <KBD>.ant</KBD> is
+simply appended to the filename. <P>
+
+If the input file does not contain a valid Ant-8 assembly language
+program, then <B>aa8</B> attempts to print useful diagnostic messages to
+tell the user something about what is wrong with the program. <P>
+
+<H2> Options </H2>
+
+<DL>
+
+<DT> <B>-h</B> <P>
+<DD> Print a usage message and then exit. <P>
+
+<DT> <B>-V</B> <P>
+<DD> Print the program name and version, and then exit. <P>
+
+</DL> <P>
+
+<hr>
+Copyright 2001-2002 by the President and Fellows of Harvard College.
+
+</BODY>
+</HTML>

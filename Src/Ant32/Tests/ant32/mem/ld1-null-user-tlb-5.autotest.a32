@@ -1,0 +1,38 @@
+#@ Instructions 30
+#@ Data 120
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0280060  ::      lc      r40, 0x80000060
++           ::  0xf1288000  ::  
++           ::  0x44002800  ::      leh     r40
++           ::  0x4b000000  ::  	cle
++           ::  0xf02e006c  ::      lc      r46, 0x0000006c #usermode start address
++           ::  0xf02f0001  ::      lc      r47, 1          #interrupts off
++           ::  0xf0300001  ::      lc      r48, 1          #in user mode
++           ::  0xf02a0000  ::      lc      r42, 0x00000000 #denotes VPN 0
++           ::  0xf02b000d  ::      lc      r43, 0x0000000d #denotes VPN 0 maps to physical page 0
++           ::  0x4200002a  ::      tlbse   r0, r42         #load into entry 0
++           ::  0xf02a1000  ::      lc      r42, 0x00001000 #denotes VPN 1
++           ::  0xf02b101e  ::      lc      r43, 0x0000101e #denotes VPN 1 maps to physical page 1
++           ::  0x4200302a  ::      tlbse   r48, r42       #load into entry 1
++           ::  0xf02c0002  ::      lc      r44, 2          #load into TLB entry 2
++           ::  0xf02ae000  ::      lc      r42, 0x3fffe000 #denotes VPN 0x3fffe
++           ::  0xf12a3fff  ::  
++           ::  0xf02be01f  ::      lc      r43, 0x3fffe01f #map VPN 0x3fffe to page 0x3fffe
++           ::  0xf12b3fff  ::  
++           ::  0x42002c2a  ::      tlbse   r44, r42
++           ::  0xf0323000  ::      lc r50, 0x00003000
++           ::  0xf033301e  ::      lc r51, 0x0000301e
++           ::  0xf034000a  ::      lc r52, 10
++           ::  0x42003432  ::      tlbse r52, r50
++           ::  0x452e2f30  ::      rfe     r46, r47, r48
++           ::  0xf031beef  ::      lc  r49, 0xdeadbeef
++           ::  0xf131dead  ::  
++           ::  0x4f000000  ::      halt    #or rather don't =)
++           ::  0xf0353000  ::      lc r53, 0x00003000
++           ::  0xd1360035  ::      jez r54, r0, r53
++           ::  0x10000000  ::      trap
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# end of file

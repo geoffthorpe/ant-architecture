@@ -1,0 +1,385 @@
+<!-- $Id: ant-sec.html,v 1.2 2000/11/22 00:29:56 ellard Exp $ -->
+<HTML>
+<HEAD>
+<TITLE>CS50 1997 - ANT Section </TITLE>
+</HEAD>
+<BODY>
+
+<H1>CS50 1997 - Architecture and ANT </H1>
+
+By this point in the course, you have probably started to form some
+suspicions about what's really going on inside the computer, and how
+the high-level statements you're allowed to use in <B>C</B> are
+actually executed.  Today we'll explore this subject in more depth,
+first by discussing some aspects of computer architecture in general,
+and then by spending time talking about ANT, a specific architecture. 
+Finally, you are given the job of implementing an ANT.  <P>
+
+<HR>
+<H2>Computer Architecture</H2>
+
+<H3>Computer components</H3>
+
+There are three main components in a computer, from an architectural
+point of view: <P>
+
+<DL>
+
+<DT><EM>CPU</EM> <P>
+
+<DD> The CPU (or <EM>Central Processing Unit</EM>) is the "brain" of
+	the computer.  It contains the mechanisms that actually
+	perform the computations that the computer does on your
+	behalf.  <P>
+
+<DT> <EM>Memory</EM> <P>
+
+<DD> The memory (also called <EM>RAM</EM>, which stands for <EM>Random
+	Access Memory</EM>) is the scratch paper that the CPU uses to
+	store data and partial results from computations that are in
+	progress.  <P>
+
+        Note that the CPU often contains some small amount of scratch
+        memory as well.  This memory is usually called
+        <EM>registers</EM>.  In most architectures, the registers are
+        treated quite differently than other memory, but a few
+        architectures treat them in similar ways.  <P>
+
+<DT> <EM>I/O Devices</EM> <P>
+
+<DD> I/O (which stands for <EM>Input/Output</EM>) is the mechanism
+	that the CPU uses to input data, either directly to the CPU or
+	into memory, from file, keyboard, network, or other external
+	devices, to output data to files, the screen, network, or
+	other external devices.  <P>
+
+	It may seem odd for contemporary users to refer to a file as
+	an external device, since for computers like PCs and Macs,
+	files are stored on disks that generally reside inside the
+	computer.  Similarly, the screen and keyboard are also tightly
+	integrated with most contemporary computers, so that it's
+	difficult to imagine a computer without a keyboard and screen
+	(and mouse and disk...).  What is really referred to by
+	"input" and "output" is the movement of data with respect to
+	the CPU and RAM and other devices in the system- not whether
+	the data actually enters or exits the box that houses the
+	computer.  <P>
+
+</DL>
+
+<H3>The CPU</H3>
+
+In general, a CPU contains the following pieces: <P>
+
+<DL>
+
+<DT> <EM>Register File</EM> <P>
+
+<DD> The register file is a small set of memory locations that can
+	each be used to store a single item (usually a character,
+	integer, or a floating point number).  <P>
+
+<DT> <EM>Control</EM> <P>
+
+<DD> The control logic decides what operation in the program to
+	perform next.  <P>
+
+        Each program, by the time the CPU gets it, is broken down into
+        a sequence of operations.  By default, the control logic is
+        quite simple- execute the operations in the sequence that
+        appear in the program.  However, the control logic can also
+        execute the operations in a sequence that is computed as the
+        part of the program itself- for example, with the <B>C</B>
+        <KBD>if</KBD> statement.  <P>
+
+<DT> <EM>Datapath</EM> <P>
+
+<DD> The datapath is where the action actually takes place.  Data it
+	taken from a register or registers, operated upon, and the
+	results are placed back into a register (or registers).  <P>
+
+	One component of the datapath is the <EM>ALU</EM> (the
+	<EM>Arithmetic Logic Unit</EM>), which is the brain of the CPU
+	(just as the CPU is the brain of the computer).  The ALU is
+	responsible for computing the mathematical functions that
+	actually implement the arithmetic and logic operations that
+	the CPU executes.  It may seem quite surprising that all of
+	the operations that the CPU can compute reduce to a small set
+	of logical and arithmetic functions, but this is actually
+	the case. <P>
+
+        </DL>
+
+<H3>Memory Organization</H3>
+
+<UL>
+
+<LI> The easiest way to think of memory is as a huge 1-dimensional
+	array of bytes.  (For some architectures, things are not quite
+	so simple, but this is generally sufficient.) <P>
+
+<LI> The most important thing to keep in mind is that memory is simply
+	sequences of bytes.  What these bytes represent is up to the
+	application to determine.  In the reading, conventions for
+	representing numbers and characters are described, but it's up
+	to the application to keep track of what convention to use. 
+	<P>
+
+	If someone hands you four bytes containing some arbitrary bit
+	pattern, and then asks you what they represent, you can't
+	answer without more information.  It could be four characters,
+	two 16-bit integers, a 32-bit integer, a floating point
+	number- and of characters, integers, and floating point
+	numbers have more than one convention for representation, so
+	the number of possible interpretations is gigantic.  However,
+	if someone hands you four bytes containing some arbitrary bit
+	pattern, and then asks what 32-bit two's-complement integer
+	they represent, then you should be able to answer them!  <P>
+
+</UL>
+
+<HR>
+<H2>ANT</H2>
+
+For this assignment, you need to write a small amount of ANT assembly
+language.  At first, the programs may seem daunting, but if you attack
+them methodically and carefully, they should not present any major
+difficulties.  <P>
+
+You may have heard some remarks about how unpleasant assembly
+programming can be, and it certainly is not something that you want to
+do forever.  However, it can be an interesting thing to do, and a lot
+of fun in the short run.  <P>
+
+
+<H3>A Guide to Writing in Assembly</H3>
+
+<OL>
+
+<LI> <EM> Define your algorithm.</EM> <P>
+
+	For this assignment, we give you the precise algorithms for
+	the code you need to write, so this shouldn't be a problem. 
+	You may find it useful to modify these algorithms slightly, in
+	order to express them in ANT, but make sure that you have the
+	basic ideas totally nailed down before diving into the code. 
+	<P>
+
+<LI> <EM> Write your program in <KBD>C</KBD> (or at least in
+	pseudo-C).</EM> <P>
+
+	If you can't precisely specify what it is that your algorithm
+	is supposed to do and how to do it, then there's little chance
+	you'll get it right be tinkering with it in assembly language. 
+	Since the beginning of the semester, you have been learning
+	how to express algorithms precisely by writing them in
+	<KBD>C</KBD>.  Use this experience!  <P>
+
+	Note that the most appropriate or elegant algorithms in C may
+	not be the most appropriate or elegant algorithms in ANT. 
+	Think about what is going to be easiest to express in ANT; it
+	may change your algorithm.  <P>
+
+<LI> <EM> Study the <KBD>ANT</KBD> references and look over the
+	examples from lecture and the course notes.</EM> <P>
+
+	If you don't know how to express yourself in ANT, then even
+	the best algorithm is doomed to failure.  <P>
+
+<LI> <EM> Divide the algorithm into smaller and smaller pieces.</EM>
+	<P>
+
+	Eventually, each piece of the algorithm should start to look
+	like something that you can easily convert into a sequence of
+	<KBD>ANT</KBD> instructions and/or data declarations.  <P>
+
+<LI> <EM> Decide what temporary variables you need, choose registers
+	to keep them all in, and document this. </EM> <P>
+
+	Do this <EM> before</EM> you write any code, and once you
+	start to write code be very reluctant to change the register
+	allocations without good reason!  If you change the meaning of
+	a register in one part of your code, you may need to change
+	many other parts of your code in order to avoid clobbering
+	something else.  <P>
+
+<LI> <EM> Don't try to write everything at once.</EM> <P>
+
+	Write small pieces that you can check and test carefully.  An
+	example of this in included later in this handout.  <P>
+
+	Make use of the ANT debugger (<B>ad</B>) to test your code. 
+	You can execute your code line by line, checking to make sure
+	that what is in the registers and data memory is what you
+	expect after each step.  <P>
+
+<LI> <EM> Learn the debugger. </EM> <P>
+
+	ANT comes with a decent debugger.  Learn your way around
+	it!  You will not be able to debug your programs by
+	staring at them- most people find the debugger invaluable
+	(the rest find ANT programming impossible, because they
+	can't find their bugs without using the debugger). <P>
+
+	The debugger takes minutes to learn and can save you hours of
+	frustration.  <P>
+
+<LI> <EM> Use <KBD>checkin</KBD> early and often, and use scratch
+	files.</EM> <P>
+
+	Make sure you keep track of what each scratch file is used for
+	(i.e.  what idea you were experimenting with in it) so you can
+	pick out the good stuff later.  There's no reason why the
+	programs you need to write for this assignment should be the
+	only ANT programs you ever write!  <P>
+
+</OL>
+
+<H3>Arrays in ANT</H3>
+
+In assembly, arrays are just a pointer to the first element in the
+array.  If you want to get at the <EM>n</EM>th item in an array,
+you'll need to compute the address of that item.  The general
+calculation, in C-like notation is: <P>
+
+<PRE>
+	/* Address calculation in assembler:		*/
+	/* NOTE: this is different from address		*/
+	/*	calculation in C!			*/
+	&A [x] == &A [0] + (x * sizeof (each element of A));
+</PRE> <P>
+
+In ANT, this all greatly simplified by the fact that the size of each
+element (at least for arrays of bytes, which are all you need to worry
+about for this assignment) is exactly one.  Therefore, this reduces to
+the following more C-like expression:
+
+<PRE>
+	&A [x] == &A [0] + x;
+		/* or just */
+	&A [x] == A + x;
+</PRE> <P>
+
+So, let's imagine that you need to get at the <EM>n</EM>th element of
+<KBD>A</KBD>, where the address of the first element of <KBD>A</KBD>
+is stored in <KBD>r2</KBD> and <EM>n</EM> is stored in <KBD>r3</KBD>,
+and put it into <KBD>r5</KBD>.  Note that this example uses
+<KBD>r4</KBD> as scratch space.  <P>
+
+<PRE>
+	lc	r2, $A		# r2 = A;
+	add	r4, r2, r3	# r4 = A + n;
+	ld	r5, r4, 0	# r5 = *(A + n);
+</PRE> <P>
+
+Placing a value into <KBD>A[n]</KBD> is done in the same manner,
+except that the <KBD>ld</KBD> is replaced with a <KBD>st</KBD>.  <P>
+
+There are a few examples of strolling through arrays in the code we
+offer as examples: <KBD>reverse.asm</KBD> is pretty clear, and of
+course there is always the silly <KBD>bigadd.asm</KBD>.  <P>
+
+<HR>
+<H2>Creating Your Very Own ANT</H2>
+
+With any luck, this could be the most rewarding and fun assignment of
+the semester.  You will implement most of the important aspects of a
+realistic virtual machine.  A few weeks ago, you may have known
+nothing about computers, but now you know enough to create your own! 
+(You might find this boring, but to me this seems exciting.) <P>
+
+Some guidelines that you might find useful: <P>
+
+<UL>
+
+<LI> <EM> You will probably find it easier to write your ant after you
+	do the ANT programming part of the assignment.  </EM> <P>
+
+	This will familiarize you with how the machine works, and
+	should give you ideas of how to proceed.  Once you are
+	familiar with using the instructions, when it comes time to
+	implement the same instructions yourself, you'll already know
+	what they're supposed to do.  <P>
+
+<LI> <EM> You cannot avoid the reading.  </EM> <P>
+
+	<B> I cannot stress this enough.  </B> <P>
+
+	Read the assignment, then <KBD>ant_design.txt</KBD> and
+	<KBD>ant.txt</KBD> cover to cover.  We've provided a lot of
+	code for you, and also a lot of documentation.  The amount of
+	code that you have to write for this assignment is actually
+	relatively small- but if you don't understand what you're
+	supposed to do and what we've done for you, it could seem like
+	mountains of code.  <P>
+
+<LI> <EM> Don't put off the reading.  </EM> <P>
+
+	Read the documentation early, so that if you are confused by
+	some part of it, you can ask questions <B>early</B> (long
+	before the assignment is due) and get a clear understanding of
+	things before you go on to the next step.  <P>
+
+	Read through <KBD>ant_design.txt</KBD>.  It describes the code
+	that we give you.  Once you understand this code, you'll
+	realized that we did most of the hard work for you, and
+	there's relatively little left for you to write.  <P>
+
+<LI> <EM> Design.  </EM> <P>
+
+	The design should be simple.  Don't "over-engineer" the
+	design; just do something simple that works.  I promise you
+	that there are a variety of approaches, all simple (and of
+	course some difficult ones as well).  Simple is always better. 
+	<P>
+
+<LI> <EM> Think about the design questions.  </EM> <P>
+
+	Don't leave the design questions until after you have finished
+	coding!  Looking at them first might give you ideas about how
+	to do the coding- and doing the coding with them in mind will
+	help you to find answers to them.  <P>
+
+<LI> <EM> Implement incrementally.  </EM> <P>
+
+	This is more of a general rule than a guideline specific to
+	this assignment, but it is especially easy to do here.  After
+	you implement each instruction, write a tiny program (or use
+	one of the ones we supply) to test whether it works.  <P>
+
+	If you start with the <KBD>sys</KBD> instruction (and
+	particularly the <KBD>dump</KBD> syscall), that will make this
+	even easier.  <P>
+
+<LI> <EM> Test.  </EM> <P>
+
+	We've provided a test facility called <KBD>test-ant</KBD> that
+	does a decent test to see whether your ant matches the spec. 
+	It's not a perfect test (and can't test every tiny detail) but
+	if your ant passes all the tests, it's not bad.  <P>
+
+	The test is constantly being refined; keep your eyes peeled
+	for improvements.  <P>
+
+</UL>
+
+<H3> Random Implementation Notes </H3>
+
+<OL>
+
+<LI> There are a lot of things that can go wrong with the
+	<KBD>get_int</KBD> syscall.  That's why the spec is so shaky-
+	if the user types in a valid integer in the range from -128 to
+	127, your ANT should be able to deal with it, but if they type
+	in some garbage, or something too large or too small, or any
+	other sort of nonsense, then <B>the results are undefined</B>. 
+	This was done to make your life easier.  <P>
+
+<LI> There are a few errors that you need to check for over and over
+	again, on most of the instructions.  Perhaps you should make a
+	function to do this error check.  <P>
+
+</OL>
+
+</BODY>
+</HTML>

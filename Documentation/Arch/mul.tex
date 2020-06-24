@@ -1,0 +1,25 @@
+% $Id: mul.tex,v 1.4 2002/04/16 01:02:41 ellard Exp $
+
+\ThreeRegisterOp{mul}{Multiplication}{\OPCODE}{des}{src1}{src2}
+
+\index{mul@{\tt mul}!for Ant-8}
+
+Integer multiplication (with overflow).
+
+\begin{enumerate}
+
+\item {\em temp} $\leftarrow$ \Reg{src1} $\times$ \Reg{src2}.
+
+	\Reg{src1} and \Reg{src2} are treated as 8-bit
+	2's complement integers.  {\em temp} is a 16-bit
+	2's complement integer.
+
+\item \Reg{des} $\leftarrow$ the lower 8 bits of {\em temp}.
+
+\item \Reg{r1} $\leftarrow$ the upper 8 bits of {\em temp}.
+
+	Note that $(\MinIntWord \times -1)$ leaves \Reg{des}
+		with \MinIntWord ~ and \Reg{1} with 0.
+
+\end{enumerate}
+

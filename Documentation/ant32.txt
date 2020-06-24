@@ -1,0 +1,472 @@
+# $Id: ant32.txt,v 1.1 2000/02/02 20:32:55 ellard Exp $
+
+This document contains a brief description of the ANT-32 architecture.
+
+Terms:
+
+	src		General integer register
+	des		General integer register modified by
+			an instruction.
+	fsrc		Floating point register
+	fdes		Floating point register modified by
+			an instruction.
+
+	const16		Signed 16-bit constant
+	uconst8		Unsigned 8-bit constant
+	const8		Signed 8-bit constant
+	uconst5		Unsigned 5-bit constant
+
+Overview:
+
+	ANT-32 supports 8-bit bytes, 32-bit words, and 64-bit floating
+	point numbers.  The address space is shared by code and data
+	(unlike ANT-8, which has separate address spaces).  Addresses
+	are 32 bits.
+
+	All instructions are 32 bits in length.  The high-order 8 bits
+	of each instruction contain the opcode.  Instructions must be
+	aligned on 4-byte boundaries. 
+
+	The architecture provides 8-256 general-purpose 32-bit integer
+	registers, named r0-r255.  r0 is read-only, and always
+	contains the constant 0.  r0 may be used as a destination
+	register, but if r0 is used as the destination register then
+	the instruction is performed as usual, but r0 is not modified. 
+	(For example, the instruction "div r0, r0, r0" will cause a
+	division-by-zero exception to occur.)
+
+	The architecture also provides 8-256 64-bit floating point
+	registers, named f0-f255.  f0 is read-only, and always
+	contains the constant 0.0.  Like r0, f0 may be used as a
+	destination register, but if f0 is used as the destination
+	register then the instruction is performed but f0 is
+	unchanged.
+
+	The precise number of general-purpose and floating point
+	registers is determined by the implementation.  Referencing a
+	register that does not exist on a given implementation causes
+	an exception to occur.  The "info" instruction can be used to
+	discover information about a specific implementation.
+
+ANT-32 opcodes
+
+Arithmetic operations:
+
+	All arithmetic operations take three integer registers:  two
+	source registers and one destination register.
+
+0x00	add des, src1, src2		Addition
+0x01	sub des, src1, src2		Subtraction
+0x02	mul des, src1, src2		Multiplication
+0x03	div des, src1, src2		Division
+0x04	mod des, src1, src2		Modulo
+0x05	shr des, src1, src2		Shift right
+0x06	shru des, src1, src2		Shift right unsigned
+0x07	shl des, src1, src2		Shift left
+0x08	or des, src1, src2		Bitwise or
+0x09	nor des, src1, src2		Bitwise nor
+0x0A	xor des, src1, src2		Bitwise exclusive or
+0x0B	and des, src1, src2		Bitwise and
+
+	For the shift instructions, only the bottom 5 bits of src2 are
+	used.  The top three bits are completely ignored.  For
+	example, a shift of 32 is exactly the same as a shift of 0.
+
+	The "o" instructions do arithmetic with "overflow".  The des
+	register must be even, and the overflow is placed in register
+	des+1.  For example, if the destination is r2, then the
+	overflow will be placed in r3.
+
+0x12	mulo des, src1, src2		32x32 -> 64-bit multiplication
+
+Immediate operations:
+
+	The immediate arithmetic operations take two integer
+	registers:  (one source and one destination) and a signed
+	8-bit constant.
+
+0x20	addi des, src1, const8		Addition
+0x21	subi des, src1, const8		Subtraction
+0x22	muli des, src1, const8		Multiplication
+0x23	divi des, src1, const8		Division
+0x24	modi des, src1, const8		Modulo
+
+	The immediate shift operations take an unsigned 5-bit constant
+	instead of an signed 8-bit constant.  (The top 3 bits of the
+	constant field are ignored.)
+
+0x25	shri des, src1, uconst5		Shift right
+0x26	shrui des, src1, uconst5	Shift right unsigned
+0x27	shli des, src1, uconst5		Shift left
+
+Comparison operations:
+
+	The comparison operations take three general registers.  The
+	des register is set to 0 or 1 depending on whether the given
+	condition holds for the two src registers.
+
+0x30	eq des, src1, src2		Equal
+0x31	gt des, src1, src2		src1 > src2
+0x32	ge des, src1, src2		src1 => src2
+
+Branch operations:
+
+	The first form of the conditional branch operations take two
+	general registers.  If the given condition holds for the src1
+	register, then execution branches to location indicated in the
+	src2 register.
+
+0x40	bez des, src1			Branch if equal to zero.
+0x41	bnz des, src1			Branch if not equal to zero.
+
+	In the second form, execution branches to a location computed
+	by multiplying the signed 16-bit constant by 4 and then adding
+	it to the PC (giving PC-relative branching).
+
+0x42	bezi des, const16		Branch if equal to zero.
+0x43	bnzi des, const16		Branch if not equal to zero.
+
+	For the unconditional branch jral, the des register is
+	assigned the current value of the PC (the address of the
+	*next* instruction), the des2 is assigned the current value of
+	r1, and the PC is set to the value of src1.  The purpose of
+	saving the PC and r1 is to facilitate function linkage.
+
+0x48	jral des1, des2, src1		Jump to register and link.
+
+Load/Store operations:
+
+	The load instructions take two registers and a signed 8-bit
+	constant.  The first register is assigned the value loaded
+	from the address which is the sum of the second register and
+	the constant.
+
+0x50	ld1 des, src1, const8		Load byte
+0x51	ld4 des, src1, const8		Load word
+0x52	ldf des, src1, const8		Load 64-bit floating point
+
+	The store instructions take two registers and a signed 8-bit
+	constant.  The src1 register contains the value to store, and
+	it is stored at the value loaded from the address which is the
+	sum of src2 and the constant.
+
+0x58	st1 src1, src2, const8		Store byte
+0x59	st4 src1, src2, const8		Store word
+0x5A	stf src1, src2, const8		Store 64-bit floating point
+
+Floating point operations:
+
+	Floating point arithmetic take 3 floating point registers. 
+
+0x80	fadd fdes, fsrc1, fsrc2		Floating point add
+0x81	fsub fdes, fsrc1, fsrc2		Floating point subtract
+0x82	fmul fdes, fsrc1, fsrc2		Floating point multiply
+0x83	fdiv fdes, fsrc1, fsrc2		Floating point division
+
+	The floating point comparison instructions take two floating
+	point registers and one integer register.  The integer
+	register is set to 1 if the condition is met, 0 otherwise.
+
+0x84	feq des, fsrc1, fsrc2		equality.
+0x85	fgt des, fsrc1, fsrc2		greater-than.
+0x86	fge des, fsrc1, fsrc2		greater-or-equal.
+
+	The conversion instructions take an integer register and
+	a floating point register.
+
+0x88	flt fdes, src1		Convert from integer to floating point.
+0x89	fix des, fsrc1	Convert from floating point to integer.
+
+0x8E	r2f fdes, src1, src2	Paste together the bits from two integer
+				registers and place them into a floating
+				point register.
+
+0x8F	f2r des1, des2, fsrc1	Split the bits from one floating point
+				register and place them into two integer
+				registers.
+
+MMU operations:
+
+
+0xA0	ltlbi des, src
+
+			Load tlb entry index.  Given a virtual address
+			in the src register, find the index of the
+			corresponding TLB entry and place it in des. 
+			If there is no such entry, a -1 is given.
+
+0xA1	ltlbe src1, des1, des2
+
+			Load tlb entry.  Loads the indicated TLB entry
+			(by index) indicated in the src register into
+			two general-purpose integer registers.
+
+			The result is undefined if des1 and des2 are
+			the same register.
+
+			If the index is greater than or equal to the number
+			of TLB entries, a fault occurs.
+
+0xA2	stlbe des, src1, src2
+
+			Store tlb entry.  Constructs a TLB entry from
+			two integer registers and stores it in the TLB
+			at the index specified by des.
+
+			If the index is greater than or equal to the number
+			of TLB entries, a fault occurs.
+
+0xA3	stlba src1, src2
+
+			Set tlb entry attributes.  Set the specified
+			attribute bits in *all* of the current TLB
+			entries.  Takes two registers:  the first is
+			applied to all the TLB entries for segment 0,
+			and the second is applied to all the TLB
+			entries for segment 1.  For example, stlba can
+			be used to mark all user-segment entries in
+			the TLB as invalid.
+
+0xA4	ctlba src1, src2
+
+			Clear tlb entry attributes.  Clear the
+			specified attribute bits in *all* of the
+			current TLB entries.  Like stlba.
+
+
+Constants:
+
+	The lc operations take a single register and a signed 16-bit
+	constant.  lcl performs sign extension.
+
+0xD0	lcl des, const16		load constant (lower 16 bits)
+0xD1	lch des, const16		load constant (upper 16 bits)
+
+Special instructions:
+
+0xE0	rand des, src1, src2
+
+			Generate a pseudo-random integer in the range
+			from src1 to src2 (inclusive).
+
+0xE1	srand src1, src2, src3
+
+			Seed the random number generator with
+			the 96-bit number formed by concatenating the
+			three src registers.  The initial seed, when
+			the CPU is initialized, is always 0.
+
+0xF0	sys		
+
+			Enter supervisor mode.  Similar to the b
+			instruction, but jumps to location 0x80001000
+			+ the value of 4 times the lower eight bits in
+			the first register.  (This location in memory
+			is meant to be used as a jump table by the
+			OS.)
+
+			(This address makes more sense after you know
+			about the virtual memory architecture.)
+
+0xF1	rsys		Return to user mode.
+
+0xF2	rfe		Return from exception.
+
+0xF3	info des, src1
+
+			Get information about the implementation of
+			the CPU.  The value placed in the des register
+			depends on the value of src1:
+
+			0 - the number of general registers.
+			1 - the number of floating point registers.
+			2 - the number of TLB entries.
+
+			For all other values of src1, 0 is placed in
+			the des register.
+
+0xF8	cio des, src1
+
+			Simple "console" I/O.  The "console" is a
+			simple, synchronous character-based interface
+			that can read or write ASCII characters to a
+			terminal.  (This allows us to write the "hello
+			world" program without writing a device
+			driver...)
+
+			If src1 is 0, then a character is read from
+			the console and placed in des.  Otherwise, the
+			lower 8 bits in the des register are written
+			to the console.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Virtual Memory Architecture.
+
+	The virtual memory architecture allows demand paging,
+	protection, and swapping.
+
+	The top 2 bits of each virtual address determine the segment
+	number (SEG).  Segment 0 is the only segment accessible in
+	user mode, while segments 1-3 are accessible only in
+	supervisor mode.
+
+	ANT-32 supports up to 1 Gbyte of physical address space. 
+	Physical memory begins at address 0, but need not be
+	contiguous.  Memory-mapped devices are typically located at
+	the highest addresses, but the implementor is free to place
+	them wherever necessary.
+
+	Each segment is 1 Gbyte in size, corresponding to the size of
+	physical memory, but corresponds to a different way of
+	interpreting virtual addresses or accessing the memory. 
+	Segments 0 and 1 are mapped through the TLB, and may be
+	cached.  Segments 2 and 3 are not mapped through the TLB-- the
+	physical address for each virtual address in these segments is
+	formed by removing the top two bits from the virtual address. 
+	Segment 2 may be cached, but segment 3 is never cached for
+	either read or write access (and is intended to be used for
+	memory-mapped devices).
+
+	The next 18 bits of each virtual address are the virtual page
+	number (VPN).  The bottom 12 bits are the offset into the page
+	(PO).  Each page is 4096 bytes, and the page size is fixed.
+
+	Virtual addresses are translated into physical addresses via a
+	TLB.  The TLB contains the translation information for some
+	number of pages (at least 16, but possibly more).  TLB misses
+	cause an exception to occur.
+
+	Each TLB entry consists of two 32-bit words.  The top 20 bits
+	of the lower word are the top 20 bits of the virtual address
+	(the segment number and the virtual page number for that
+	address).  The lower 12 bits of the lower word contain the
+	page attributes.  The page attributes include UNREADABLE,
+	UNWRITEABLE, UNEXECUTABLE, and INVALID bits.  The remaining
+	bits are reserved.
+
+	The top 20 bits of the upper word are the top 20 bits of the
+	physical address of the page (if the INVALID bit is not set in
+	the first word).  The lower 12 bits are ignored but can be
+	used by the operating system to hold relevant information
+	about the page.
+	
+	Note that the top bit of the virtual address in the TLB will
+	always be zero, because only segments 0 and 1 are mapped
+	through the TLB, and the top two bits of the physical address
+	will always be zero because physical addresses have only 30
+	bits.
+
+	Translation from virtual to physical addresses is done as
+	follows for any fetch, load, or store:
+
+	1.  The virtual address is split into the SEG, VPN, and PO.
+
+	2.  If the SEG is not 0 and the CPU is in user mode, an
+		exception occurs.
+
+	3.  If the SEG is 2 or 3, then the virtual address is treated
+		as the physical address, and the algorithm terminates.
+
+	4.  The TLB is searched for an entry corresponding to the SEG
+		and VPN.  If no such entry exists, an exception
+		occurs.
+
+	5.  If the TLB entry is marked as invalid, an exception
+		occurs.
+
+	6.  If the operation is not permitted by the page, an
+		exception occurs.
+
+	7.  Otherwise, the physical address is constructed from the
+		top 20 bits of the upper word of the TLB and the lower
+		12 bits of the virtual address.
+
+	8. If the physical address does not exist (detected when the
+		operation is performed) an exception occurs.
+
+	Any of these exceptions can be caught by the operating system,
+	and the offending instruction can be restarted if appropriate.
+
+	The top bit of the virtual address is sent, along with the
+	30-bit physical address, to the memory system when the
+	operation is performed, to specify whether or not the physical
+	memory location is cacheable.  If the implementation does not
+	include a cache, or the cache is disabled, this bit is
+	ignored.
+
+	Note that if there are two or more TLB entries corresponding
+	to the same virtual page, ltlbi may return the index of any of
+	them.  If there is more than one TLB entry for the same
+	virtual page, one of the entries is selected arbitrarily to
+	resolve the virtual address.  It is not defined which entry
+	will be used, or whether every access to the same virtual
+	address will be resolved using the same TLB entry!  (In
+	general, it's a very bad idea to have more than one TLB entry
+	for the same virtual page.)
+
+INITIALIZATION:
+
+	When the ANT-32 processor is initialized, the following
+	steps are taken:
+
+	1.  All of the TLB entries are set to be invalid.  The value
+		of the rest of the bits in each TLB entry is
+		undefined; no assumptions should be made about their
+		initial values.
+
+	2.  All of the general registers are set to zero.
+
+	3.  All of the floating point registers are set to zero.
+
+	4.  The exception registers are cleared.
+
+	5.  The processor mode is set to supervisor mode.
+
+	6.  The program counter is set to 0x80000000 (the first
+		address in the unmapped segment).
+
+	Therefore, when the processor boots, it is in supervisor mode,
+	and it begins executing from physical address 0, using
+	unmapped virtual addresses.
+
+ISSUES:
+
+0.  It is important to note that the ANT-32 architecture has diverged
+	from the ANT-8 architecture in several important ways. 
+	Perhaps it would be more appropriate at this time to split the
+	development of ANT-32 into two separate but complementary
+	architectures:
+
+	i.  A simple extension of ANT-8 to add 32-bit words and 32-bit
+		addresses, but little new functionality.  This
+		architecture could be used for a undergraduate
+		compiler course back-end, hardware design course, or
+		simply for more advanced programming exercises than
+		will fit on an ANT-8 (which would be useful for
+		courses like cs51).  It has the advantage of utter
+		simplicity and close relation to ANT-8.
+
+	ii.  A more general 32-bit architecture, including support for
+		virtual memory, supervisor and user modes, exception
+		handling, and floating point operations.  (The
+		document you are reading describes this architecture.)
+
+1.  The use of the "R1" register as a side-effect or overflow register
+	(which was a signature characteristic of ANT-8) is gone in
+	ANT-32.  This change was made at the recommendation of Mike
+	Smith, who pointed out what a pain in the neck it is for
+	pipelining, super-scalar, instruction reordering, etc.  So,
+	now several of the arithmetic operations have "o" counterparts
+	(addo, subo, etc) that put the "overflow" (or whatever) in a
+	second register, but the ordinary operations do not.
+
+2.  Mike Smith also suggested that immediate arithmetic operations are
+	very useful, so I've added several.  From a functional
+	perspective, they don't add anything, but they bring down the
+	instruction count in many typical operations.  Is this
+	worthwhile, given the goal of simplicity?
+
+3.  Mike also suggested that the conditional branch instructions be
+	simplified by adding comparison instructions, and also adding
+	relative branches (which are a pain for humans but very handy
+	for code generators).

@@ -1,0 +1,381 @@
+<HTML>
+<!-- $Id: ad8.htm,v 1.6 2002/05/20 15:59:14 ellard Exp $ -->
+<HEAD>
+<TITLE> Ant-8 Documentation - ad8</TITLE>
+</HEAD>
+<BODY>
+
+<CENTER>
+<H1> Ant-8 Documentation - ad8 </H1>
+</CENTER>
+
+<H2> Name </H2>
+
+<B>ad8</B> -- The Ant-8 Debugger.
+
+<H2> Synopsis </H2>
+
+<B>ad8</B> [<EM>options</EM>] <EM>filename</EM>
+
+<H2> Description </H2>
+
+<B>ad8</B> executes the given file (which must be an Ant-8 machine
+language program) in a debugging environment.  This is accomplished by
+running the program on a virtual Ant-8 processor that has been
+extended to add single-stepping, breakpoints, and user control of the
+PC.  <P>
+
+The debugger also allows the user to print the contents of registers
+and data memory, and to disassemble the instruction memory. <P>
+
+For a listing of the commands, see the online help.  To access the
+online help, type the command <B>h</B> at the debugger prompt. <P>
+
+
+<H2> Options </H2>
+
+<DL>
+
+<DT> <B>-h</B> <P>
+<DD> Print a usage message and then exit. <P>
+
+<DT> <B>-V</B> <P>
+<DD> Print the program name and version, and then exit. <P>
+
+<DT> <B>-d</B> <P>
+<DD> Just disassemble the instruction memory
+	(after loading the specified file) and then exit. <P>
+
+<DT> <B>-r</B> <P>
+<DD> Instead of allowing the user to debug the program, simply run the
+	program and then exit.
+	(This is functionally identical to running the
+	<KBD>ant</KBD> program on the same program.) <P>
+
+<dt> <b>-g</b> <p>
+<dd> Run in verbose mode.  In this mode, extra information
+	is printed about the state of the machine.  This information
+	is mostly for debugging the debugger, but might be interesting
+	to other users as well. <p>
+
+</DL> <P>
+
+When <B>ad8</B> exits after running or debugging the program, a text
+image of the machine's memory is left in <KBD>ad8.core</KBD>.  (This
+is different than the core image created directly by the Ant-8
+processor, which is named <KBD>ant8.core</KBD>.) <P>
+
+<H2> Using <B>ad8</B> </H2>
+
+<H3> Getting Started With <B>ad8</B> </H3>
+
+The ordinary way of running <B>ad8</B> is to simply invoke
+<B>ad8</B> with a single command-line argument, which is the name of
+the <KBD>.ant</KBD> file you wish to debug:  <P>
+
+<PRE>
+        % ad8 myfile.ant
+</PRE> <P>
+
+In response, <B>ad8</B> will print out the first instruction in the
+program, along with the values in the registers used by that
+instruction, and then prompt for more instructions.  The register
+values are displayed in hexadecimal.  For example, if
+the first instruction in <KBD>myfile.ant</KBD> was <KBD>add r2, r3,
+r4</KBD>, then the screen would look like:  <P>
+
+<PRE>
+        0x00:   add  r2=(0x0), r3=(0x0), r4=(0x0)
+        >> 
+</PRE>
+
+(Since the values of all of the registers are initialized to zero when
+the program is started, the values in the registers before the first
+instruction is executed must be zero.) <P>
+
+
+Whenever <KBD>ad8</KBD> is waiting for the user to type something, it
+will display the next Ant-8 instruction that it will execute (unless
+told to jump to some other part of the program), followed by the
+<B>&gt;&gt;</B> prompt.  <P>
+
+All <B>ad8</B> commands end in a newline; <B>ad8</B> will not
+carry out any commands until you press the return or ``enter'' key.
+Furthermore, only one <B>ad8</B> command can appear on each line. <P>
+
+The most important command to remember is <B>h</B>, which prints the
+<EM>help</EM> screen.  All of the <B>ad8</B> commands are listed on the
+help screen, so if you forget the names or uses of any of them, you
+can always find them there.  <P>
+
+<H3> <KBD>ad8</KBD> Commands </H3>
+
+This section uses the following notation
+to describe the format of the commands: <P>
+
+<UL>
+
+<LI> Anything in <B>bold</B> font must be typed as shown. <P>
+
+<LI> Anything in <EM>italic</EM> font represents a value that is
+	chosen by the user. <P>
+
+<LI> Anything enclosed in square braces ([ ]) is optional and can be
+	omitted.  The square braces themselves are never included in
+	the command.  <P>
+
+<LI> <EM>addr</EM> represents any valid address.  Addresses can be
+	specified numerically (in decimal, hexadecimal, binary, or
+	octal) or as labels.  Labels must start with a <B>$</B>.  <P>
+
+</UL> <P>
+
+For example, the command <B>r</B> [<EM>addr</EM>] has an optional
+argument, named <EM>addr</EM>. <P> 
+
+
+<H4> Basic Commands </H4>
+
+<DL>
+
+<DT> <B>h</B> [<B>'</B><EM>cmd</EM><B>'</B>] - help <P>
+
+<DD> Prints the help screen, or provides help with specific commands. <P>
+
+	By itself, <B>h</B> prints the help screen, which lists all of
+	the commands and gives a brief description of each. <P>
+
+	If a command is specified, then information about that command
+	is displayed.  For example, the following command will print
+	information about the help command: <P>
+	
+	<PRE>
+	h 'h'
+	</PRE> <P>
+	
+	Note that the name of the command <EM>must</EM>
+	be enclosed in single quotes. <P>
+
+<DT> <B>q</B> - quit <P>
+
+<DD> Quits the debugger. <P>
+
+<DT> <B>R</B> - reload program <P>
+
+<DD> Reloads the program, returning data and instruction memory to their
+	initial values and resetting the values of all the registers. <P>
+
+<DT> <B>l</B> [<EM>label</EM> [<B>,</B> <EM>label</EM>...]] - print label <P>
+
+<DD> Prints the numerical value of labels in decimal,
+	hex, octal, binary, and ASCII.  <P>
+
+	If no labels are given, then the values of all of the labels
+	in the program are printed.  <P>
+
+	If one or more labels or values are given, then the values of
+	each of the labels or values are printed.  (At most 8 values
+	can be given in a single command.) <P>
+
+	Note that labels must be given in the same manner as in an
+	Ant-8 assembly language program, prefixed with a <B>$</B>.  For
+	example, to print the numerical value of label <KBD>foo</KBD>,
+	the following command would be used:  <P>
+
+	<PRE>
+	l $foo
+	</PRE> <P>
+
+	This command is also useful for converting numbers from one
+	base to another.  Simply type the value as decimal, octal, hex,
+	binary, ASCII, or as a label, and it will be printed in all the
+	possible formats. <P>
+
+</DL>
+
+<H4> Examining the Ant-8 </H4>
+
+<DL>
+
+<DT> <B>p</B> - print registers <P>
+
+<DD> Prints the contents of all of the registers. <P>
+
+	The contents are displayed in the following format: <P>
+
+<SMALL>
+<PRE>
+r00  r01  r02  r03  r04  r05  r06  r07  r08  r09  r10  r11  r12  r13  r14  r15
+00   00   00   00   00   00   00   00   00   00   00   00   00   00   00   00
+0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+</PRE>
+</SMALL> <P>
+
+	The first line of the output lists the register
+	numbers (in decimal).  The second and third lines show
+	the values in each register:  the second line in
+	hexadecimal notation, and the third line in signed
+	decimal. <P>
+
+	Note that this display is designed to fill an
+	80-column screen.  If your display is less that 80
+	columns wide, this output will be considerably more
+	difficult to read.  <P>
+
+<DT> <B>d</B> [<EM>addr1</EM> [<B>,</B> <EM>addr2</EM>]] - print data memory <P>
+
+<DD> If no addresses are given, the entire contents of data memory are
+	displayed.  If a single address is given, then the data value
+	at that address is printed.  If two addresses are given, then
+	the values stored in locations from <EM>addr1</EM> to
+	<EM>addr2</EM> are printed.  <P>
+
+<DT> <B>i</B> [<EM>addr1</EM> [<B>,</B> <EM>addr2</EM>]] -
+		print instruction memory <P>
+
+<DD> If no addresses are given, the entire program is disassembled and
+	printed.  If a single address is given, then the instruction
+	at that address is printed.  If two addresses are given, then
+	the instructions from <EM>addr1</EM> to <EM>addr2</EM> are
+	printed.  <P>
+
+</DL>
+
+<H4> Running a Program </H4>
+
+<DL>
+
+<DT> <B>r</B> [<EM>addr</EM>] - run program <P>
+
+<DD> Runs the program.  If no <EM>addr</EM> is specified, the program
+	begins with PC = 0.  If an <EM>addr</EM> is specified, the
+	program begins executing at that address.  The contents of the
+	registers and data memory are not reinitialized.  <P>
+
+	The program will run until it executes a <kbd>hlt</kbd>, detects
+	a fault of any kind, or a breakpoint is reached.  <P>
+
+<DT> <B>j</B> <EM>addr</EM> - jump to new address <P>
+
+<DD> Set the PC to the specified address. <P>
+
+	This command is particularly useful, in combination with
+	<B>g</B> and breakpoints, as a way to test a small section of
+	a program, instead of executing the entire program. <P>
+
+<DT> <B>g</B> - go <P>
+
+<DD> Begin or continue execution of the program, from the
+	current value of the PC. <P>
+
+	The program will run until it executes an exit sys, detects a
+	fault of any kind, or a breakpoint is reached. <P>
+
+<DT> <B>n</B> - execute the next instruction <P>
+
+<DD> Execute the next instruction (the instruction to which the PC points)
+	and then stop. <P>
+
+<DT> <B>t</B> [<EM>val</EM>] - trace <P>
+
+<DD> Toggle or set trace mode. <P>
+
+	If no arguments are specified, the trace mode is toggled:
+	if tracing is off, it turned on, or vice versa. <P>
+
+	If an argument is specified, trace mode is turned on if the
+	argument is non-zero, and turned off if it is zero. <P>
+
+	When trace mode is on, <B>ad8</B> prints each instruction and
+	its address before executing it.  This provides a
+	<EM>trace</EM> of the execution.  It is particularly useful
+	for finding bugs like infinite loops.  <P>
+
+</DL>
+
+<H4> Setting and Clearing Breakpoints </H4>
+
+<EM>Breakpoints</EM> provide a way to stop execution at any point in the
+program.  The typical use is to set a breakpoint at the start of an
+interesting part of the program, and then run the program (using the
+<B>r</B> or <B>g</B> command).  The program will execute until the
+instruction at the address of the breakpoint is about to be executed,
+and then stop. <P>
+
+<DL>
+
+<DT> <B>b</B> <EM>addr</EM> [<B>,</B> <EM>addr</EM>...]
+		- set breakpoints <P>
+
+<DD> Set breakpoints at each of the specified addresses.  (At most 8
+	  addresses can be given in a single command.) <P>
+
+<DT> <B>c</B> [<EM>addr</EM> [<B>,</B> <EM>addr</EM>...]]
+		- clear breakpoints <P>
+
+<DD> Clear breakpoints. <P>
+
+	If no addresses are given, then all of the breakpoints that
+	have been set are cleared. <P>
+
+	If one or more addresses are given, then the corresponding
+	breakpoints are cleared.  (At most 8 addresses can be given
+	in a single command.)
+	<P>
+
+</DL>
+
+<H4> Modifying Data Memory </H4>
+
+<DL>
+
+<DT> <B>z</B> [<EM>addr1</EM> [<B>,</B> <EM>addr2</EM>]] - zero memory <P>
+
+<DD> Set the contents of memory to zero. <P>
+
+	If no addresses are given, then the entire data memory is
+	filled with zero values.  If one address is specified, then a
+	zero value is stored to that address.  If two addresses are
+	specified, the addresses from <EM>addr1</EM> to <EM>addr2</EM>
+	are filled with zero.  <P>
+
+<DT> <B>s</B> <EM>addr</EM><B>,</B> <EM>value</EM> - store value to memory <P>
+
+<DD> Store the specified value to the given address. <P>
+
+	If the address is specified as a register, then the value is
+	stored in that register, as if an <KBD>lc</KBD> instruction
+	had been executed.  Otherwise, the value is stored to data
+	memory, as if an <KBD>st1</KBD> instruction had been executed. <P>
+
+	For example, to set the value of register <KBD>r4</KBD> to 17,
+	the following command could be used: <P>
+
+	<PRE>
+	s r4, 17
+	</PRE>
+
+	To set the value of address 10 in data memory to 22, the following
+	command could be used: <P>
+
+	<PRE>
+	s 10, 22
+	</PRE>
+
+</DL>
+
+<H2> Bugs </H2>
+
+If the user types control-C when the Ant-8 program is running, and the
+Ant-8 program is in a syscall waiting for input, the attempt to read
+will immediately fail.  Therefore, if the user resumes running the
+program, the program will continue as if the read had failed-- the
+attempt to get the integer or character will not be resumed when the
+execution of the program is resumed. <P>
+
+<hr>
+Copyright 2001-2002 by the President and Fellows of Harvard College.
+
+</BODY>
+</HTML>
+

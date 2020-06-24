@@ -1,0 +1,18 @@
+% $Id: divi.tex,v 1.8 2001/06/21 15:17:52 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{divi}
+\renewcommand{\INSTdesc}	{Divide Immediate}
+\renewcommand{\INSTopcode}	{0x93}
+\renewcommand{\INSToptype}	{TwoReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{const8}
+
+\renewcommand{\INSTsemantic}	{
+	\Reg{des} $\leftarrow$ \Reg{src1} / {\em const8}
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Division-by-zero
+	}

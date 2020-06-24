@@ -1,0 +1,23 @@
+% $Id: gts.tex,v 1.8 2001/06/21 15:17:59 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{gts}
+\renewcommand{\INSTdesc}	{Greater Than (Signed)}
+\renewcommand{\INSTopcode}	{0xC1}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{src2}
+\renewcommand{\INSTsemantic}	{
+
+	\begin{tabular}{lll}
+
+	\Reg{des} $\leftarrow$ & 1 & if \Reg{src1} $>$ \Reg{src2} \\
+
+	\Reg{des} $\leftarrow$ & 0 & otherwise. \\
+
+	\end{tabular}
+
+}
+
+
+\renewcommand{\INSTexceptions}	{}

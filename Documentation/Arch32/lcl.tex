@@ -1,0 +1,30 @@
+% $Id: lcl.tex,v 1.8 2001/06/21 15:18:16 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{lcl}
+\renewcommand{\INSTdesc}	{Load Constant Low}
+\renewcommand{\INSTopcode}	{0xF0}
+\renewcommand{\INSToptype}	{OneReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{const16}
+
+\renewcommand{\INSTsemantic}	{
+	\begin{tabular}{lll}
+
+	\Reg{des}[31..16]	& $\leftarrow$ & {\em const16}[15] \\
+	\Reg{des}[0..15]	& $\leftarrow$ & {\em const16} \\
+
+	\end{tabular}
+
+}
+
+\renewcommand{\INSTprose}	{
+
+	Load {\em const16} into the lower 16 bits of the destination
+	register, and perform sign extension by duplicating the sign
+	bit of {\em const16} in each of the upper 16 bits of the
+	destination register.
+
+}
+
+
+\renewcommand{\INSTexceptions}	{}

@@ -1,0 +1,16 @@
+% $Id: addi.tex,v 1.7 2001/06/21 15:17:40 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{addi}
+\renewcommand{\INSTdesc}	{Add Immediate}
+\renewcommand{\INSTopcode}	{0x90}
+\renewcommand{\INSToptype}	{TwoReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{const8}
+
+\renewcommand{\INSTsemantic}	{
+	\Reg{des} $\leftarrow$ \Reg{src1} + {\em const8}
+}
+
+
+\renewcommand{\INSTexceptions}	{}

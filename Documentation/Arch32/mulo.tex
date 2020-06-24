@@ -1,0 +1,31 @@
+% $Id: mulo.tex,v 1.10 2001/07/18 01:58:56 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{mulo}
+\renewcommand{\INSTdesc}	{Multiply with Overflow}
+\renewcommand{\INSTopcode}	{0xA2}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{src2}
+
+\renewcommand{\INSTsemantic}	{
+	\begin{tabular}{lll}
+	\Reg{des} & $\leftarrow$ & (\Reg{src1} $\times$ \Reg{src2})[31..0] \\
+	\Reg{des + 1} & $\leftarrow$ & (\Reg{src1} $\times$ \Reg{src2})[63..32] \\
+	\end{tabular}
+}
+
+\renewcommand{\INSTprose}	{
+
+	64-bit multiplication:
+	\Reg{des} gets the low-order 32 bits of the result while \Reg{des + 1}
+	gets the high-order 32 bits of the result.
+
+	If {\em des} is not even, an illegal instruction exception
+	occurs.
+}
+
+\renewcommand{\INSTexceptions}	{
+		Illegal instruction
+	}
+

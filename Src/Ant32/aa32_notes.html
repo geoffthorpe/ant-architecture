@@ -1,0 +1,140 @@
+<html>
+<!-- # $Id: aa32_notes.html,v 1.9 2002/05/16 14:08:45 ellard Exp $ -->
+<head>
+<title>
+Using aa32
+</title>
+</head>
+<body>
+
+<h1>
+How To Assemble Ant-32 Programs Using <kbd> aa32 </kbd>
+</h1>
+
+<ul>
+<li> <a href="#options"> Command Line Options </a>
+<li> <a href="#examples"> Examples </a>
+</ul>
+
+<hr>
+
+<h2>
+<a name="options"> Command Line Options </a>
+</h2>
+
+<dl>
+
+<dt> <font size="+1"><b>-a <em>address</em></b></font> <p>
+
+<dd> Set the base address to the specified <em>address</em>.  The base
+	address is the memory location of the first instruction in
+	the program. <p>
+
+	The default base address is <kbd>0x80000000</kbd>, which is
+	the virtual address corresponding to the start of physical
+	memory in the unmapped segment.  <p>
+
+<dt> <font size="+1"><b>-B <em>address</em></b></font> <p>
+	
+<dd> Set the boot address to the given <em>address</em>.  The default
+	boot address, if -B is not used, is the base address.  If -l
+	is specified, then this option has no effect.  <p>
+
+<dt> <font size="+1"><b>-l</b></font> <p>
+
+<dd> If -l is specified, the assembler does not add a specification of
+	the boot address to the image.  The resulting image is usable
+	as a library, or can be loaded into an executing process, but
+	cannot be used to boot the machine. <p>
+	
+	By default, the boot address is included as a special
+	directive to the loader to force the hardware to begin
+	execution at a particular address.  (see -B for more
+	information) <p>
+
+<dt> <font size="+1"><b>-o <em>a32-file</em></b></font> <p>
+
+<dd> Write the output to a file named <em>a32-file</em> instead of the
+	default (which is the same name as the input file, with a
+	<kbd>.a32</kbd> suffix).  <p>
+
+<dt> <font size="+1"><b>-r <em>a32-file</em></b></font> <p>
+	
+<dd> Merge the specified <em>a32-file</em> file (which must be a
+	<kbd>.a32</kbd> file created by <b>aa32</b>) with the image
+	created by assembling the given file.  This option is usually
+	used to add a "boot ROM" to the image.  <p>
+
+	Note that -r and -l flag can interact; if the image loaded
+	with the -r flag contains a boot jump, that that boot jump
+	will be included (and override the default boot jump) in the
+	final image whether or not the -l flag is also specified. 
+	There is no convenient to override a boot jump address once it
+	has been compiled into a library.  <p>
+
+<dt> <font size="+1"><b>-h</b></font> <p>
+
+<dd> Print a terse help message, and then exit. <p>
+
+<dt> <font size="+1"><b>-V</b></font> <p>
+
+<dd> Print the version of the <kbd>aa32</kbd>, and then exit. <p>
+
+</dl>
+
+<hr>
+
+<h2>
+<a name="examples">Examples</a>
+</h2>
+
+To assemble an ordinary program: <p>
+
+<pre>
+aa32 -r /usr/local/ant32/lib/ant32rom.a32 <em>PROGRAM</em>.asm
+</pre> <p>
+
+In this example, <kbd>ant32rom.a32</kbd> is the standard boot-ROM used
+to initialize the system, which is supplied as part of the Ant-32
+distribution.  (The path to where this file is located on your system
+depends upon the details of your installation.) <p>
+
+See the section below about how to assemble a boot ROM for directions
+on how to create an appropriate .a32 file.  <p>
+
+To assemble a stand-alone bootable program, no flags are needed:
+<p>
+
+<pre>
+	aa32 <em>PROGRAM</em>.asm
+</pre> <p>
+
+If the image is intended to be loaded into a piece of memory that
+starts somewhere other than 0x80000000, then the -a flag (and possibly
+the -B flag) should be used.  Note that although any address can be
+specified with the -a and -B options, it only makes sense to specify a
+virtual address in an unmapped segment and which translates to a valid
+piece of physical memory.  <p>
+
+The default Ant-32 machine has four contiguous megabytes of RAM,
+starting at physical address 0 (virtual address 0x80000000), and 16
+kilobytes of ROM at the highest addresses in physical memory (virtual
+address 0xbfffc000, or physical 0x3fffc000).  <p>
+
+Creating a boot ROM is a special case of creating a stand-alone
+bootable program.  The only difference is using the -a flag to specify
+that the program should assemble into the ROM.  For example:  <p>
+
+<pre>
+	aa32 -a 0xbfffc000 <em>ROM</em>.asm
+</pre>
+
+This will create an image named <em>ROM</em> that begins at virtual
+memory address 0xbfffc000, and is also initialized to begin execution
+at this address.  <p>
+
+<hr>
+Copyright 2001-2002 by the President and Fellows of Harvard College.
+
+</body>
+</html>

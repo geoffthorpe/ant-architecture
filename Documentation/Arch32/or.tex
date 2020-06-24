@@ -1,0 +1,16 @@
+% $Id: or.tex,v 1.7 2001/06/21 15:18:26 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{or}
+\renewcommand{\INSTdesc}	{Bitwise {\sc or}}
+\renewcommand{\INSTopcode}	{0x85}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{src2}
+
+\renewcommand{\INSTsemantic}	{
+	\Reg{des} $\leftarrow$ \Reg{src1} {\sc or} \Reg{src2}
+}
+
+
+\renewcommand{\INSTexceptions}	{}

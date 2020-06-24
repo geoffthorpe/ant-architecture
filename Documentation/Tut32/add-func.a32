@@ -1,0 +1,37 @@
+#@ Instructions 28
+#@ Data 112
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf03c0064  ::  	push	100
++           ::  0x91020204  ::  
++           ::  0xe63c0200  ::  
++           ::  0xf03c00c8  ::  	push	200
++           ::  0x91020204  ::  
++           ::  0xe63c0200  ::  
++           ::  0xf03c002c  ::  	call	$addFunction
++           ::  0xf13c8000  ::  
++           ::  0xd101003c  ::  
++           ::  0x90020208  ::  	addi	sp, sp, 8
++           ::  0x4f000000  ::  	halt
++           ::  0x91020208  ::  	entry	0		#  No extra space needed.
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xe2040308  ::  	ld4	g0, fp, 8
++           ::  0xe205030c  ::  	ld4	g1, fp, 12
++           ::  0x80040405  ::  	add	g0, g0, g1
++           ::  0x90040400  ::  	return	g0
++           ::  0x90020300  ::  
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# $addFunction              = -2147483604 (0x8000002c)
+# end of file

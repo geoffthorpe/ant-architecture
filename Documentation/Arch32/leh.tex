@@ -1,0 +1,28 @@
+% $Id: leh.tex,v 1.5 2002/04/16 15:33:58 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{leh}
+\renewcommand{\INSTdesc}	{Load Exception Handler}
+\renewcommand{\INSTopcode}	{0x44}
+\renewcommand{\INSToptype}      {ThreeReg}
+\renewcommand{\INSTfieldA}	{\INSTunusedField}
+\renewcommand{\INSTfieldB}	{src}
+\renewcommand{\INSTfieldC}	{\INSTunusedField}
+
+\renewcommand{\INSTsemantic}	{
+	Exception Handler Address $\leftarrow$ \Reg{src}
+
+}
+\renewcommand{\INSTprose}       {
+	The contents of \Reg{src} are loaded as the address of the
+	exception handling routine.
+
+	If the value loaded into the exception register is not properly
+	aligned (i.e., the two low order bits are 0), behavior upon
+	an exception is undefined.
+}
+
+
+
+\renewcommand{\INSTexceptions}	{
+	Privileged instruction
+	}

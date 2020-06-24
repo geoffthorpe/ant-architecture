@@ -1,0 +1,16 @@
+% $Id: mul.tex,v 1.8 2001/06/21 15:18:21 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{mul}
+\renewcommand{\INSTdesc}	{Multiplication}
+\renewcommand{\INSTopcode}	{0x82}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{src2}
+
+\renewcommand{\INSTsemantic}	{
+	\Reg{des} $\leftarrow$ \Reg{src1} $\times$ \Reg{src2}
+}
+
+
+\renewcommand{\INSTexceptions}	{}

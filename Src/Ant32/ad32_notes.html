@@ -1,0 +1,296 @@
+<html>
+<!-- # $Id: ad32_notes.html,v 1.6 2002/05/06 23:28:24 ellard Exp $ -->
+<head>
+<title>
+Using aa32
+</title>
+</head>
+<body>
+
+<h1>
+Using <kdb> ad32 </kbd>
+</h1>
+
+<ul>
+<li> <a href="#options"> Command Line Options </a>
+<li> <a href="#commands"> Debugger Commands </a>
+</ul>
+
+<hr>
+
+<h2>
+<a name="options"> Command Line Options </a>
+</h2>
+
+Usage:
+
+<pre>
+	ad32 <em>[options]</em> <em>ant-file</em>
+</pre>
+
+<em>ant-file</em> must be a file created by <kbd>aa32</kbd>
+(or equivalent tool).  The possible <em>options</em> are
+listed below. <p>
+
+<dl>
+
+
+<dt> <font size="+1"><b>-d</b></font> <p>
+
+<dd> Dump core (a complete copy of the machine state) to
+	<kbd>ad32.core</kbd> at exit. <p>
+
+<dt> <font size="+1"><b>-g</b></font> <p>
+
+<dd> Run the debugger in verbose mode. <p>
+
+	The extra verbosity is implementation dependent, and is mostly
+	used to debug the debugger.  It is not generally useful for
+	ordinary purposes, and can change significantly between
+	releases.  <p>
+
+<dt> <font size="+1"><b>-h</b></font> <p>
+
+<dd> Print a terse message describing the command line flags, and then
+	exit.  <p>
+
+<dt> <font size="+1"><b>-m <em>size</em></b></font> <p>
+
+<dd> Use the given RAM size instead of the default (1024 4K pages, or
+	4 megabytes).  Note that <em>size</em> is specified in pages,
+	not bytes.  <p>
+
+	<B>Note:</B> Using a system with a reduced memory size can be
+	a great aid for debugging small programs-- stray pointers are
+	easier to detect.  Unfortunately, some images (such as the
+	default boot ROM image) make assumptions about the amount of
+	RAM available, and may not work correctly with other sizes
+	unless modified appropriately.  <p>
+
+<dt> <font size="+1"><b>-M <em>size</em></b></font> <p>
+
+<dd> Use the given ROM size instead of the default (4 4K pages, or 16
+	kilobytes).  Note that <em>size</em> is specified in pages,
+	not bytes.  <p>
+
+	In the standard implementation of the Ant-32 architecture, the
+	ROM pages are located at the highest addresses in the address
+	space.  The last page of the address space must contain a ROM
+	page, which is used to hold the boot vector address.  <p>
+
+<dt> <font size="+1"><b>-r <em>number</em></b></font> <p>
+
+<dd> Use the given <em>number</em> of general registers, instead of
+	the default (64).  The valid ranges are 64-240.  <p>
+
+	<b>Note:</b> The current version of <kbd>ad32</kbd> does not
+	properly display or allow access to registers higher than 64,
+	and the ordinary register conventions do not include names for
+	these registers.  (Your program will run, but you'll have a
+	hard time seeing what's happening in those registers.) <p>
+
+<dt> <font size="+1"><b>-R</b></font> <p>
+
+<dd> Run the program and exit.  In this mode, <kbd>ad32</kbd> behaves
+	in the same manner as <kbd>ant32</kbd>. <p>
+
+<dt> <font size="+1"><b>-t <em>number</em></b></font> <p>
+
+<dd> Use the given <em>number</em> of TLB entries, instead of the
+	default (32).  The valid ranges are 32-1024, and must always
+	be a power of 2.  <p>
+
+<dt> <font size="+1"><b>-V</b></font> <p>
+
+<dd> Print the version of <kbd>ad32</kbd>, and then exit. <p>
+
+</dl>
+
+<hr>
+<h2>
+<a name="commands">Debugger Commands</a>
+</h2>
+
+For the commands that take arguments, the following conventions
+apply: <p>
+
+<ul>
+
+<li> Values and numbers are any 32-bit constants, including labels.
+
+<li> An address can be the value contained in a register, or
+	any 32-bit constant.
+	
+<li> In addition, any value can be modified by adding or subtracting a
+	numeric constant:  <p>
+
+	<pre>
+	pw	$foo		# prints the word at address $foo
+	pw	$foo+4		# prints the word at address $foo + 4
+	pw	g0		# prints the word at the address
+				# contained in g0.
+	pw	g0+4		# prints the word at the address
+				# 4 past the address contained in g0.
+	lc	g0, $foo+4	# load the address of $foo + 4 into g0.
+	</pre> <p>
+</ul>
+
+<dl>
+
+<dt> <font size="+1"><kbd>h</kbd></font> <p>
+
+<dd> Print a help screen. <p>
+
+<dt> <font size="+1"><kbd>q</kbd></font> <p>
+
+<dd> Quit. <p>
+
+<dt> <font size="+1"><kbd>r <em>[addr]</em></kbd></font> <p>
+
+<dd> Run the program. <p>
+
+	If an <em>addr</em> is specified, then execution begins
+	at that address.  By default, execution begins at the
+	location specified during assembly. <p>
+
+<dt> <font size="+1"><kbd>g</kbd></font> <p>
+
+<dd> Begin or resume running the program. <p>
+
+<dt> <font size="+1"><kbd>n</kbd></font> <p>
+
+<dd> Execute the next instruction and then stop. <p>
+
+<dt> <font size="+1"><kbd>rl</kbd></font> <p>
+
+<dd> Reload the program and reinitialize the CPU state. <p>
+
+	Note that memory not explicitly initialized by the
+	program may or may not be changed during a reload. <p>
+
+<dt> <font size="+1"><kbd>j <em>addr</em></kbd></font> <p>
+
+<dd> Jump to the given address.  <p>
+
+<dt> <font size="+1"><kbd>t <em>[val]</em></kbd></font> <p>
+
+<dd> If <em>val</em> is omitted, toggle trace mode on/off. 
+	Otherwise, if <em>val</em> is non-zero, turn tracing on, and
+	if <em>val</em> is zero turn tracing off.  <p>
+
+<dt> <font size="+1"><kbd>b <em>addr [, addr...]</em></kbd></font> <p>
+
+<dd> Set breakpoints at the given addresses.  When the program
+	tries to execute an instruction where a breakpoint has
+	been set, execution will stop and control returned to
+	the debugger. <p>
+
+<dt> <font size="+1"><kbd>c <em>[addr [, addr...]]</em></kbd></font> <p>
+
+<dd> With no arguments, <kbd>c</kbd> clears all breakpoints.  Otherwise,
+	the breakpoints at the given addresses are cleared. <p>
+
+<dt> <font size="+1"><kbd>p <em>[reg [, reg...]]</em></kbd></font> <p>
+
+<dd> With no arguments, prints the contents of all of the general
+	registers.  If specific registers are given, only those
+	registers are printed. <p>
+
+<dt> <font size="+1"><kbd>lc <em>reg</em>, <em>const</em></kbd></font> <p>
+
+<dd> Load the given <em>const</em> into the specified register. <p>
+
+<dt> <font size="+1"><kbd>l <em>[addr [, addr...]]</em></kbd></font> <p>
+
+<dd> List labels. <p>
+
+	With no arguments, all the program labels are listed. 
+	Otherwise, only information about the specified labels or
+	addresses is listed.  <p>
+
+<dt> <font size="+1"><kbd>la <em>[addr [, addr...]]</em></kbd></font> <p>
+
+<dd> List all labels. <p>
+
+	With no arguments, all the labels in the images are listed
+	(<b>including all the labels in the ROM</b>).  If labels or
+	addresses are listed, then the behavior is exactly the same as
+	the <KBD>l</KBD> command.  <p>
+
+<dt> <font size="+1"><kbd>pw <em>addr [, count]</em></kbd></font> <p>
+
+<dd> Prints <em>count</em> words from memory, starting at <em>addr</em>.
+	If the <em>count</em> is omitted, one word is printed. <p>
+
+	If <em>addr</em> is not word-aligned, this command will fail. <p>
+
+<dt> <font size="+1"><kbd>pb <em>addr [, count]</em></kbd></font> <p>
+
+<dd> Prints <em>count</em> bytes from memory, starting at <em>addr</em>.
+	If the <em>count</em> is omitted, one byte is printed. <p>
+
+<dt> <font size="+1"><kbd>pi <em>addr [, count]</em></kbd></font> <p>
+
+<dd> Disassembles and prints <em>count</em> words from memory,
+	starting at <em>addr</em>.  If the <em>count</em> is omitted,
+	instruction byte is printed.  <p>
+
+	If <em>addr</em> is not word-aligned, this command will fail. <p>
+
+<dt> <font size="+1"><kbd>st4 <em>value</em>, <em>address</em></kbd></font> <p>
+
+<dd> Analogous to the <kbd>st4</kbd> instruction; stores the given 4-byte
+	<em>value</em> to the specified <em>address</em>. <p>
+
+<dt> <font size="+1"><kbd>st1 <em>value</em>, <em>address</em></kbd></font> <p>
+
+<dd> Analogous to the <kbd>st1</kbd> instruction; stores the given 1-byte
+	<em>value</em> to the specified <em>address</em>. <p>
+
+<dt> <font size="+1"><kbd>pc</kbd></font> <p>
+
+<dd> Prints the contents of the cycle counters maintained by the CPU. <p>
+
+<dt> <font size="+1"><kbd>v <em>addr</em></kbd></font> <p>
+
+<dd> Prints the physical address corresponding to the given virtual
+	address, if it exists and the program has sufficient
+	privilege to access that location in memory.  If the mapping
+	is not valid, the exception that the translation attempt caused
+	is given.  <p>
+
+<dt> <font size="+1"><kbd>S</kbd></font> <p>
+
+<dd> Prints the CPU state, including the kernel registers, exception
+	registers, and interrupt and exception enable/disable flags. <p>
+
+<dt> <font size="+1"><kbd>T</kbd></font> <p>
+
+<dd> Prints the current TLB contents. <p>
+
+<dt> <font size="+1"><kbd>rn <em>mode</em></kbd></font> <p>
+
+<dd> Use the given <em>mode</em> for naming the registers.  The
+	default is 'g', for the general mode.  The other valid choices
+	are 'r' (for the raw register names) and 'c' (for the
+	caller/callee register naming conventions).  <p>
+
+<dt> <font size="+1"><kbd>im</kbd></font> <p>
+
+<dd> Toggle the instruction display mode.  <p>
+
+	By default, the debugger shows the instructions in the same
+	format that they appeared in the source file (the surface
+	code).  Some of these instructions might be implemented by a
+	sequence of one or more native instructions.
+	Toggling the instruction display mode switches back and forth
+	between showing what appeared in the source file and the native
+	instructions. <p>
+
+</dl>
+
+<hr>
+Copyright 2001-2002 by the President and Fellows of Harvard College.
+
+</body>
+</html>

@@ -1,0 +1,434 @@
+<HTML>
+<HEAD>
+<TITLE>C Control Statements in ANT</TITLE>
+</HEAD>
+<BODY>
+
+<H1>C Control Statements in ANT</H1>
+
+This document discusses how several of the basic C control flow
+statements can be translated into ANT.  These are by no means the
+best translations- for specific algorithms, there might be <EM>much</EM>
+better ways to do the same things.  However, these translations are
+fairly generic and are a good place to start.  <P>
+
+<UL>
+<LI> <A HREF="#rules">Rules of the Game</A>
+<LI> <A HREF="#if">If-Else</A>
+<LI> <A HREF="#while">While Loops</A>
+<LI> <A HREF="#do-while">Do-While Loops</A>
+<LI> <A HREF="#for">For Loops</A>
+<LI> <A HREF="#switch">Switch Statements</A>
+<LI> <A HREF="#logic">Short Circuit Evaluation of Logical Expressions</A>
+</UL>
+
+<HR>
+<H2> <A name="rules"> Rules of the Game </A> </H2>
+
+For the sake of argument, I'll assume that the following conditions
+are always true: <P>
+
+<OL>
+
+<LI> The evaluation of a <EM>condition</EM> always ends with the
+	result in register <KBD>r2</KBD>.  <P>
+
+	Of course, when you're actually programming in ANT, you may or
+	may not decide to adopt a convention like this, or you may
+	choose another convention entirely.  However, if I assume that
+	this condition is always met, then I can make other
+	simplifying assumptions.  Replace <KBD>r2</KBD> with the
+	appropriate register in your own code.  <P>
+
+<LI> I can use register <KBD>r3</KBD> for whatever purpose I want.  In
+	this case, I'm usually going to use it to hold constants
+	corresponding to the labels I want to branch to.  Again,
+	replace <KBD>r3</KBD> with the appropriate register in your
+	own code.  <P>
+
+<LI> The programmer has a endless supply of "matching" and uniquely
+	named labels that he or she can use.  For example, the if-else
+	construct described here requires two new labels, denoted
+	<EM>if_else_label</EM> and <EM>if_end_label</EM>.  The
+	programmer can always pick suitable names for these labels,
+	and plug them in as necessary.  This makes it possible to have
+	any number of if-else statements in your program, without
+	getting confused as to which <EM>if_else_label</EM> is related
+	to a particular <EM>if_end_else</EM> label.  <P>
+
+</OL> <P>
+
+<HR>
+<H2><A NAME="if">if-else</A></H2>
+
+The if-else statement is the most fundamental control flow
+statement. <P>
+
+<H3>if</H3>
+
+First, consider the <KBD>if</KBD> statement without an <KBD>else</KBD>.<P>
+
+The following C code: <P>
+
+<PRE>
+	if ( <EM>condition</EM> ) {
+		<EM>statements</EM>
+	}
+</PRE> <P>
+
+corresponds to the following ANT code: <P>
+
+<PRE>
+		# ANT code for the <EM>condition</EM> expression,
+		# leaving the result in register r2.
+
+		lc	r3, $<EM>if_end_label</EM>
+		beq	r3, r2, r0
+
+		# ANT code for the <EM>statements</EM>.
+
+	<EM>if_end_label</EM>:
+</PRE> <P>
+
+<H3>if-else</H3>
+
+Now we'll generalize the <KBD>if</KBD> statement to include
+an <KBD>else</KBD>: <P>
+
+The following C code: <P>
+
+<PRE>
+	if ( <EM>condition</EM> ) {
+		<EM>if-statements</EM>
+	}
+	else {
+		<EM>else-statements</EM>
+	}
+</PRE> <P>
+
+corresponds to the following ANT code: <P>
+
+<PRE>
+		# ANT code for the <EM>condition</EM> expression,
+		# leaving the result in r2.
+
+		lc	r3, $<EM>if_else_label</EM>
+		beq	r3, r2, r0
+
+		# ANT code for the <EM>if-statements</EM>.
+
+		jmp	r0, $<EM>if_end_label</EM>
+
+	<EM>if_else_label</EM>:
+
+		# ANT code for the <EM>else-statements</EM>.
+
+	<EM>if_end_label</EM>:
+</PRE> <P>
+
+<HR>
+<H2> <A name="while"> while </A> </H2>
+
+The following C code: <P>
+
+<PRE>
+	while ( <EM>condition</EM> ) {
+		<EM>statements</EM>
+	}
+</PRE>
+
+corresponds to the following ANT code: <P>
+
+<PRE>
+	<EM>while_start_label</EM>:
+	
+		# ANT code for the <EM>condition</EM> expr, leaving
+		# the result in r2.
+
+		lc	r3, $<EM>while_end_label</EM>
+		beq	r3, r2, r0
+
+		# ANT code for the <EM>statements</EM>.
+
+		jmp	r0, $<EM>which_start_label</EM>
+
+	<EM>while_end_label</EM>:
+</PRE>
+
+A C <KBD>break</KBD> statement in a <KBD>while</KBD> loop corresponds
+to the following ANT instruction: <P>
+
+<PRE>
+		jmp	r0, $<EM>while_end_label</EM>
+</PRE> <P>
+
+A C <KBD>continue</KBD> statement in a <KBD>while</KBD> loop
+corresponds to the following ANT instruction: <P>
+
+<PRE>
+		jmp	r0, $<EM>while_start_label</EM>
+</PRE> <P>
+
+<HR>
+<H2> <A name="do-while"> do-while </A> </H2>
+
+The following C code: <P>
+
+<PRE>
+	do {
+		<EM>statements</EM>
+	} while ( <EM>condition</EM> );
+</PRE> <P>
+
+corresponds to the following ANT code: <P>
+
+<PRE>
+	<EM>do_start_label</EM>:
+	
+		# ANT code for the <EM>statements</EM>.
+
+	<EM>do_cond_label</EM>:
+
+		# ANT code for the <EM>condition</EM> expr, leaving
+		# the result in r2.
+
+		lc	r3, $<EM>do_end_label</EM>
+		beq	r3, r2, r0
+
+		jmp	r0, $<EM>do_start_label</EM>
+
+	<EM>do_end_label</EM>:
+</PRE> <P>
+
+A C <KBD>break</KBD> statement in a <KBD>do-while</KBD> loop
+corresponds to the following ANT instruction: <P>
+
+<PRE>
+		jmp	r0, $<EM>do_end_label</EM>
+</PRE> <P>
+
+A C <KBD>continue</KBD> statement in a <KBD>do-while</KBD> loop
+corresponds to the following ANT instruction: <P>
+
+<PRE>
+		jmp	r0, $<EM>do_cond_label</EM>
+</PRE> <P>
+
+<HR>
+<H2> <A name="for"> for </A> </H2>
+
+The following C code: <P>
+
+<PRE>
+	for ( <EM>init</EM> ; <EM>condition</EM> ; <EM>incr</EM> ) {
+		<EM>statements</EM>
+	}
+</PRE> <P>
+
+corresponds to the following ANT code: <P>
+
+<PRE>
+
+		# ANT code for the <EM>init</EM> expression.
+
+	<EM>for_start_label</EM>:
+
+		# ANT code for the <EM>condition</EM> expr, leaving
+		# the result in r2.
+
+		lc	r3, $<EM>for_end_label</EM>
+		beq	r3, r2, r0
+
+		# ANT code for the <EM>statements</EM>.
+
+		# ANT code for the <EM>incr</EM> expression.
+
+		jmp	r0, $<EM>for_start_label</EM>
+
+	<EM>for_end_label</EM>:
+</PRE> <P>
+
+A C <KBD>break</KBD> statement in a <KBD>for</KBD> loop corresponds to
+the following ANT instruction: <P>
+
+<PRE>
+		jmp	r0, $<EM>for_end_label</EM>
+</PRE> <P>
+
+
+A C <KBD>continue</KBD> statement in a <KBD>for</KBD> loop corresponds
+to the following ANT instruction: <P>
+
+<PRE>
+		jmp	r0, $<EM>for_start_label</EM>
+</PRE> <P>
+
+
+<HR>
+<H2> <A name="switch"> switch statements </A> </H2>
+
+The following C code: <P>
+
+<PRE>
+	switch ( <EM>expr</EM> ) {
+		case <EM>const1</EM>:
+			<EM>statement1</EM>
+		case <EM>const2</EM>:
+			<EM>statement2</EM>
+
+		<B>...</B>
+
+		case <EM>constN</EM>:
+			<EM>statementN</EM>
+
+		/* The next two lines are optional: */
+		default:
+			<EM>default-statement</EM>
+
+	}
+</PRE> <P>
+
+corresponds to the following ANT code: <P>
+
+<PRE>
+
+		# ANT code to compute <EM>expr</EM>.
+		# Assume that this leaves the value in r2.
+		# Assume that we have register r4 to play with.
+
+		lc	r4, <EM>const1</EM>
+		lc	r3, $<EM>switch_label_1</EM>
+		beq	r3, r2, r4
+
+		lc	r4, <EM>const2</EM>
+		lc	r3, $<EM>switch_label_2</EM>
+		beq	r3, r2, r4
+
+		<B>...</B>
+
+		lc	r4, <EM>constN</EM>
+		lc	r3, $<EM>switch_label_N</EM>
+		beq	r3, r2, r4
+
+		# If there is a default, then add the following:
+		jmp	r0, $<EM>switch_default</EM>
+
+		# Otherwise, add the following line instead:
+		jmp	r0, $<EM>switch_end_label</EM>
+
+	<EM>switch_label_1</EM>:
+		# ANT code to compute <EM>statement1</EM>.
+
+	<EM>switch_label_2</EM>:
+		# ANT code to compute <EM>statement2</EM>.
+
+		...
+
+	<EM>switch_label_N</EM>:
+		# ANT code to compute <EM>statementN</EM>.
+
+
+		# If there's a default:
+	<EM>switch_default:</EM>
+		# ANT code to compute <EM>default-statement</EM>.
+
+	<EM>switch_end_label</EM>:
+
+</PRE> <P>
+
+A C <KBD>break</KBD> statement in a <KBD>switch</KBD> corresponds to
+the following ANT instruction: <P>
+
+<PRE>
+		jmp	r0, $<EM>switch_end_label</EM>
+</PRE> <P>
+
+Note that if we follow the method of implementing a <KBD>switch</KBD>
+described above, evaluation will "fall through" cases, exactly as it
+does in C, unless <KBD>break</KBD> statements are added.  <P>
+
+<HR>
+<H2> <A name="logic"> Short-Circuit Evaluation of Logical Expressions
+</A> </H2>
+
+<H3>Short-circuit &amp;&amp;</H3>
+
+The following C code: <P>
+
+<PRE>
+	<EM>cond1</EM> &amp;&amp; <EM>cond2</EM>
+</PRE>
+</PRE> <P>
+
+corresponds to the following ANT code: <P>
+
+<PRE>
+
+		# ANT code to compute <EM>cond1</EM>.
+		# Assume that this leaves the value in r2.
+
+		# If r2 is zero, we're finished (and the
+		#	result is FALSE).
+
+		lc	r3, $<EM>and_end</EM>
+		beq	r3, r2, r0
+
+		# ANT code to compute <EM>cond2</EM>.
+		# Assume that this leaves the value in r2.
+
+	<EM>and_end</EM>:
+</PRE> <P>
+
+This code (as suggested by Aurelio Teleman) takes advantage of the
+fact that the value residing in <KBD>r2</KBD> (after the last of
+whichever of <EM>cond1</EM> or <EM>cond2</EM> is evaluated) is the
+truth value of the expression as a whole.  Therefore, if we want the
+truth value to reside in <KBD>r2</KBD>, then we're already finished. 
+Otherwise, we can use an <KBD>add</KBD> instruction to copy the
+contents of <KBD>r2</KBD> to the appropriate register.  <P>
+
+<H3>Short-circuit ||</H3>
+
+The following C code: <P>
+
+<PRE>
+	<EM>cond1</EM> || <EM>cond2</EM>
+</PRE>
+</PRE> <P>
+
+corresponds to the following ANT code: <P>
+
+<PRE>
+
+		# ANT code to compute <EM>cond1</EM>.
+		# Assume that this leaves the value in r2.
+
+		# If r2 is zero, we're we're not finished (and need to
+		# do cond2).
+
+		lc	r3, $<EM>or_cond2</EM>
+		beq	r3, r2, r0
+
+		# Otherwise, we are finished and we can jump right to
+		# the end of the or.
+
+		jmp	r0, $<EM>or_end</EM>
+
+	<EM>or_cond2</EM>:
+
+		# ANT code to compute <EM>cond2</EM>.
+		# Assume that this leaves the value in $r2.
+
+	<EM>or_end</EM>:
+</PRE> <P>
+
+Once again, this code can take advantage of the fact that the value
+residing in <KBD>r2</KBD> (after the last of whichever of
+<EM>cond1</EM> or <EM>cond2</EM> is evaluated) is the truth value of
+the expression as a whole.  Therefore, if we want the truth value to
+reside in <KBD>r2</KBD>, then we're already finished.  Otherwise, we
+can use an <KBD>add</KBD> instruction to copy the contents of
+<KBD>r2</KBD> to the appropriate register. <P>
+
+</BODY>
+</HTML>

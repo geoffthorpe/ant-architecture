@@ -1,0 +1,31 @@
+% $Id: ant32-cycle.tex,v 1.2 2002/01/02 02:13:48 ellard Exp $
+
+\chapter{Ant-32 Cycle Counters}
+\label{CycleCounters}
+
+The Ant-32 architecture includes eight cycle counter registers
+that may be read and written from either user or supervisor mode.
+These registers are summarized in figure \ref{cycle-counter-fig}.
+
+\begin{figure}[ht]
+\begin{center}
+\caption{\label{cycle-counter-fig} Cycle Counter Registers}
+
+\begin{tabular}{|l|l|}
+\hline
+{\em Register}	& {\em Description} \\
+\hline
+\hline
+240	& CPU cycle counter (both user and supervisor mode) \\
+241	& CPU cycle counter for supervisor mode only \\
+242	& TLB misses \\
+243	& {\em Reserved} \\
+244	& IRQs \\
+245	& Total exceptions \\
+246	& Number of memory read cycles (not including instruction fetch) \\
+247	& Number of memory write cycles\\
+\hline
+\end{tabular}
+\end{center}
+\end{figure}
+

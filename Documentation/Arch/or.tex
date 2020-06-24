@@ -1,0 +1,20 @@
+% $Id: or.tex,v 1.2 2002/04/16 01:02:41 ellard Exp $
+
+\ThreeRegisterOp{or}{Bitwise {\sc or}}{\OPCODE}{des}{src1}{src2}
+
+\index{or@{\tt or}!for Ant-8}
+
+Bitwise logical {\sc or}.
+
+\begin{enumerate}
+
+\item {\em temp} $\leftarrow$ \Reg{src1} \verb$|$ \Reg{src2}
+		(the bitwise {\sc or} of \Reg{src1} and \Reg{src2}).
+
+\item \Reg{des} $\leftarrow$ {\em temp};
+
+\item \Reg{1}   $\leftarrow$ $\sim$ {\em temp}
+		(the bitwise negation of {\em temp}).
+
+\end{enumerate}
+

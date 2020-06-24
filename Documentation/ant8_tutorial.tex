@@ -1,0 +1,78 @@
+% 07/09/99
+% $Id: ant8_tutorial.tex,v 1.13 2002/04/17 20:05:59 ellard Exp $
+
+\documentclass[11pt,makeidx,psfig]{book}
+\usepackage{ifthen}
+\usepackage{makeidx}
+
+% \input{macros}
+\input{dan}
+\input{ant-macros}
+
+\newtheorem{alghead}{Algorithm}[chapter]
+\newtheorem{codehead}{Program}[chapter]
+
+\makeindex
+
+\setlength{\textheight}{8.0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\evensidemargin}{0.0in}
+\raggedbottom
+
+% Define some variables that control which version of Ant-8 is being
+% documented...
+
+\title{\Huge\bf {\sc Ant-8} \input{../CurrVersion} \\ Assembly Language Tutorial }
+
+\begin{document}
+
+\frontmatter
+\maketitle
+
+{\bf Copyright 1996-2002 by the President and Fellows of Harvard College. }
+
+\tableofcontents
+
+\chapter{Preface}
+
+This document is a brief tutorial for {\sc Ant-8} assembly language
+programming, and a description of the {\sc Ant-8} architecture.
+
+{\sc Ant-8} is a small and simple {\sc RISC} architecture that was
+created as a teaching tool for students in introductory computer
+programming and computer architecture courses.  It is simple enough so
+that the entire architecture can be learned and understood in a few
+hours by a novice programmer and small enough so that the entire state
+of the machine can be displayed on a single 24-by-80 text screen.  The
+{\sc Ant-8} architecture is also realistic enough, however, to give
+students a real understanding of computer architecture and how their
+programs are executed.
+
+The first chapter gives a tutorial for {\sc Ant-8} assembly language
+programming.  After reading this chapter, students should be able to
+write simple {\sc Ant-8} assembly language programs.
+
+The second chapter gives an overview specification of the {\sc Ant-8}
+architecture.  After reading this chapter, students should be
+able to create their own implementation of the {\sc Ant-8} (as a
+software simulation, or as hardware).  More advanced students should
+also be able to write {\sc Ant-8} debugging tools or even their own
+assembler for {\sc Ant-8} assembly language after reading this chapter.
+
+\mainmatter
+
+\input{tutorial}
+
+% \chapter{Functions}
+% \input{func}
+
+\input{tutex}
+
+\input{ant-chap}
+
+\backmatter
+
+\printindex
+
+\end{document}

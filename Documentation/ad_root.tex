@@ -1,0 +1,41 @@
+% 07/09/99
+% $Id: ad_root.tex,v 1.11 2002/04/17 20:05:58 ellard Exp $
+
+\documentclass[makeidx,11pt]{article}
+\usepackage{ifthen}
+\usepackage{makeidx}
+
+% \input{macros}
+\input{dan}
+\input{ant-macros}
+
+\makeindex
+
+\setlength{\textheight}{8.0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\evensidemargin}{0.0in}
+\raggedbottom
+
+% Define some variables that control which version of ANT is being
+% documented...
+
+\title{\Huge\bf {\sc Ant-8} \input{../CurrVersion} \\ Debugger Reference } 
+
+\begin{document}
+
+\maketitle
+\begin{center}
+{\bf Copyright 1999-2002 by the President and Fellows of Harvard College. }
+\end{center}
+\vspace{5mm}
+
+{{\tt ad8} is the interactive, command-line debugger for the {\sc Ant-8}
+\input{../CurrVersion} virtual machine.  This document describes the
+features and command set of {\tt ad8}.
+
+\input{ad}
+
+% \printindex
+
+\end{document}

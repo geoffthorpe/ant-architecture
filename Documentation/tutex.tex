@@ -1,0 +1,58 @@
+% $Id: tutex.tex,v 1.7 2002/04/16 01:02:38 ellard Exp $
+
+\section{Exercises}
+
+\begin{enumerate}
+
+\item The {\tt add2.asm} program can produce confusing output-- if the
+	sum of the two numbers is greater than 127 or less than -128,
+	the incorrect sum will be printed.
+	
+	\begin{enumerate}
+	
+	\item Starting with a copy of {\tt add2.asm}, write a program
+		named {\tt add3.asm} that prints a warning message
+		if this occurs.
+
+	\item Extend {\tt add3.asm} so that it always prints the
+		correct sum, even if the sum is larger than 127 or
+		less than -128.
+		
+		Hint-- the sum will be no larger than 254 and no
+		smaller than -256, and there are only three main
+		situations to worry about-- the correct sum is between
+		-128 and 127 (in which case nothing special is
+		necessary), between 128 and 254, or between -129 and
+		-256. 
+
+	\end{enumerate}
+
+\item Write an {\sc Ant-8} program named {\tt box.asm} that asks the
+	user for a height and a width, makes sure that both are larger
+	than zero but less than twenty, and then draws a solid box of
+	asterisks with the given height and width.
+
+\item Write an {\sc Ant-8} program named {\tt box2.asm} that asks the
+	user for a height and a width, makes sure that both are larger
+	than zero but less than twenty, and then draws a hollow box of
+	asterisks with the given height and width.
+
+\item Write an {\sc Ant-8} program named {\tt decimal1.asm} that takes
+	as input a single hexadecimal number in the range {\tt 00} - {\tt
+	7F} and prints it in decimal notation.
+	
+	Note that the range of {\tt 00} through {\tt 7F} in hex is
+	equal to the range from 0 to 127 in decimal-- you only need to
+	deal with positive numbers.
+
+\item Write an {\sc Ant-8} program named {\tt decimal2.asm} that takes
+	as input a single hexadecimal number in the range {\tt 80} -
+	{\tt 7F} and prints it in decimal notation.  Recall that {\tt
+	80} in hex is -128 in decimal, and {\tt FF} in hex is -1 in
+	decimal.
+
+\item Write an {\sc Ant-8} program named {\tt sort.asm} that reads 20
+	numbers from the user, sorts them, and then prints them in
+	ascending order.
+
+\end{enumerate}

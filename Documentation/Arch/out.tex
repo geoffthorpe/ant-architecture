@@ -1,0 +1,29 @@
+% $Id: out.tex,v 1.5 2002/10/09 23:53:08 ellard Exp $
+
+\TwoRegisterOp{out}{Output}{\OPCODE}{\em unused}{reg}{uconst4}
+
+\index{out@{\tt out} for Ant-8}
+
+The {\tt out} instruction is used to perform output
+of a single character to a peripheral device. {\tt r1} is
+set to zero.
+
+The 4 bits of the {\em uconst4} determine the ``peripheral'' to which
+the byte is written.  The standard Ant-8 implementation has three
+peripherals:
+
+\begin{description}
+
+\item[{\tt 0000}] Hexadecimal --
+	the value is treated as a two-digit hexadecimal number.
+
+\item[{\tt 0001}] Binary --
+	the value is treated as a eight-digit binary number.
+
+\item[{\tt 0010}] {\sc ASCII} --
+	the value is interpreted as an {\sc ASCII} character code.
+
+\end{description}
+
+
+

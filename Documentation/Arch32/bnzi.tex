@@ -1,0 +1,18 @@
+% $Id: bnzi.tex,v 1.10 2001/07/18 01:58:40 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{bnzi}
+\renewcommand{\INSTdesc}	{Branch Immediate if Not Zero}
+\renewcommand{\INSTopcode}	{0xD6}
+\renewcommand{\INSToptype}	{OneReg}
+\renewcommand{\INSTfieldA}	{src1}
+\renewcommand{\INSTfieldB}	{const16}
+
+\renewcommand{\INSTsemantic}	{
+
+	If the value of \Reg{src1} is non-zero, branch to the address
+	formed by adding the address of the current instruction and 4
+	$\times$ {\em const16}. 
+
+}
+
+\renewcommand{\INSTexceptions}	{}

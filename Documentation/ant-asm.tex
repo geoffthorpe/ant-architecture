@@ -1,0 +1,105 @@
+% $Id: ant-asm.tex,v 1.5 2002/04/16 01:02:37 ellard Exp $
+
+\section{The Ant-8 Assembler Reference}
+
+\subsection{Comments}
+
+A comment begins with a \verb$#$ and continues until the following
+end-of-line.  The only exception to this is when the \verb$#$ character
+appears as part of an ASCII character constant (as described in
+section \ref{data-const-sec}).
+
+\subsection{The {\tt \_data\_} Label}
+
+A special label, {\tt \_data\_}, is used to mark the boundary between
+the instructions of the program (which must appear before the {\tt
+\_data\_} label) and the data of the program (which appear afterward).
+
+\subsection{Constants}
+\label{data-const-sec}
+
+Several Ant-8 assembly instructions contain 8-bit or 4-bit constants.
+
+The 8-bit constants can be specified in a variety of ways:
+as decimal, octal, hexadecimal, or binary numbers, {\sc ASCII} codes (using
+the same conventions as C), or labels.  Examples are shown in the
+following table:
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+Representation	& Value	& Decimal Value \\
+\hline
+{\em Decimal (base 10)}		&	{\tt 65}	&	65 \\
+{\em Hexadecimal (base 16)}	&	{\tt 0x41}	&	65 \\
+{\em Octal (base 8)}		&	{\tt 0101}	&	65 \\
+{\em Binary (base 2)}		&	{\tt 0b01000001}&	65 \\
+{\em {\sc ASCII}}		&	{\tt 'A'}	&	65 \\
+\hline
+{\em Decimal (base 10)}		&	{\tt 10}	&	10 \\
+{\em Hexadecimal (base 16)}	&	{\tt 0xa}	&	10 \\
+{\em Octal (base 8)}		&	{\tt 012}	&	10 \\
+{\em Binary (base 2)}		&	{\tt 0b1010}	&	10 \\
+{\em {\sc ASCII}}		&	{\tt '\verb$\$n'}	&	10 \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{3mm}
+
+The value of a label is the index of the subsequent instruction in
+instruction memory for labels that appear in the code, or the index of
+the subsequent {\tt .byte} item for labels that appear in the data.
+
+The 4-bit constants must be specified as unsigned numbers (using
+decimal, octal, hexadecimal, or binary notation).  ASCII constants or
+labels cannot be used as 4-bit constants, even if their value can be
+represented in 4 bits.
+
+\subsection{Symbolic Constants}
+\label{data-symconst-sec}
+
+Constants can be given symbolic names via the {\tt .define} directive. 
+This can result in substantially more readable code.  The first
+operand of the {\tt .define} directive is the symbolic name for the
+constant, and the second value is an integer constant.  The integer
+constant must not be a label or another symbolic constant, however.
+
+\vspace{3mm}
+{\codesize
+\begin{verbatim}
+        .define ROWS, 10        # Defining ROWS to be 10
+        .define COLS, 10        # Defining COLS to be 10
+
+        lc      r2, ROWS        # Using ROWS as a constant
+        inc     r3, COLS        # Using COLS as a constant
+\end{verbatim}}
+\vspace{3mm}
+
+\subsection{The {\tt .byte} Directive}
+\label{data-directive-sec}
+\label{byte-figure}
+
+The {\tt .byte} directive is used to specify data values to be
+assembled into the next available locations in memory.
+
+\vspace{3mm}
+\noindent
+\begin{tabular}{|ll|p{4.0in}|}
+\hline
+{\bf Name}      & {\bf Parameters}      & {\bf Description}     \\
+\hline
+{\tt .byte}     & {\em byte1, $\cdots$, byteN }   &
+		Assemble the given bytes (8-bit integers) into the
+		next available locations in the data segment.  As many
+		as 8 bytes can be specified on the same line.  Bytes
+		may be specified as hexadecimal, octal, binary, decimal
+		or character constants (as described in
+		\ref{data-const-sec}).
+
+		No more than 8 bytes can be defined with the same
+		{\tt .byte} statement.
+                \\
+\hline
+\end{tabular}
+\vspace{3mm}
+

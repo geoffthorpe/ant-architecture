@@ -1,0 +1,106 @@
+% 07/09/99
+% $Id: ant32_tutorial.tex,v 1.7 2002/04/17 20:05:59 ellard Exp $
+
+\documentclass[11pt,makeidx,psfig]{book}
+\usepackage{ifthen}
+\usepackage{makeidx}
+\usepackage{alltt}
+
+% \input{macros}
+\input{dan}
+\input{ant-macros}
+\input{ant-spec}
+\input{ant32-ver}
+
+\newtheorem{alghead}{Algorithm}[chapter]
+\newtheorem{codehead}{Program}[chapter]
+
+\makeindex
+
+\setlength{\textheight}{8.0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\evensidemargin}{0.0in}
+\raggedbottom
+
+\title{\Huge\bf Ant-32 \\ Assembly Language Tutorial \\
+		(for version \input{../CurrVersion}) }
+
+\author{Daniel J. Ellard, Penelope A. Ellard}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+
+{\bf Copyright 2001-2002 by the President and Fellows of Harvard College. }
+
+\tableofcontents
+
+\chapter{Preface}
+
+This document contains a brief tutorial for Ant-32 assembly
+language programming, the assembly language utilities, and a
+description of the general Ant-32 instruction set architecture. 
+A complete specification of the Ant-32 architecture, including the
+exception handling mechanisms, the MMU, and related issues, is given
+in the {\em The Ant-32 Architecture (version \antVersion)},
+which is provided as part of the Ant distribution and is also
+available from the Ant web site ({\tt www.ant.harvard.edu}).
+
+The Ant-32 architecture is a 32-bit RISC architecture designed
+specifically for pedagogical purposes.  It is intended to be useful to
+teaching a broad variety of topics, including machine architecture,
+assembly language programming, compiler code generation, operating
+systems, and VLSI circuit design and implementation.
+
+\section{Outline}
+
+\begin{itemize}
+
+\item Chapter \ref{ant-asm-tut-intro} gives a tutorial for
+	Ant-32 assembly language programming.  After reading this
+	chapter, the reader should be able to write simple
+	Ant-32 assembly language programs.
+
+\item Chapter \ref{advanced-programming-chap} gives a tutorial for
+	implementing function calls and related techniques in
+	Ant-32 assembly language.
+
+\item Chapter \ref{ant32-inst} gives a summary of the Ant-32
+	instruction set.
+
+\item Appendix \ref{rom-chapter} describes the default machine
+	configuration, including the basic boot sequence and utility
+	functions provided in the ROM.
+
+\item Appendix \ref{ant32-asm-chapter} documents the assembler
+	directives provided by the {\tt aa32} assembler.
+
+\end{itemize}
+
+\mainmatter
+
+\input{tut32}
+
+\chapter{Advanced Ant-32 Programming}
+\label{advanced-programming-chap}
+\input{reg32}
+
+\input{t32-inst}
+
+\appendix
+
+\chapter{The Default Machine and ROM Routines}
+\label{rom-chapter}
+\input{rom32}
+
+\chapter{Ant-32 Assembler Reference}
+\label{ant32-asm-chapter}
+\input{ant32-asm}
+
+\backmatter
+
+\printindex
+
+\end{document}

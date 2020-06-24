@@ -1,0 +1,59 @@
+% $Id: ant32-init.tex,v 1.3 2002/04/16 15:19:09 ellard Exp $
+
+\chapter{Initialization}
+
+When the Ant-32 processor is initialized or reset, the following steps
+are taken:
+
+\begin{enumerate}
+
+	\item The processor mode is set to supervisor mode.
+
+	\item The exception-disable flag is set.
+
+	\item The interrupt-disable flag is set.
+
+	\item All of the TLB entries are set to be invalid, by setting
+		each entry's valid bit to zero.  The value of the rest
+		of the bits in each TLB entry is undefined; no
+		assumptions should be made about their initial values.
+
+	\item All of the general registers are set to zero.
+
+	\item The cycle counter registers ({\tt r240} - {\tt r248})
+		are set to zero.
+
+	\item The supervisor-only registers ({\tt r247} - {\tt r251})
+		are set to zero.
+
+	\item The timer is set to zero and disabled.  Any pending
+		timer interrupts are discarded.
+
+	\item Any pending console I/O is discarded.
+
+	\item Execution begins at the address stored in virtual
+		address {\tt 0xfffffffc} (the address of the last word
+		in the unmapped segment).  This corresponds to
+		physical address {\tt 0x3ffffffc}.
+
+		If memory location {\tt 0xfffffffc} cannot be
+		accessed, then the behavior of the processor is
+		undefined.
+
+\end{enumerate}
+
+Therefore, when the processor boots, it is in supervisor mode, and it
+begins executing from the address that has been loaded into physical
+address {\tt 0x3ffffffc}, using unmapped virtual addresses.
+
+The value of the exception handler address is undefined after a reset. 
+The {\em leh} instruction should be used to load an exception handler
+address before the exception-disable flag is cleared.
+
+The contents of the exception register are undefined after a reset.
+
+It is assumed that the firmware located at in the top page of physical
+memory will install its own exception handler during bootstrap in
+order to be able to handle device interrupts while initializing and
+loading an operating system.
+

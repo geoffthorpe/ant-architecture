@@ -1,0 +1,10 @@
+#@ Instructions 2
+#@ Data 8
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0x11050000  ::      info r5, 0
++           ::  0x4f000000  ::      halt
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# end of file

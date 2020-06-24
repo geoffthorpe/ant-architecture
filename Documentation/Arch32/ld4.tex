@@ -1,0 +1,25 @@
+% $Id: ld4.tex,v 1.8 2001/06/21 15:18:17 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{ld4}
+\renewcommand{\INSTdesc}	{Load Word}
+\renewcommand{\INSTopcode}	{0xE2}
+\renewcommand{\INSToptype}	{TwoReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{const8}
+
+\renewcommand{\INSTsemantic}	{
+	\Reg{des} $\leftarrow$ \Mem{\Reg{src1} + {\em const8}}
+
+}
+
+\renewcommand{\INSTprose}	{
+
+	Load 32-bit word.
+
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Bus error, Alignment error
+	}

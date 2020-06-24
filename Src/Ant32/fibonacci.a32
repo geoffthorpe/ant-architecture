@@ -1,0 +1,656 @@
+#@ Instructions 59
+#@ Data 236
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0050014  ::  	lc	g1, 20
++           ::  0x91020204  ::  	push	g1
++           ::  0xe6050200  ::  
++           ::  0xf03c0024  ::  	call	$fibonacci
++           ::  0xf13c8000  ::  
++           ::  0xd101003c  ::  
++           ::  0xe2050200  ::  	pop	g1
++           ::  0x90020204  ::  
++           ::  0x4f000000  ::  	halt
++           ::  0x91020208  ::  	entry	0
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xe2050308  ::  	ld4	g1, fp, 8	# g1 gets a copy of the current X
++           ::  0xf03c00d0  ::  	jezi	g1, $fibonacci_basecase
++           ::  0xf13c8000  ::  
++           ::  0xd100053c  ::  
++           ::  0x91050501  ::  	subi	g1, g1, 1	# decrement g1 (computing X-1)
++           ::  0xf03c00d0  ::  	jezi	g1, $fibonacci_basecase
++           ::  0xf13c8000  ::  
++           ::  0xd100053c  ::  
++           ::  0x91020204  ::  	push	g1		# push argument (X-1)
++           ::  0xe6050200  ::  
++           ::  0xf03c0024  ::  	call	$fibonacci	# recursively call fibonacci
++           ::  0xf13c8000  ::  
++           ::  0xd101003c  ::  
++           ::  0xe2050200  ::  	pop	g1		# pop argument (X-1)
++           ::  0x90020204  ::  
++           ::  0x80060400  ::  	mov	g2, g0		# save value of fibonacci(x-1) in g2
++           ::  0x91050501  ::  	subi	g1, g1, 1	# g1 = X-2
++           ::  0x91020204  ::  	push	g2		# preserve g2
++           ::  0xe6060200  ::  
++           ::  0x91020204  ::  	push	g1		# push argument (X-2)
++           ::  0xe6050200  ::  
++           ::  0xf03c0024  ::  	call	$fibonacci
++           ::  0xf13c8000  ::  
++           ::  0xd101003c  ::  
++           ::  0xe2050200  ::  	pop	g1		# pop (X-2)
++           ::  0x90020204  ::  
++           ::  0xe2060200  ::  	pop	g2		# restore g2
++           ::  0x90020204  ::  
++           ::  0x80040406  ::  	add	g0, g0, g2	# compute fibonacci(x-2) + fibonacci(x-1)
++           ::  0x90040400  ::  	return	g0		# return the sum...
++           ::  0x90020300  ::  
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0xf0040001  ::  	return	1
++           ::  0x90020300  ::  
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
+# end of data
+# $fibonacci_basecase       = -2147483440 (0x800000d0)
+# $fibonacci_recurse        = -2147483552 (0x80000060)
+# $fibonacci                = -2147483612 (0x80000024)
+# $main_des                 = -2147483616 (0x80000020)
+# $main                     = -2147483648 (0x80000000)
+# $antSysRom_probe_loop     = -1073758176 (0xbfffc020)
+# $antSysRom_end_probe      = -1073758136 (0xbfffc048)
+# $antSysRomEH              = -1073758044 (0xbfffc0a4)
+# $antSysRomEHloop          = -1073758004 (0xbfffc0cc)
+# $antSysRomEHendLoop       = -1073757976 (0xbfffc0e8)
+# $antSysSbrkInit           = -1073757964 (0xbfffc0f4)
+# $antSysSbrk               = -1073757896 (0xbfffc138)
+# $antSysSbrk_aligned       = -1073757820 (0xbfffc184)
+# $antSysPrintString        = -1073757784 (0xbfffc1a8)
+# $antSysPrintString_loop   = -1073757752 (0xbfffc1c8)
+# $antSysPrintString_done   = -1073757716 (0xbfffc1ec)
+# $antSysPrintSDecimal      = -1073757692 (0xbfffc204)
+# $antSysPrintSD_nonzero    = -1073757616 (0xbfffc250)
+# $antSysPrintSD_loop       = -1073757580 (0xbfffc274)
+# $antSysPrintSD_pos        = -1073757552 (0xbfffc290)
+# $antSysPrintSD_out        = -1073757524 (0xbfffc2ac)
+# $antSysPrintSD_next       = -1073757516 (0xbfffc2b4)
+# $antSysPrintSD_done       = -1073757500 (0xbfffc2c4)
+# $antSysPrintUDecimal      = -1073757476 (0xbfffc2dc)
+# $antSysPrintUD_nonzero    = -1073757400 (0xbfffc328)
+# $antSysPrintUD_loop       = -1073757320 (0xbfffc378)
+# $antSysPrintUD_pos        = -1073757292 (0xbfffc394)
+# $antSysPrintUD_out        = -1073757264 (0xbfffc3b0)
+# $antSysPrintUD_next       = -1073757256 (0xbfffc3b8)
+# $antSysPrintUD_done       = -1073757240 (0xbfffc3c8)
+# $antSysPrintHex           = -1073757216 (0xbfffc3e0)
+# $antSysPrintHex_loop      = -1073757172 (0xbfffc40c)
+# $antSysPrintHex_done      = -1073757128 (0xbfffc438)
+# $antSysReadLine           = -1073757104 (0xbfffc450)
+# $antSysReadLine_loop      = -1073757056 (0xbfffc480)
+# $antSysReadLine_done      = -1073756992 (0xbfffc4c0)
+# $antSysReadDecimal        = -1073756960 (0xbfffc4e0)
+# $antSysReadDec_loop       = -1073756908 (0xbfffc514)
+# $antSysReadDec_range_check = -1073756860 (0xbfffc544)
+# $antSysReadDec_done       = -1073756800 (0xbfffc580)
+# $antSysReadDec_return     = -1073756784 (0xbfffc590)
+# $antSysReadHex            = -1073756756 (0xbfffc5ac)
+# $antSysReadHex_loop       = -1073756692 (0xbfffc5ec)
+# $antSysReadHex_AF_check   = -1073756640 (0xbfffc620)
+# $antSysReadHex_check      = -1073756592 (0xbfffc650)
+# $antSysReadHex_computation = -1073756556 (0xbfffc674)
+# $antSysReadHex_done       = -1073756532 (0xbfffc68c)
+# $antSysRomEHVecText       = -1073756504 (0xbfffc6a8)
+# $antSysRomEH_IRQ          = -1073756420 (0xbfffc6fc)
+# $antSysRomEH_Bus          = -1073756416 (0xbfffc700)
+# $antSysRomEH_Ill          = -1073756406 (0xbfffc70a)
+# $antSysRomEH_Priv         = -1073756386 (0xbfffc71e)
+# $antSysRomEH_Trap         = -1073756362 (0xbfffc736)
+# $antSysRomEH_Zero         = -1073756347 (0xbfffc745)
+# $antSysRomEH_Align        = -1073756330 (0xbfffc756)
+# $antSysRomEH_Seg          = -1073756306 (0xbfffc76e)
+# $antSysRomEH_Reg          = -1073756280 (0xbfffc788)
+# $antSysRomEH_TLB_Miss     = -1073756254 (0xbfffc7a2)
+# $antSysRomEH_TLB_Prot     = -1073756245 (0xbfffc7ab)
+# $antSysRomEH_TLB_Multi    = -1073756230 (0xbfffc7ba)
+# $antSysRomEH_TLB_Invalid  = -1073756211 (0xbfffc7cd)
+# $antSysRomEH_Timer        = -1073756193 (0xbfffc7df)
+# $antSysRomEH_Unknown      = -1073756179 (0xbfffc7ed)
+# $antSysSbrkWord           = -1073756161 (0xbfffc7ff)
+# $antSysPrintHexDigitsStr  = -1073756157 (0xbfffc803)
+# end of file
+#@ Instructions 426
+#@ Data 2067
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0xbfffc000  ::  0xf03cc048  ::  	leh	$antSysRom_end_probe
++           ::  0xf13cbfff  ::  
++           ::  0x44003c00  ::  
++           ::  0x4b000000  ::  	cle				# enable exceptions (because we
++           ::  0xf0060000  ::  	lc	g2, 0xC0000000		# max address of physical RAM + 1.
++           ::  0xf106c000  ::  
++           ::  0xf0040000  ::  	lc	g0, 0x80000000		# base of physical RAM
++           ::  0xf1048000  ::  
++           ::  0xc3050406  ::  	ges	g1, g0, g2
++           ::  0xf03cc048  ::  	jnzi	g1, $antSysRom_end_probe
++           ::  0xf13cbfff  ::  
++           ::  0xd300053c  ::  
++           ::  0xe2000400  ::  	ld4	ze, g0, 0
++           ::  0xf03c1000  ::  	addi	g0, g0, 0x1000		# increment g0 by page size.
++           ::  0x8004043c  ::  
++           ::  0xf03cc020  ::  	j	$antSysRom_probe_loop
++           ::  0xf13cbfff  ::  
++           ::  0xd100003c  ::  
++           ::  0x80020400  ::  	mov	sp, g0
++           ::  0x80030400  ::  	mov	fp, g0
++           ::  0xf03cc0a4  ::  	leh	$antSysRomEH
++           ::  0xf13cbfff  ::  
++           ::  0x44003c00  ::  
++           ::  0x4b000000  ::  	cle
++           ::  0xf0050000  ::  	lc	g1, 0
++           ::  0xf0060000  ::  	lc	g2, 0
++           ::  0xf0f20000  ::  	lc	c2, 0
++           ::  0xf0f30000  ::  	lc	c3, 0
++           ::  0xf0f40000  ::  	lc	c4, 0
++           ::  0xf0f50000  ::  	lc	c5, 0
++           ::  0xf0f60000  ::  	lc	c6, 0
++           ::  0xf0f70000  ::  	lc	c7, 0
++           ::  0xf0f00000  ::  	lc	c0, 0
++           ::  0xf0f10000  ::  	lc	c1, 0
++           ::  0x91020204  ::  	push	g0
++           ::  0xe6040200  ::  
++           ::  0xf0040000  ::  	lc	g0, 0			# Reset g0
++           ::  0xf03c0000  ::  	call	0x80000000
++           ::  0xf13c8000  ::  
++           ::  0xd101003c  ::  
++           ::  0x4f000000  ::  	halt
++           ::  0xf0f8000f  ::  	lc	k0, 0xf
++           ::  0x88f8f8ff  ::  	and	k0, k0, e3	# k0 gets bits 2-0 of e0
++           ::  0x9df9ff04  ::  	shrui	k1, e3, 4	# k1 gets exception number (from e0);
++           ::  0x92f9f904  ::  	muli	k1, k1, 4
++           ::  0xf03cc6a8  ::  	addi	k1, k1, $antSysRomEHVecText
++           ::  0xf13cbfff  ::  
++           ::  0x80f9f93c  ::  
++           ::  0xe2f9f900  ::  	ld4	k1, k1, 0
++           ::  0xf0fbc0e8  ::  	lc	k3, $antSysRomEHendLoop
++           ::  0xf1fbbfff  ::  
++           ::  0xe0faf900  ::  	ld1	k2, k1, 0
++           ::  0xd100fafb  ::  	jez	ze, k2, k3
++           ::  0x2500fa00  ::  	cout	k2
++           ::  0x90f9f901  ::  	addi	k1, k1, 1
++           ::  0xf03cc0cc  ::  	j	$antSysRomEHloop
++           ::  0xf13cbfff  ::  
++           ::  0xd100003c  ::  
++           ::  0xf0fa000a  ::  	lc	k2, '\n'
++           ::  0x2500fa00  ::  	cout	k2
++           ::  0x4f000000  ::  	halt
++           ::  0x91020208  ::  	entry	0
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xe2050308  ::  	ld4	g1, fp, 8
++           ::  0xf006c7ff  ::  	lc	g2, $antSysSbrkWord
++           ::  0xf106bfff  ::  
++           ::  0xe6050600  ::  	st4	g1, g2, 0
++           ::  0x90020300  ::  	return
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0x91020208  ::  	entry	0
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xe2050308  ::  	ld4	g1, fp, 8
++           ::  0xf006c7ff  ::  	lc	g2, $antSysSbrkWord
++           ::  0xf106bfff  ::  
++           ::  0xe2070600  ::  	ld4	g3, g2, 0
++           ::  0x80040700  ::  	mov	g0, g3
++           ::  0x94080504  ::  	modi	g4, g1, 4
++           ::  0xf03cc184  ::  	jezi	g4, $antSysSbrk_aligned
++           ::  0xf13cbfff  ::  
++           ::  0xd100083c  ::  
++           ::  0x9d050502  ::  	shrui	g1, g1, 2
++           ::  0x9e050502  ::  	shli	g1, g1, 2
++           ::  0x90050504  ::  	addi	g1, g1, 4
++           ::  0x80070705  ::  	add	g3, g3, g1
++           ::  0xe6070600  ::  	st4	g3, g2, 0
++           ::  0x90040400  ::  	return	g0
++           ::  0x90020300  ::  
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0x91020208  ::  	entry	0
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xe2050308  ::  	ld4	g1, fp, 8	# read the argument from the stack
++           ::  0xe0060500  ::          ld1	g2, g1, 0	# Get the first character from the string
++           ::  0xf03cc1ec  ::          jezi	g2, $antSysPrintString_done
++           ::  0xf13cbfff  ::  
++           ::  0xd100063c  ::  
++           ::  0x25000600  ::          cout	g2		# Otherwise, print the character.
++           ::  0x90050501  ::          addi	g1, g1, 1	# Increment g3 to point to the next char
++           ::  0xf03cc1c8  ::          j	$antSysPrintString_loop
++           ::  0xf13cbfff  ::  
++           ::  0xd100003c  ::  
++           ::  0x90020300  ::  	return
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0x91020208  ::  	entry	0
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xe2070308  ::  	ld4	g3, fp, 8	# read the argument from the stack
++           ::  0xf03cc250  ::  	jnzi	g3, $antSysPrintSD_nonzero
++           ::  0xf13cbfff  ::  
++           ::  0xd300073c  ::  
++           ::  0xf0050030  ::  	lc	g1, '0'
++           ::  0x25000500  ::  	cout	g1
++           ::  0x90020300  ::  	return
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0xf006ca00  ::          lc	g2, 1000000000	# divisor, start with highest possible power
++           ::  0xf1063b9a  ::  
++           ::  0xf00a0000  ::  	lc	g6, 0		# flag: have we past the leading zeros?
++           ::  0xc3080700  ::  	ges	g4, g3, ze	# is input non-negative?
++           ::  0xf03cc274  ::  	jnzi	g4, $antSysPrintSD_loop
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0xf005002d  ::  	lc	g1, '-'
++           ::  0x25000500  ::  	cout	g1		# print a minus sign
++           ::  0x83050706  ::  	div	g1, g3, g2	# put current highest digit in g1
++           ::  0x84070706  ::  	mod	g3, g3, g2	# keep the remainder in g3 for next time
++           ::  0xc3080500  ::  	ges	g4, g1, ze        # check sign of current digit
++           ::  0xf03cc290  ::          jnzi	g4, $antSysPrintSD_pos
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0x920505ff  ::  	muli	g1, g1, -1	# otherwise, negate it
++           ::  0xf03cc2ac  ::          jnzi	g6, $antSysPrintSD_out
++           ::  0xf13cbfff  ::  
++           ::  0xd3000a3c  ::  
++           ::  0xf03cc2b4  ::  	jezi	g1, $antSysPrintSD_next
++           ::  0xf13cbfff  ::  
++           ::  0xd100053c  ::  
++           ::  0xf00a0001  ::  	lcl	g6, 1		# else note that output has started
++           ::  0x90050530  ::  	addi	g1, g1, '0'
++           ::  0x25000500  ::  	cout	g1		# print digit
++           ::  0x9306060a  ::  	divi	g2, g2, 10	# reduce divisior one order of magnitude
++           ::  0xf03cc274  ::  	jnzi	g2, $antSysPrintSD_loop
++           ::  0xf13cbfff  ::  
++           ::  0xd300063c  ::  
++           ::  0x90020300  ::  	return
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0x91020208  ::          entry   0
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xe2070308  ::          ld4     g3, fp, 8       # read the argument from the stack
++           ::  0xf03cc328  ::          jnzi    g3, $antSysPrintUD_nonzero
++           ::  0xf13cbfff  ::  
++           ::  0xd300073c  ::  
++           ::  0xf0050030  ::          lc      g1, '0'
++           ::  0x25000500  ::          cout    g1
++           ::  0x90020300  ::          return
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0xf006ca00  ::          lc    g2, 1000000000    # divisor, start with highest possible power
++           ::  0xf1063b9a  ::  
++           ::  0xf00b6500  ::          lc    g7, 500000000     # special divisor
++           ::  0xf10b1dcd  ::  
++           ::  0xf00a0000  ::          lc    g6, 0             # flag: have we past the leading zeros?
++           ::  0xf00c0001  ::          lc    g8, 1             # used as mask for negative case
++           ::  0xc3080700  ::          ges   g4, g3, ze        # is input non-negative?
++           ::  0xf03cc378  ::          jnzi  g4, $antSysPrintUD_loop            
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0xf00a0001  ::          lcl   g6, 1             # there are no leading zeros in this case
++           ::  0x8809070c  ::          and   g5, g3, g8        # keep the lowest bit for later
++           ::  0x9d050701  ::          shrui g1, g3, 1         # effectively this is unsigned divide by 2
++           ::  0x8407050b  ::          mod   g3, g1, g7        # set the remainder aside
++           ::  0x8305050b  ::          div   g1, g1, g7        # combines with div by 2 to give div by 10
++           ::  0x90050530  ::          addi  g1, g1, '0'       # convert result to ASCII
++           ::  0x25000500  ::          cout  g1
++           ::  0x92070702  ::          muli  g3, g3, 2         # get back (almost) to real remainder
++           ::  0x80070709  ::          add   g3, g3, g5        # restore possible lost bit to remainder
++           ::  0x9306060a  ::          divi  g2, g2, 10        # reduce divisior one order of magnitude
++           ::  0x83050706  ::          div   g1, g3, g2        # put current highest digit in g1
++           ::  0x84070706  ::          mod   g3, g3, g2        # keep the remainder in g3 for next time
++           ::  0xc3080500  ::          ges   g4, g1, ze        # check sign of current digit
++           ::  0xf03cc394  ::          jnzi  g4, $antSysPrintUD_pos             
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0x920505ff  ::          muli  g1, g1, -1        # otherwise, negate it
++           ::  0xf03cc3b0  ::          jnzi  g6, $antSysPrintUD_out             
++           ::  0xf13cbfff  ::  
++           ::  0xd3000a3c  ::  
++           ::  0xf03cc3b8  ::          jezi  g1, $antSysPrintUD_next             
++           ::  0xf13cbfff  ::  
++           ::  0xd100053c  ::  
++           ::  0xf00a0001  ::          lcl   g6, 1             # else note that output has started
++           ::  0x90050530  ::          addi  g1, g1, '0'
++           ::  0x25000500  ::          cout  g1                # print digit
++           ::  0x9306060a  ::          divi  g2, g2, 10        # reduce divisior one order of magnitude
++           ::  0xf03cc378  ::          jnzi  g2, $antSysPrintUD_loop           
++           ::  0xf13cbfff  ::  
++           ::  0xd300063c  ::  
++           ::  0x90020300  ::          return                  # Jump back to return address
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0x91020208  ::  	entry	0
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xe2070308  ::  	ld4	g3, fp, 8	# read the argument.
++           ::  0xf006001c  ::          lc	g2, 28          # bit offset of current nybble
++           ::  0xf009c803  ::  	lc	g5, $antSysPrintHexDigitsStr
++           ::  0xf109bfff  ::  
++           ::  0x8d050706  ::          shru	g1, g3, g2      # shift bits to the right
++           ::  0xf03c000f  ::          andi	g1, g1, 0xf     # select only the last four bits
++           ::  0x8805053c  ::  
++           ::  0x800a0905  ::  	add	g6, g5, g1
++           ::  0xe00b0a00  ::  	ld1	g7, g6, 0
++           ::  0x25000b00  ::  	cout	g7
++           ::  0x900606fc  ::          addi	g2, g2, -4	# reduce the shift for next four bits
++           ::  0xc3080600  ::          ges	g4, g2, ze	# if we have bits left, keep going.
++           ::  0xf03cc40c  ::          jnzi	g4, $antSysPrintHex_loop
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0x90020300  ::  	return
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0x91020208  ::  	entry	0
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xe2050308  ::  	ld4	g1, fp, 8	# get arg1, buffer address, from stack
++           ::  0xe206030c  ::  	ld4	g2, fp, 12	# get arg2, buffer length, from stack
++           ::  0x91060601  ::  	subi	g2, g2, 1	# save space in buffer for null termination
++           ::  0xf009000a  ::  	lcl	g5, '\n'
++           ::  0xf00a0000  ::  	lc	g6, 0		# buffer count
++           ::  0x24070000  ::  	cin	g3
++           ::  0xc1080007  ::  	lts	g4, g3, ze	# if cin failed, we're done.
++           ::  0xf03cc4c0  ::  	jnzi	g4, $antSysReadLine_done
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0xe4070500  ::  	st1	g3, g1, 0	# put character into buffer
++           ::  0x90050501  ::  	addi	g1, g1, 1	# increment buffer pointer
++           ::  0x900a0a01  ::  	addi	g6, g6, 1	# increment character count (for return value)
++           ::  0xc2080709  ::  	eq	g4, g3, g5	# test for EOL
++           ::  0xf03cc4c0  ::  	jnzi	g4, $antSysReadLine_done
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0x91060601  ::  	subi	g2, g2, 1       # decrement number of chars left in buffer
++           ::  0xf03cc480  ::  	jnzi	g2, $antSysReadLine_loop
++           ::  0xf13cbfff  ::  
++           ::  0xd300063c  ::  
++           ::  0xe4000500  ::  	st1	ze, g1, 0	# add null termination
++           ::  0x90040a00  ::  	return	g6
++           ::  0x90020300  ::  
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0x91020208  ::  	entry 0
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xf006000a  ::          lc   g2, 10             # max input size
++           ::  0xf0050000  ::          lc   g1, 0              # return value
++           ::  0xf0090000  ::          lc   g5, 0              # flag indicates negative number
++           ::  0xf00a0030  ::          lc   g6, '0'
++           ::  0xf00b0039  ::          lc   g7, '9'
++           ::  0xf00c002d  ::          lc   g8, '-'
++           ::  0x24070000  ::          cin  g3
++           ::  0xf03cc544  ::          jnzi g1, $antSysReadDec_range_check
++           ::  0xf13cbfff  ::  
++           ::  0xd300053c  ::  
++           ::  0xc208070c  ::          eq   g4, g3, g8         # check for minus sign
++           ::  0xf03cc544  ::          jezi g4, $antSysReadDec_range_check              
++           ::  0xf13cbfff  ::  
++           ::  0xd100083c  ::  
++           ::  0xf0090001  ::          lcl  g5, 1              # set '-' flag
++           ::  0xf03cc514  ::          jnzi g4, $antSysReadDec_loop              
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0xc1080a07  ::          gts  g4, g6, g3         # test if too small, input < '0'
++           ::  0xf03cc580  ::          jnzi g4, $antSysReadDec_done              
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0xc108070b  ::          gts  g4, g3, g7         # else, is it in 0-9 range?
++           ::  0xf03cc580  ::          jnzi g4, $antSysReadDec_done              
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0x91070730  ::          subi g3, g3, '0'        # in range, adjust value to 0-9 and
++           ::  0x9205050a  ::          muli g1, g1, 10         # multiply by one order of magnitude
++           ::  0x80050507  ::          add  g1, g1, g3         # add in newest digit
++           ::  0x91060601  ::          subi g2, g2, 1          # check number of digits entered so far
++           ::  0xf03cc514  ::          jnzi g2, $antSysReadDec_loop            
++           ::  0xf13cbfff  ::  
++           ::  0xd300063c  ::  
++           ::  0xf03cc590  ::          jezi g5, $antSysReadDec_return              
++           ::  0xf13cbfff  ::  
++           ::  0xd100093c  ::  
++           ::  0x920505ff  ::          muli g1, g1, -1         # else negate number
++           ::  0x90040500  ::          return g1               # Jump back to return address
++           ::  0x90020300  ::  
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0x91020208  ::          entry   0
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xe2070308  ::          ld4     g3, fp, 8       # get arg1, hex number, from stack
++           ::  0xf0060008  ::          lc   g2, 8              #max input size
++           ::  0xf0050000  ::          lc   g1, 0              # return value
++           ::  0xf00a0030  ::          lc   g6, '0'
++           ::  0xf00b0039  ::          lc   g7, '9'
++           ::  0xf00c0041  ::          lc   g8, 'A'
++           ::  0xf00d0046  ::          lc   g9, 'F'
++           ::  0xf00e0061  ::          lc   g10, 'a'
++           ::  0xf00f0066  ::          lc   g11, 'f'
++           ::  0x24070000  ::          cin  g3
++           ::  0xc1080a07  ::          gts  g4, g6, g3         # test if too small, input < '0'
++           ::  0xf03cc68c  ::          jnzi g4, $antSysReadHex_done       
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0xc108070b  ::          gts  g4, g3, g7         # else, is it in 0-9 range?
++           ::  0xf03cc620  ::          jnzi g4, $antSysReadHex_AF_check   
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0x91070730  ::          subi g3, g3, '0'        # in range, adjust value to 0-15 and
++           ::  0xf03cc674  ::          jezi ze, $antSysReadHex_computation
++           ::  0xf13cbfff  ::  
++           ::  0xd100003c  ::  
++           ::  0xc1080c07  ::          gts  g4, g8, g3         # test if too small, input < 'A'
++           ::  0xf03cc68c  ::          jnzi g4, $antSysReadHex_done       
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0xc108070d  ::          gts  g4, g3, g9         # else, is it in A-F range?
++           ::  0xf03cc650  ::          jnzi g4, $antSysReadHex_check      
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0x91070737  ::          subi g3, g3, 55         # in range, adjust value to 0-15 and
++           ::  0xf03cc674  ::          jezi ze, $antSysReadHex_computation
++           ::  0xf13cbfff  ::  
++           ::  0xd100003c  ::  
++           ::  0xc1080e07  ::          gts  g4, g10, g3        # test if too small, input < 'a'
++           ::  0xf03cc68c  ::          jnzi g4, $antSysReadHex_done       
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0xc108070f  ::          gts  g4, g3, g11        # else, is it in a-f range?
++           ::  0xf03cc68c  ::          jnzi g4, $antSysReadHex_done       
++           ::  0xf13cbfff  ::  
++           ::  0xd300083c  ::  
++           ::  0x91070757  ::          subi g3, g3, 87         # in range, adjust value to 0-15
++           ::  0x9e050504  ::          shli g1, g1, 4          # multiply by one hex order of magnitude
++           ::  0x85050507  ::          or   g1, g1, g3         # "add" in newest digit
++           ::  0x91060601  ::          subi g2, g2, 1          # check number of digits entered so far
++           ::  0xf03cc5ec  ::          jnzi g2, $antSysReadHex_loop       
++           ::  0xf13cbfff  ::  
++           ::  0xd300063c  ::  
++           ::  0x90040500  ::  	return g1
++           ::  0x90020300  ::  
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0xbfffc7ed  ::  
++           ::  0xbfffc6fc  ::  
++           ::  0xbfffc7ed  ::  
++           ::  0xbfffc700  ::  
++           ::  0xbfffc70a  ::  
++           ::  0xbfffc71e  ::  
++           ::  0xbfffc736  ::  
++           ::  0xbfffc745  ::  
++           ::  0xbfffc756  ::  
++           ::  0xbfffc76e  ::  
++           ::  0xbfffc788  ::  
++           ::  0xbfffc7a2  ::  
++           ::  0xbfffc7ab  ::  
++           ::  0xbfffc7ba  ::  
++           ::  0xbfffc7cd  ::  
++           ::  0xbfffc7ed  ::  
++           ::  0xbfffc7ed  ::  
++           ::  0xbfffc7ed  ::  
++           ::  0xbfffc7ed  ::  
++           ::  0xbfffc7ed  ::  
++           ::  0xbfffc7cd  ::  
++           ::  0x49525100  ::  
++           ::  0x42757320  ::  
++           ::  0x4572726f  ::  
++           ::  0x7200496c  ::  
++           ::  0x6c656761  ::  
++           ::  0x6c20496e  ::  
++           ::  0x73747275  ::  
++           ::  0x6374696f  ::  
++           ::  0x6e005072  ::  
++           ::  0x6976696c  ::  
++           ::  0x65646765  ::  
++           ::  0x6420496e  ::  
++           ::  0x73747275  ::  
++           ::  0x6374696f  ::  
++           ::  0x6e005452  ::  
++           ::  0x41502045  ::  
++           ::  0x78636570  ::  
++           ::  0x74696f6e  ::  
++           ::  0x00446976  ::  
++           ::  0x6973696f  ::  
++           ::  0x6e206279  ::  
++           ::  0x205a6572  ::  
++           ::  0x6f004164  ::  
++           ::  0x64726573  ::  
++           ::  0x7320416c  ::  
++           ::  0x69676e6d  ::  
++           ::  0x656e7420  ::  
++           ::  0x4572726f  ::  
++           ::  0x72005072  ::  
++           ::  0x6976696c  ::  
++           ::  0x65646765  ::  
++           ::  0x64205365  ::  
++           ::  0x676d656e  ::  
++           ::  0x74204572  ::  
++           ::  0x726f7200  ::  
++           ::  0x52656769  ::  
++           ::  0x73746572  ::  
++           ::  0x20416363  ::  
++           ::  0x65737320  ::  
++           ::  0x56696f6c  ::  
++           ::  0x6174696f  ::  
++           ::  0x6e00544c  ::  
++           ::  0x42204d69  ::  
++           ::  0x73730054  ::  
++           ::  0x4c422050  ::  
++           ::  0x726f7465  ::  
++           ::  0x6374696f  ::  
++           ::  0x6e00544c  ::  
++           ::  0x42204d75  ::  
++           ::  0x6c746970  ::  
++           ::  0x6c65204d  ::  
++           ::  0x61746368  ::  
++           ::  0x00544c42  ::  
++           ::  0x20496e76  ::  
++           ::  0x616c6964  ::  
++           ::  0x20496e64  ::  
++           ::  0x65780054  ::  
++           ::  0x696d6572  ::  
++           ::  0x20457870  ::  
++           ::  0x69726564  ::  
++           ::  0x00554e4b  ::  
++           ::  0x4e4f574e  ::  
++           ::  0x20455843  ::  
++           ::  0x45505449  ::  
++           ::  0x004e0000  ::  
++           ::  0x00000030  ::  
++           ::  0x31323334  ::  
++           ::  0x35363738  ::  
++           ::  0x39414243  ::  
++           ::  0x44454600  ::  
+0xfffffffc  ::  0xbfffc000  ::  Boot it!
+# end of data
+# end of file

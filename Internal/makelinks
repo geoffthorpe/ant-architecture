@@ -1,0 +1,2 @@
+ln -s ../AntCommon/Share ../Src/Ant8/Share
+ln -s ../AntCommon/Share ../Src/Ant32/Share

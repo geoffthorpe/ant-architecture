@@ -1,0 +1,455 @@
+% $Id: t32-inst.tex,v 1.11 2002/04/16 15:19:09 ellard Exp $
+
+% Local defs
+% Might eventually have to move these to a global file.
+
+\newcommand{\rdes}{{\em rdes}}
+\newcommand{\srcA}{{\em src1}}
+\newcommand{\srcB}{{\em src2}}
+\newcommand{\constB}{{\em const8}}
+\newcommand{\constH}{{\em const16}}
+\newcommand{\const}{{\em const32}}
+\newcommand{\SYN}{$\bullet$}
+\newcommand{\itablehead}
+	{\begin{tabular}{|p{0.1in}p{0.8in}p{1.3in}|p{3.4in}|}
+	\hline
+	& {\bf Mnemonic}	& {\bf Operands}	& {\bf Description} \\
+	}
+
+\chapter{Ant-32 Instruction Set Summary}
+\label{ant32-inst}
+
+\section{Notation}
+
+The notations used to describe the instructions are summarized below.
+
+\begin{center}
+\begin{tabular}{|l|p{4.0in}|}
+\hline
+\Reg{\em x}		& The value stored in register {\em x}.
+			\\
+\constB			& Any 8-bit constant.
+			\\
+\constH			& Any 16-bit constant.
+			\\
+\const			& Any 32-bit constant.  A label can be used
+				as a 32-bit constant.
+			\\
+\SYN			& An instruction description that begins with
+				a \SYN\ symbol indicates
+				that the instruction is {\em
+				synthetic} (see Section
+				\ref{t32-inst-syn-sec}). \\
+
+\hline
+\end{tabular}
+\end{center}
+
+\section{Differences Between Assembly Language and Machine Language}
+\label{t32-inst-syn-sec}
+
+The Ant-32 assembly language is closely related to the Ant-32
+machine language, and there is always a simple mapping from
+instructions in the assembly language to the corresponding machine
+instructions.  All of the machine language instructions are directly
+expressible in assembly language, but the assembly language also
+provides a slightly higher-level abstraction of the machine (called
+{\em synthetic instructions}) in order to reduce the tedium of
+programming in Ant-32 assembly language, and provides several directives
+to the assembler 
+
+
+In the tables of instructions that follow in this chapter,
+instructions that begin with a \SYN\ are {\em synthetic instructions}.
+Synthetic instructions fall into two categories: mnemonic names for
+operations directly supported by the hardware, and names for sequences
+of instructions that implement operations not directly supported by
+the hardware.
+
+For an example of the first type, consider the {\tt mov} instruction. 
+The Ant-32 hardware does not implement such an instruction, but
+the same functionality can be achieved by using the {\tt add}
+instruction with the zero register as one of the operands.\footnote{The
+{\tt mov} instruction can also be implemented in many other ways.}
+
+\begin{verbatim}
+                # copy the contents of g1 into g0
+                mov     g0, g1
+
+                # This is the same as writing:
+                add     g0, g1, ze
+\end{verbatim}
+
+As an example of the second type, consider the {\tt lc} (load
+constant) instruction.  The Ant-32 hardware does not implement
+any method to load a 32-bit constant into a register, but the same
+effect can be achieved by using an {\tt lcl} (which loads a 16-bit
+constant into the lower 16 bits of a register, performing sign
+extension), followed by an {\tt lch} (which loads a 16-bit constant
+into the upper 16 bits of a register).
+
+\begin{verbatim}
+                # load constant 0x12345678 into g0
+                lc      g0, 0x12345678
+
+                # this is the same as writing:
+                lcl     g0, 0x5678
+                lch     g0, 0x1234
+\end{verbatim}
+
+In many cases, the synthetic instructions have the same form as native
+instructions.  For example, {\tt addi} (add immediate) exists in the
+native instruction set, but only for 8-bit constants.  The assembler
+will allow {\tt addi} to take a 32-bit constant, however, by using a
+synthetic sequence of instructions to implement the desired
+functionality.  Note that the assembler chooses the best way to
+synthesize the instruction-- for example, different sequences will be
+created to implement {\tt addi} depending on whether the constant
+requires 8, 16, or 32-bits to express.
+
+\section{Loading Constants}
+
+\itablehead
+
+\hline
+\index{lch}
+	& {\tt lch} &	\rdes, \constH &
+		Load \constH\ into the top (high-order) 16 bits of \rdes. \\
+\index{lcl}
+	& {\tt lcl} &	\rdes, \constH &
+		Load \constH\ into the lower 16 bits of \rdes,
+		and perform sign extension to fill in the top
+		16 bits of \rdes. \\
+\index{lc}
+\SYN	& {\tt lc} &	\rdes, \const &
+		Load the \const\ into \rdes. \\
+\hline
+
+\end{tabular}
+
+\section{Arithmetic Operations}
+
+\itablehead
+
+\hline
+\index{add}
+	& {\tt add} &	\rdes, \srcA, \srcB	&
+		\rdes\ gets \Reg{\srcA}\ + \Reg{\srcB}. \\
+\index{addi}
+	& {\tt addi} &	\rdes, \srcA, \constB	&
+		\rdes\ gets \Reg{\srcA}\ + \constB. \\
+\SYN	& {\tt addi} &	\rdes, \srcA, \const	&
+		\rdes\ gets \Reg{\srcA}\ + \const. \\
+\index{sub}
+	& {\tt sub} &	\rdes, \srcA, \srcB	&
+		\rdes\ gets \Reg{\srcA}\ - \Reg{\srcB}. \\
+\index{subi}
+	& {\tt subi} &	\rdes, \srcA, \constB	& \rdes\ gets \Reg{\srcA}\ - \constB. \\
+\SYN	& {\tt subi} &	\rdes, \srcA, \const	& \rdes\ gets \Reg{\srcA}\ - \const. \\
+\index{mul}
+	& {\tt mul} &	\rdes, \srcA, \srcB	& \rdes\ gets \Reg{\srcA}\ $\times$ \Reg{\srcB}. \\
+\index{muli}
+	& {\tt muli} &	\rdes, \srcA, \constB 	& \rdes\ gets \Reg{\srcA}\ $\times$ \constB. \\
+\SYN	& {\tt muli} &	\rdes, \srcA, \const 	& \rdes\ gets \Reg{\srcA}\ $\times$ \const. \\
+\index{div}
+	& {\tt div} &	\rdes, \srcA, \srcB 	& \rdes\ gets \Reg{\srcA}\ $/$ \Reg{\srcB}. \\
+\index{divi}
+	& {\tt divi} &	\rdes, \srcA, \constB 	& \rdes\ gets \Reg{\srcA}\ $/$ \constB. \\
+\SYN	& {\tt divi} &	\rdes, \srcA, \const 	& \rdes\ gets \Reg{\srcA}\ $/$ \const. \\
+\index{mod}
+	& {\tt mod} &	\rdes, \srcA, \srcB 	& \rdes\ gets \Reg{\srcA}\ {\bf modulo} \Reg{\srcB}. \\
+\index{modi}
+	& {\tt modi} &	\rdes, \srcA, \constB 	& \rdes\ gets \Reg{\srcA}\ {\bf modulo} \constB. \\
+\SYN	& {\tt modi} &	\rdes, \srcA, \const 	& \rdes\ gets \Reg{\srcA}\ {\bf modulo} \const. \\
+\hline
+\end{tabular}
+\vspace{3mm}
+
+The ``o'' arithmetic operations are similar to the ordinary arithmetic
+operations, except that they include the calculation of the
+``overflow'', if any, from the operations.  For these operations,
+\rdes\ must be an even-numbered register.  The result of the operation
+is stored in registers \rdes\ and \rdes\ $ + 1$.  Consult the
+architecture reference for more information.
+
+\vspace{3mm}
+\noindent
+\itablehead
+\hline
+\index{addo}
+	& {\tt addo} &	\rdes, \srcA, \srcB &
+		Add with overflow. \\
+\index{addio}
+	& {\tt addio} &	\rdes, \srcA, \constB &
+		Add immediate with overflow. \\
+\SYN	& {\tt addio} &	\rdes, \srcA, \const & \\
+\index{subo}
+	& {\tt subo} &	\rdes, \srcA, \srcB &
+		Subtract with overflow. \\
+\index{subio}
+	& {\tt subio} &	\rdes, \srcA, \constB &
+		Subtract immediate with overflow. \\
+\SYN	& {\tt subio} &	\rdes, \srcA, \const & \\
+\index{mulo}
+	& {\tt mulo} &	\rdes, \srcA, \srcB &
+		Multiply with overflow. \\
+\index{mulio}
+	& {\tt mulio} &	\rdes, \srcA, \constB &
+		Multiply immediate with overflow. \\
+\SYN	& {\tt mulio} &	\rdes, \srcA, \const & \\
+\hline
+\end{tabular}
+
+\section{Logical Bit Operations}
+
+\itablehead
+
+\hline
+\index{and}
+	& {\tt and} &	\rdes, \srcA, \srcB &
+		\rdes\ gets the bitwise {\sc and} of \Reg{\srcA}\ and \Reg{\srcB}. \\
+\SYN \index{andi}
+	& {\tt andi} &	\rdes, \srcA, \const &
+		\rdes\ gets the bitwise {\sc and} of \Reg{\srcA}\ and \const. \\
+\index{nor}
+	& {\tt nor} &	\rdes, \srcA, \srcB &
+		\rdes\ gets the bitwise {\sc nor} of \Reg{\srcA}\ and \Reg{\srcB}. \\
+\SYN \index{nori}
+	& {\tt nori} &	\rdes, \srcA, \const &
+		\rdes\ gets the bitwise {\sc nor} of \Reg{\srcA}\ and \const. \\
+\index{or}
+	& {\tt or} &	\rdes, \srcA, \srcB &
+		\rdes\ gets the bitwise {\sc or} of \Reg{\srcA}\ and \Reg{\srcB}. \\
+\SYN \index{ori}
+	& {\tt ori} &	\rdes, \srcA, \const &
+		\rdes\ gets the bitwise {\sc or} of \Reg{\srcA}\ and \const. \\
+\index{xor}
+	& {\tt xor} &	\rdes, \srcA, \srcB &
+		\rdes\ gets the bitwise {\sc xor} of \Reg{\srcA}\ and \Reg{\srcB}. \\
+\SYN \index{xori}
+	& {\tt xori} &	\rdes, \srcA, \const &
+		\rdes\ gets the bitwise {\sc xor} of \Reg{\srcA}\ and \const. \\
+
+\hline
+\end{tabular}
+
+\section{Bit Shifting Operations}
+
+\itablehead
+
+\hline
+\index{shl}
+	& {\tt shl} &	\rdes, \srcA, \srcB &
+			Shift \Reg{\srcA}\ left by \Reg{\srcB}\ bits. \\
+\index{shli}
+	& {\tt shli} &	\rdes, \srcA, \constB &
+			Shift \Reg{\srcA}\ left by \constB\ bits. \\
+\SYN	& {\tt shli} &	\rdes, \srcA, \const &
+			Shift \Reg{\srcA}\ left by \const\ bits. \\
+\index{shr}
+	& {\tt shr} &	\rdes, \srcA, \srcB &
+			Shift \Reg{\srcA}\ right by \Reg{\srcB}\ bits. \\
+\index{shru}
+	& {\tt shru} &	\rdes, \srcA, \srcB &
+			Unsigned shift \Reg{\srcA}\ right
+			by \Reg{\srcB}\ bits. \\
+\index{shri}
+	& {\tt shri} &	\rdes, \srcA, \constB &
+			Shift \Reg{\srcA}\ right by \constB\ bits. \\
+\SYN	& {\tt shri} &	\rdes, \srcA, \const &
+			Shift \Reg{\srcA}\ right by \const\ bits. \\
+\index{shrui}
+	& {\tt shrui} &	\rdes, \srcA, \constB &
+			Unsigned shift \Reg{\srcA}\ right by \constB\ bits. \\
+\SYN	& {\tt shrui} &	\rdes, \srcA, \const &
+			Unsigned shift \Reg{\srcA}\ right by \const\ bits. \\
+\hline
+\end{tabular}
+\vspace{3mm}
+
+The left shift operation shifts the bits ``left'', towards the more
+significant bits, filling in the least significant bits with zeros. 
+The right shift operations shift the bits toward the least significant
+bits.  If the operation is ``unsigned'' then zeros are used to fill in
+the most significant bits, but if the operation is not ``unsigned''
+then a copy of the most significant bit in the \srcA\ register is
+used to fill these bits.
+
+\section{Load/Store Operations}
+
+\itablehead
+\hline
+\index{st1}
+	& {\tt st1} &	\srcA, \srcB, \constB &
+			Store the least significant byte of \Reg{\srcA}\
+			to the address \Reg{\srcB} + \constB. \\
+\index{st4}
+	& {\tt st4} &	\srcA, \srcB, \constB &
+			Store \Reg{\srcA}
+			to the address \Reg{\srcB} + \constB. \\
+\index{ld1}
+	& {\tt ld1} &	\rdes, \srcA, \constB &
+			Load the byte at address \Reg{\srcA} + \constB\
+			into \rdes.   The byte is sign-extended to 32-bits. \\
+\index{ld4}
+	& {\tt ld4} &	\rdes, \srcA, \constB &
+			Load the word at address \Reg{\srcA} + \constB\
+			into \rdes.  \\
+\index{ex4}
+	& {\tt ex4} &	\rdes, \srcA, \constB &
+			Exchange the contents of register \rdes\ and
+			the word at address \Reg{\srcA} + \constB\
+			\\
+\hline
+\end{tabular}
+
+\section{Comparison Instructions}
+
+\itablehead
+\hline
+\index{eq}
+	& {\tt eq} &	\rdes, \srcA, \srcB &
+		\rdes\ gets 1 if \Reg{\srcA}\ $==$ \Reg{\srcB}, 0 otherwise. \\
+\index{ges}
+	& {\tt ges} &	\rdes, \srcA, \srcB &
+		\rdes\ gets 1 if \Reg{\srcA}\ $\ge$ \Reg{\srcB}, 0 otherwise.
+		The comparison uses signed numbers. \\
+\index{gts}
+	& {\tt gts} &	\rdes, \srcA, \srcB &
+		\rdes\ gets 1 if \Reg{\srcA}\ $>$ \Reg{\srcB}, 0 otherwise.
+		The comparison uses signed numbers. \\
+\index{geu}
+	& {\tt geu} &	\rdes, \srcA, \srcB &
+		Like {\tt ges}, but using unsigned numbers. \\
+\index{gtu}
+	& {\tt gtu} &	\rdes, \srcA, \srcB &
+		Like {\tt gts}, but using unsigned numbers. \\
+\SYN \index{les}
+	& {\tt les} &	\rdes, \srcA, \srcB &
+		\rdes\ gets 1 if \Reg{\srcA}\ $\le$ \Reg{\srcB}, 0 otherwise.
+		The comparison uses signed numbers. \\
+\SYN \index{lts}
+	& {\tt lts} &	\rdes, \srcA, \srcB &
+		\rdes\ gets 1 if \Reg{\srcA}\ $<$ \Reg{\srcB}, 0 otherwise.
+		The comparison uses signed numbers. \\
+\SYN \index{leu}
+	& {\tt leu} &	\rdes, \srcA, \srcB &
+		Like {\tt les}, but using unsigned numbers. \\
+\SYN \index{ltu}
+	& {\tt ltu} &	\rdes, \srcA, \srcB &
+		Like {\tt lts}, but using unsigned numbers. \\
+\hline
+\end{tabular}
+
+\section{Branch and Jump Instructions}
+
+\itablehead
+\hline
+\index{jez}
+	& {\tt jez} &	\rdes, \srcA, \srcB &
+			If \Reg{\srcA}\ is zero,
+			jump to the address \Reg{\srcB}.
+			\rdes\ gets the address of the current instruction.
+			\\
+\index{jnz}
+	& {\tt jnz} &	\rdes, \srcA, \srcB &
+			If \Reg{\srcA}\ is not zero,
+			jump to the address \Reg{\srcB}.
+			\rdes\ gets the address of the current instruction.
+			\\
+\SYN \index{jezi}
+	& {\tt jezi} &	\rdes, \srcA, \const &
+			If \Reg{\srcA}\ is zero, jump to \const.
+			\rdes\ gets the value of the current instruction.
+			\\
+\SYN \index{jnzi}
+	& {\tt jnzi} &	\rdes, \srcA, \const &
+			If \Reg{\srcA}\ is not zero, jump to \const.
+			\rdes\ gets the value of the current instruction.
+			\\
+\index{bez}
+	& {\tt bez} &	\rdes, \srcA, \srcB &
+			If \Reg{\srcA}\ is zero, branch to the address of
+			the current instruction plus \Reg{\srcB}.
+			\rdes\ gets the address of the current instruction.
+			\\
+\index{bnz}
+	& {\tt bnz} &	\rdes, \srcA, \srcB &
+			If \Reg{\srcA}\ is not zero, branch to the address of
+			the current instruction plus \Reg{\srcB}.
+			\rdes\ gets the address of the current instruction.
+			\\
+\index{bezi}
+	& {\tt bezi} &	\srcA, \constH &
+			If \Reg{\srcA}\ is zero, branch to
+			the address of the current instruction
+			$+ ~ (4 ~ \times$ \constH$)$.
+			\\
+\index{bnzi}
+	& {\tt bnzi} &	\srcA, \constH &
+			If \Reg{\srcA}\ is not zero, branch to
+			the address of the current instruction
+			$+ ~ (4 ~ \times$ \constH$)$.
+			\\
+\hline
+
+\end{tabular}
+
+\section{Console I/O Instructions}
+
+\itablehead
+
+\hline
+\index{cin}
+	& {\tt cin} &	\rdes &
+			Read a character from the console into \rdes. \\
+\index{cout}
+	& {\tt cout} &	\srcA &
+			Write the character \Reg{\srcA}\ to the console. \\
+\hline
+
+\end{tabular}
+
+\section{Halting}
+\label{halt-inst-sec}
+
+\itablehead
+
+\hline
+\index{halt}
+	& {\tt halt} & 	&	Stop the processor. \\
+\hline
+
+\end{tabular}
+
+\section{Artificial Instructions}
+
+\itablehead
+
+\hline
+\SYN \index{mov}
+	& {\tt mov} & \rdes, \srcA	& Copy \Reg{\srcA}\ to \rdes. \\
+\SYN \index{j}
+	& {\tt j} & \const	& Jump to \const. \\
+\SYN	& {\tt j} & \srcA	& Jump to \Reg{\srcA}. \\
+\SYN \index{b}
+	& {\tt b} & \const	& Branch to \const. \\
+\SYN	& {\tt b} & \srcA 	& Branch to \Reg{\srcA}. \\
+\hline
+\SYN \index{push}
+	& {\tt push} & \srcA  	& Push \Reg{\srcA}\ onto the stack. \\
+\SYN \index{pop}
+	& {\tt pop} & \rdes 	& Pop the stack into \rdes. \\
+\hline
+\SYN	& {\tt call}	& \const	& Call a function
+				(see Section \ref{reg32-call-sec}). \\
+\SYN	& {\tt entry}	& \const	& Create a stack frame
+				(see Section \ref{reg32-entry-sec}). \\
+\SYN	& {\tt return}	& \srcA	& Return \Reg{\srcA}\ from a function
+				(see Section \ref{reg32-return-sec}). \\
+\SYN	& {\tt return}	& \const	& Return the \const\ from
+				a function
+				(see Section \ref{reg32-return-sec}). \\
+\hline
+\end{tabular}
+

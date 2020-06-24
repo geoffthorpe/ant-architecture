@@ -1,0 +1,22 @@
+% $Id: shri.tex,v 1.9 2002/04/16 15:19:13 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{shri}
+\renewcommand{\INSTdesc}	{Shift Right Immediate}
+\renewcommand{\INSTopcode}	{0x9C}
+\renewcommand{\INSToptype}	{TwoReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{const8}
+
+\renewcommand{\INSTsemantic}	{
+	\Reg{des} $\leftarrow$ \Reg{src1} $>>$ {\em const8}
+}
+
+\renewcommand{\INSTprose} {
+	Place into \Reg{des} the value in \Reg{src1} shifted right
+	by the number of bits specified by the value of the low five
+	bits of {\em const8}, sign extending into the high order bits.
+}
+
+
+\renewcommand{\INSTexceptions}	{}

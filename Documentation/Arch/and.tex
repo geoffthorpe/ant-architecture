@@ -1,0 +1,20 @@
+% $Id
+
+\ThreeRegisterOp{and}{Bitwise {\sc and}}{\OPCODE}{des}{src1}{src2}
+
+\index{and@{\tt and}!for Ant-8}
+
+Bitwise logical {\sc and}.
+
+\begin{enumerate}
+
+\item {\em temp} $\leftarrow$ \Reg{src1} \& \Reg{src2}
+		(the bitwise {\sc and} of \Reg{src1} and \Reg{src2}).
+
+\item \Reg{des} $\leftarrow$ {\em temp}
+
+\item \Reg{1}   $\leftarrow$ $\sim$ {\em temp}
+		(the bitwise negation of {\em temp}).
+
+\end{enumerate}
+

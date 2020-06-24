@@ -1,0 +1,47 @@
+% $Id: ant32-over.tex,v 1.4 2002/04/22 16:32:21 ellard Exp $
+
+
+\chapter{An Overview of Ant-32}
+
+Ant-32 is a 32-bit processor, supporting 32-bit words and 8-bit bytes. 
+The address space is shared by code and data.  Addresses are 32 bits.
+
+Ant-32 is a big-endian processor.  16-bit and 32-bit quantities are
+stored with the most significant byte first and the least significant
+byte last.
+
+All instructions are one word (32 bits) wide and must be aligned to
+32-bit boundaries.  The high-order 8 bits of each instruction contain
+the opcode.
+
+The architecture provides 64 general-purpose 32-bit integer registers,
+named {\tt r0-r63}.  All register fields in the instructions are 8
+bits wide, however, allowing future expansion of the register set.
+
+Register {\tt r0} is read-only and always contains the constant 0. 
+{\tt r0} may be used as a destination register, and if {\tt r0} is
+used as the destination register then the instruction is performed as
+usual, but {\tt r0} is not modified.
+
+Virtual memory is made possible via a TLB-based MMU, specified as part
+of the architecture.  For more information, see section
+\ref{VirtualMemoryArchitecture}, page
+\pageref{VirtualMemoryArchitecture}.
+
+Ant-32 has two operating modes, supervisor and user.  Processor
+exceptions always cause the processor to enter supervisor mode. 
+System calls are made via the {\tt trap} instruction, which triggers a
+designated exception.  Ant-32 also has a single hardware interrupt
+request line (IRQ).  Interrupts are treated as a special kind of
+exception.  Interrupts can be enabled or disabled independently of
+other exceptions.  For more information about the exception
+architecture, see section \ref{ExceptionArchitecture}.
+
+In addition to the general-purpose registers, there are 16
+special-purpose registers:  8 cycle counters and 8 registers related
+to exception handling.  The registers numbered 240 through
+247 are reserved for cycle counters (described in section
+\ref{CycleCounters}, page \pageref{CycleCounters}) and registers 248
+through 255 are reserved for operating system exception handling.
+
+

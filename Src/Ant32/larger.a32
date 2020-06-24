@@ -1,0 +1,20 @@
+#@ Instructions 10
+#@ Data 40
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0080020  ::          lc      g4, $g2_larger  # put the address of g2_larger into g4
++           ::  0xf1088000  ::  
++           ::  0xf0090024  ::          lc      g5, $endif      # put the address of endif into g5
++           ::  0xf1098000  ::  
++           ::  0xc3070506  ::          ges     g3, g1, g2      # g3 gets (g1 >= g2)
++           ::  0xd1000708  ::          jez     ze, g3, g4      # if g3 is zero, branch to g2_larger
++           ::  0x90040500  ::          addi    g0, g1, 0       # Otherwise, "copy" g2 into g0
++           ::  0xd1000009  ::          jez     ze, ze, g5      # and then branch to endif
++           ::  0x90040600  ::          addi    g0, g2, 0       # "copy" g1 into g0
++           ::  0x4f000000  ::          halt                    # Halt
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# $endif                    = -2147483612 (0x80000024)
+# $g2_larger                = -2147483616 (0x80000020)
+# end of file

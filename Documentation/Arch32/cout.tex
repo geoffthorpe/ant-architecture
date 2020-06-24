@@ -1,0 +1,17 @@
+% $Id: cout.tex,v 1.9 2002/04/16 15:19:12 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{cout}
+\renewcommand{\INSTdesc}	{Console Output}
+\renewcommand{\INSTopcode}	{0x25}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{\INSTunusedField}
+\renewcommand{\INSTfieldB}	{src}
+\renewcommand{\INSTfieldC}	{\INSTunusedField}
+
+\renewcommand{\INSTsemantic}	{
+	Output character to simple {\sc ASCII} ``console'' interface.
+}
+
+\renewcommand{\INSTexceptions}	{
+	Illegal-instruction (if unimplemented)
+	}

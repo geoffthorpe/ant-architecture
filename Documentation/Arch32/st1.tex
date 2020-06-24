@@ -1,0 +1,24 @@
+% $Id: st1.tex,v 1.9 2001/07/05 14:01:17 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{st1}
+\renewcommand{\INSTdesc}	{Store Byte}
+\renewcommand{\INSTopcode}	{0xE4}
+\renewcommand{\INSToptype}	{TwoReg}
+\renewcommand{\INSTfieldA}	{src1}
+\renewcommand{\INSTfieldB}	{src2}
+\renewcommand{\INSTfieldC}	{const8}
+
+\renewcommand{\INSTsemantic}	{
+	\Mem{\Reg{src2} + {\em const8}} $\leftarrow$ \Reg{src1}
+}
+
+\renewcommand{\INSTprose}	{
+
+	Store byte.
+
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Bus error
+	}

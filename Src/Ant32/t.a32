@@ -1,0 +1,27 @@
+#@ Instructions 11
+#@ Data 74
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0040000  ::  	lc	g0, 0
++           ::  0xf0050001  ::  	lc	g1, 1
++           ::  0xf006ffff  ::  	lc	g2, -1
++           ::  0xc7080405  ::  	geu	g4, g0, g1
++           ::  0xc7090406  ::  	geu	g5, g0, g2
++           ::  0xc70a0504  ::  	geu	g6, g1, g0
++           ::  0xc70b0506  ::  	geu	g7, g1, g2
++           ::  0xc70c0604  ::  	geu	g8, g2, g0
++           ::  0xc70d0605  ::  	geu	g9, g2, g1
++           ::  0xf002000a  ::  	lc	r2, 10
++           ::  0x4f000000  ::  	halt
++           ::  0x41121314  ::  
++           ::  0x15161001  ::  
++           ::  0x09492074  ::  
++           ::  0x6f207365  ::  
++           ::  0x65207768  ::  
++           ::  0x61742068  ::  
++           ::  0x61707065  ::  
++           ::  0x6e730000  ::  
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# end of file

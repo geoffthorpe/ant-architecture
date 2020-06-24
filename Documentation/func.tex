@@ -1,0 +1,288 @@
+% $Id: func.tex,v 1.8 2002/04/17 20:05:59 ellard Exp $
+
+\documentclass[makeidx,psfig]{article}
+\usepackage{ifthen}
+\usepackage{makeidx}
+\usepackage{psfig}
+
+% \input{macros}
+\input{dan}
+\input{ant-macros}
+
+\newtheorem{alghead}{Algorithm}[section]
+\newtheorem{codehead}{Program}[section]
+
+\makeindex
+
+\setlength{\textheight}{8.0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\evensidemargin}{0.0in}
+\raggedbottom
+
+\title{Functions in {\sc Ant-8}}
+
+\begin{document}
+
+In this document we will see how to build modular code and how
+functions and methods in higher-level languages can be written in {\sc
+Ant-8}.
+
+\section{Avoiding Repeated Code}
+
+Recall the program {\tt hello.asm} (described in Section \ref{hello}). 
+Now imagine that you had a program that printed two strings.  We could
+write such a program by making a copy of most of the {\tt hello.asm}
+program so that there were two loops, one for printing the first
+string, and the other for printing the second, but this seems a little
+wasteful.  Now imagine that we wanted to print three or four different
+strings-- we could make three or four copies of this code, with slight
+changed to print each string, but this would soon become ridiculous.
+
+\begin{figure}
+\caption{Source code of {\tt print-2.asm}}
+\hrule
+\input{Tutorial/print-2}
+\hrule
+\end{figure}
+
+What we would like to do instead is discover how we can write code so
+that similar functionality is implemented once, instead of many times.
+
+In this example, one way we could do this would be to make an extra
+loop, outside the printing loop, that printed each string in turn. 
+This approach would work for this example, but it does not work in
+general because it assumes that all we are doing is printing strings. 
+In the more general case, there might be a lot of other things that
+are done by the program, and they might be different from loop to
+loop.
+
+What we would like is for the printing loop to be something we can use
+any time we need to print a string, no matter what else the program
+does.  In order to accomplish this, we need to learn some new
+techniques.
+
+\begin{figure}
+\caption{Source code of {\tt print-3.asm}}
+\hrule
+\input{Tutorial/print-3}
+\hrule
+\end{figure}
+
+\subsection{The Return Address}
+
+The most important thing to note about this goal is how execution gets
+back to where it was before it jumped to the printing code.  This is
+accomplished by noting that after a {\tt jmp} instruction is executed,
+register {\tt r1} contains the address of the instruction that would
+have been executed had the been an ordinary instruction (not a branch
+or a jump).  This means that after the program jumps to the code for
+printing out the string, register {\tt r1} contains the address that
+we want to branch back to after the printing is finished.  This is
+called the {\em return address}.  It is important to grab the return
+address out of register {\tt r1} immediately, since many instructions
+change {\tt r1}.
+
+In this code, we grab the return address and store it in register {\tt
+r5}.  When we the code is finished printing the string, it branches
+back to this address by using the {\tt beq} instruction.
+
+\subsection{Saving and Restoring State}
+
+The code in {\tt print-3} almost accomplishes our goal, but it has an
+important flaw-- it changes the contents of registers {\tt r2} through
+{\tt r5}.  Therefore, we can't just use this code wherever we like,
+because when the function returns the values of these registers may be
+changed.  Note that register {\tt r1} will also be changed by this
+piece of code, but since many operations change {\tt r1} anyway, we
+don't care so much about this.
+
+One solution to this problem would be to rest of our program so that
+it didn't use these registers for anything (as is true in {\tt
+print-3}), but this approach quickly becomes unworkable for programs
+that have more than a few very simple functions-- there simply aren't
+enough registers.
+
+A much more general solution is to {\em preserve} the contents of the
+registers used by the function (in this case, registers {\tt r2}
+through {\tt r4}) by storing them to memory whenever the function is
+called, and then {\em restore} them by loading their values back into
+these registers just before the function jumps back to the return
+address.  To do this, all we need to do is set aside a small amount of
+memory to store the contents of these registers in.  In this case,
+the body of the {\tt print\_str} function uses registers {\tt r2} - {\tt r4},
+so we need three bytes of memory to store these values.
+
+This solution still isn't perfect, however, because we need to use one
+register to load the address of {\tt print\_str\_mem} into!  Since we
+use this register to compute where the registers we're saving are
+stored in memory, it is overwritten before it can be saved. 
+Therefore, not {\em all} registers can be preserved and restored using
+this scheme.
+
+We have the same problem with storing the return address.  This value
+must be left in a register, so the program can do the {\tt beq} to
+return from the function.  We could use another register for this, but
+it turns out that this is unnecessary.  By being careful and storing
+the return address in memory, along with the values of registers {\tt
+r2} through {\tt r4}, we can get away with using just one ``scratch''
+register, register {\tt r15}.
+
+In program {\tt print-4}, the four bytes of memory after the {\tt
+print\_str\_mem} are used to store the preserved values (the return
+address, and the contents of registers {\tt r2} - {\tt r4}).
+
+\begin{figure}
+\caption{The source code of {\tt print-4.asm}}
+\hrule
+\input{Tutorial/print-4}
+\hrule
+\end{figure}
+
+\section{Recursive Functions}
+
+The method of preserving the values of the registers used by a
+function in explicit memory locations, as done in {\tt print-4} has
+serious drawbacks.  First, it requires that memory be set aside to
+store the registers for each function, and this memory is always set
+aside for this purpose, even when none of the functions are being
+called.
+
+More importantly, however, it cannot be used to implement {\em
+recursive} functions.  A recursive function is a function that calls
+itself (either indirectly or directly).
+
+For this section, the recursive function we will use is the function
+for computing the $n$'th Fibonacci number.  The sequence of Fibonacci 
+numbers is defined as:
+
+\begin{itemize}
+
+	\item	Fib(0) = 1
+	\item	Fib(1) = 1
+	\item	Fib(n) = Fib(n-1) + Fib(n-2) if $n > 1$.
+
+\end{itemize}
+
+\subsection{Using Memory as a Stack}
+
+Instead of setting aside a specific area memory for each function, we
+will set aside a pool of memory and use it as temporary storage for
+all of the functions.  At any given moment, we will keep track of what
+part of the memory is being used, and what parts are unused.
+
+Keeping track of what parts are used and unused would seem like a
+tedious and difficult exercise, but it is not, thanks to a key
+observation about the way that functions execute-- if function A calls
+function B, then function B must return before function A.  Therefore,
+we can simply organize our pool of memory as an array.  When we call
+function A, we can set aside as much of the array as A needs, starting
+at the beginning of the array.  When function B is called, we can put
+its temporary storage immediately after the storage from A.  All we
+really need to keep track of is how much of the array is in use at any
+time.
+
+This data structure, where temporary function records are stacked on
+top of each other, is called a {\em stack}.  The common operations on
+a stack are to {\em push} a value, which means to add it to the end of
+the stack, and to {\em pop} a value, which means to remove it from the
+end.
+
+\subsection{General Function Linkage}
+
+\subsubsection{Calling a Function}
+
+Before jumping or branching to a function, ...
+
+\subsubsection{Function Preamble}
+
+\begin{enumerate}
+
+\item {\bf Save the return address in register {\tt r4}.}
+
+	The {\tt jmp} or branch instruction that invokes the function
+	saves the return address in register {\tt r1}.  Many
+	instructions overwrite register {\tt r1}, so we must extract
+	the return address from {\tt r1} before executing any of them,
+	or else the return address will be lost.  To simplify things,
+	we might as well do this immediately.
+
+	By convention, we temporarily save the return address in
+	register {\tt r4}.
+
+
+\item {\bf Preserve the return address.}
+
+	Store the return address onto the stack.  Register {\tt r2}
+	is used as the stack pointer.
+
+\item {\bf Preserve the registers.}
+
+	Store each of the registers that we want to restore later onto
+	the stack.
+
+\item {\bf Increment the stack pointer.}
+
+	Move the stack pointer up, so that if any other functions
+	are called they start with the stack in the right place.
+
+\end{enumerate}
+
+\subsubsection{Returning From a Function}
+
+\begin{enumerate}
+
+\item	{\bf Put the return value (if any) into register {\tt r3}.}
+
+	If the function returns a value, by convention the caller will
+	expect to find it in register {\tt r3}.
+
+\item	{\bf Decrement the stack pointer.}
+
+	Move the stack pointer back to its previous position,
+	deallocating the current stack frame.
+
+\item	{\bf Restore the return address.}
+
+	By convention, we load the return address into register {\tt
+	r4}.
+
+\item	{\bf Restore the registers.}
+
+	Load the contents of each of the preserved registers back into
+	the registers, from the stack.  For each {\tt st1} instruction
+	in the function preamble, there must be a corresponding {\tt
+	ld1}.
+
+\item	{\bf Branch to the return address.}
+
+	Using {\tt beq}, branch back to the return address, which
+	by convention was stored in {\tt r4}.
+
+\end{enumerate}
+
+\subsection{Optimized Function Linkage}
+
+The general method of building stack frames described in the previous
+section is always correct, but frequently it is far from optimal.  For
+example, in the {\tt fib} function, we always save all of the
+registers that {\em might} potentially be used by the function, even
+though many of these registers are not used.  The base case of the
+recursion occurs in more than half of the calls to {\tt fib}, so more
+than half of the time this is wasted effort.  It would be more
+efficient to treat the base case separately from the recursive case,
+and only do all the work of preserving the registers when actually
+necessary.
+
+An example is shown in {\tt fib-2.asm}.  The {\tt fib} function is
+very simple, and doesn't preserve many registers, but the basic idea
+of handling the base case separately is illustrated.
+
+% \begin{figure}
+% \caption{The source code of {\tt fib-2.asm}}
+% \hrule
+% \input{Tutorial/fib-2}
+% \hrule
+% \end{figure}
+
+\end{document}

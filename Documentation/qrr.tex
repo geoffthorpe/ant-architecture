@@ -1,0 +1,158 @@
+% Dan Ellard -- 02/13/94
+% $Id: qrr.tex,v 1.10 2003/02/14 16:52:04 ellard Exp $
+%
+
+\section{{\sc Ant-8} Architecture Overview}
+
+The {\sc Ant-8} architecture is a load/store architecture; the only
+instructions that can access memory are the {\em load} and {\em store}
+instructions.  All other operations access only registers (or, in the
+case of {\tt in} and {\tt out}, access peripherals).
+
+The {\sc Ant-8} CPU has 16 registers, named {\tt r0} through {\tt r15}.
+Register {\tt r0} always contains the constant 0, and register
+{\tt r1} is used to hold results related to previous operations
+(described later).  {\tt r0} and {\tt r1} are {\em read-only}.
+They can be used as destination registers, but their values are
+unchanged.
+The other 14 registers ({\tt r2} through {\tt r15}) are
+general-purpose registers.
+
+\section{Instructions}
+\label{mnemonic-sec}
+
+In the description of the instructions, the notation described in
+the following table is used:
+
+\vspace{3mm}
+\begin{center}
+\begin{tabular}{|lp{5.5in}|}
+\hline
+{\em des}       & Must always be a register. The {\em des} register
+			may be modified by the instruction. \\
+{\em reg}       & Must always be a register. \\
+{\em src1}      & Must always be a register. \\
+{\em src2}      & Must always be a register. \\
+{\em const8}     & Must be an 8-bit constant (-128 .. 127):
+			an integer (signed), char, or label. \\
+{\em uconst8}	& Must be an 8-bit constant (0 .. 255):
+			an integer (unsigned) or label. \\
+{\em uconst4}	& Must be a 4-bit constant integer (0 .. 15). \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{3mm}
+
+The {\sc Ant-8} assembly language instructions are listed in Figure
+\ref{mnemonic-table}.
+
+Note that for all instructions, register {\tt r1} is always
+updated {\em after} the rest of the instruction is done,
+so that it is always safe to use {\tt r1} as a source register.
+
+\begin{figure}[htp]
+\caption{ \label{mnemonic-table} {\sc Ant-8} Instruction Mnemonics }
+\vspace{3mm}
+\noindent
+\begin{tabular}{|ll|p{4.5in}|}
+\hline
+        {\bf Op}        & {\bf Operands}        & {\bf Description}     \\
+\hline
+\hline
+        {\tt add}       & {\em des, src1, src2} &
+                {\em des} gets {\em src1} + {\em src2}.
+                {\tt r1} gets 1 if the result is $>$ 127,
+		-1 if $<$ -128, or 0 otherwise. \\
+\hline
+        {\tt sub}       & {\em des, src1, src2} &
+                {\em des} gets {\em src1} - {\em src2}.
+                {\tt r1} gets 1 if the result is $>$ 127,
+		-1 if $<$ -128, or 0 otherwise. \\
+\hline
+        {\tt mul}       & {\em des, src1, src2} &
+                Multiply {\em src1} and {\em src2},
+                leaving the low-order byte in register {\em des}
+                and the high-order byte in register {\tt r1}. \\
+
+\hline
+        {\tt and}       & {\em des, src1, src2} &
+                {\em des} gets the bitwise logical {\sc and} of
+                {\em src1} and {\em src2}.  {\tt r1} gets the
+                bitwise negation of the {\sc and} of {\em src1} and {\em src2}. \\
+\hline
+        {\tt nor}        & {\em des, src1, src2} &
+                {\em des} gets the bitwise logical {\sc nor} of
+                {\em src1} and {\em src2}.  {\tt r1} gets the
+                bitwise negation of the {\sc nor}
+		of {\em src1} and {\em src2}. \\
+\hline
+        {\tt shf}        & {\em des, src1, src2} &
+		{\em des} gets the bitwise shift of {\em src1} by
+		{\em src2} positions.  If {\em src2} is positive,
+		{\em src1} is shifted to the left, if {\em src2}
+		is negative {\em src1} is shifted to the right. \\
+\hline
+{\tt beq}       & {\em reg, src1, src2} &
+        Branch to {\em reg} if {\em src1} is equal to {\em src2}.
+        {\tt r1} is unchanged. \\
+\hline
+{\tt bgt}       & {\em reg, src1, src2} &
+        Branch to {\em reg} if {\em src1} $>$ {\em src2}.
+        {\tt r1} is unchanged. \\
+\hline
+{\tt ld1}        & {\em des, src1, uconst4} & 
+        Load the byte at {\em src1 + uconst4} into {\em des}.
+        {\tt r1} is unchanged.
+        \\
+\hline
+{\tt st1}        & {\em reg, src1, uconst4} &
+        Store the contents of register {\em reg} to {\em src1 + uconst4}.
+        {\tt r1} is unchanged.
+        \\
+\hline
+{\tt lc}        & {\em des, const8}      & 
+        Load the constant {\em const8} into {\em des}.
+        {\tt r1} is unchanged. \\
+\hline
+{\tt jmp}	& {\em uconst8}	&
+	Branch unconditionally to the specified constant.
+	{\tt r1} is set to the address
+	of the instruction following the {\tt jmp}. \\
+
+\hline
+
+{\tt inc}	& {\em reg, const8}	&
+	Add {\em const8} to the specified register.
+                {\tt r1} gets 1 if the result is $>$ 127,
+		-1 if $<$ -128, or 0 otherwise. \\
+\hline
+
+{\tt in}	& {\em des, uconst4}	&
+	Read in a byte from the peripheral specified by {\em uconst4},
+	and place it in the destination register. {\tt r1} is set to 0
+	if successful, 1 if EOI is reached.
+	\\
+\hline
+{\tt out}	& {\em src1, uconst4}	&
+	Write the byte in the {\em src1} register to the peripheral
+	specified by {\em uconst4}. {\tt r1} is set to 0. \\
+
+\hline
+        {\tt hlt}   & 			&
+		Dump core to {\tt ant8.core}, and halt. \\
+
+\hline 
+\end{tabular}
+\end{figure}
+\vspace{3mm}
+
+\subsection{{\sc Ant-8} Peripherals}
+\label{peripheral-sec}
+
+The {\tt in} and {\tt out} operations set {\tt r1} to 0 if successful,
+and set {\tt r1} to non-zero values to indicate failure. 
+
+\vspace{3mm}
+\input{ant-periph}
+
+%%% end of ant.tx

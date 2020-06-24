@@ -1,0 +1,19 @@
+% $Id: jez.tex,v 1.7 2002/04/16 15:19:12 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{jez}
+\renewcommand{\INSTdesc}	{Jump if Zero}
+\renewcommand{\INSTopcode}	{0xD1}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{src2}
+
+\renewcommand{\INSTsemantic}	{
+
+	If the value in \Reg{src1} is zero, then branch to the
+	address in \Reg{src2}.  In either case, the address of the
+	current instruction is copied into \Reg{des}.
+}
+
+\renewcommand{\INSTexceptions}	{An alignment exception occurs if
+	the branch address is not divisible by 4.}

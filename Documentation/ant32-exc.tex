@@ -1,0 +1,250 @@
+% $Id: ant32-exc.tex,v 1.4 2002/05/29 18:43:00 ellard Exp $
+
+\chapter{The Ant-32 Exception Architecture}
+\label{ExceptionArchitecture}
+
+When the Ant-32 processor takes an exception, control transfers to the
+address that has been specified as the {\em exception handler
+address}, via the {\tt leh} instruction.  If an exception occurs
+before the exception handler address has been loaded, the behavior is
+undefined.
+
+There are eight exception registers, {\tt k0-k3} and {\tt e0-e3}, and two
+processor flags relating to exception handling: the interrupt disable
+flag and the exception disable flag. All of these items are accessible
+only in supervisor mode.  The exception registers occupy the last eight
+positions in the register name space, with the following mappings 
+and definitions given in Figure \ref{exc-registers}.
+
+\begin{figure}[ht]
+\begin{center}
+\caption{\label{exc-registers} Exception Registers}
+
+\begin{tabular}{|l |l |p{4.in} |l|}
+\hline
+
+r248	& k0	&		&\\
+\cline{1-2}
+
+r249	& k1 	& Supervisor-only general registers	& read/write\\
+\cline{1-2}
+
+r250	& k2 	&		&\\
+\cline{1-2}
+
+r251	& k3 	&		&\\
+\hline
+
+r252	& e0 	& Program counter shadow register.  
+When the exception disable flag is equal to 0, this register is updated 
+every cycle with a copy of the program counter.		&\\
+\cline{1-3}
+
+r253	& e1 	& Interrupt mask shadow register.
+When the exception disable flag is equal to 0, this register is updated 
+every cycle with a copy of the interrupt disable flag in bit 0.
+The remaining bits are reserved. 		&read only\\
+\cline{1-3}
+
+r254	& e2 	& TLB latch register: When the exception disable
+flag is equal to 0, this register is updated with every address sent
+to the memory system.  Therefore, if any memory exception occurs,
+this register will contain the address that caused the problem.  &\\
+\cline{1-3}
+
+r255	& e3	& Exception code register.  See Figures \ref{e3-table}
+			and \ref{exceptions-table} for more information. &\\
+\hline
+\end{tabular} \linebreak
+\end{center}
+\end{figure}
+
+When an exception occurs:
+
+\begin{itemize}
+
+\item The exception registers {\tt e0-e3} contain the exception
+	context, as described above.  In particular, {\tt e3} contains
+	information about the type of exception that occurred.  {\tt
+	e3} can be interpreted as shown in Figures \ref{e3-table} and
+	\ref{exceptions-table}.
+
+	Note that at most one of bits 1-3 of {\tt e3} will be set. 
+	None of the three bits will be set if the exception was due to
+	anything other than a memory access.
+
+\item The interrupt disable flag and the exception disable flag are
+	set.
+
+\item Execution continues at the exception handler address.
+
+\end{itemize}
+
+Note that the supervisor general registers {\tt k0-3} are not modified
+by the hardware at exception time; these registers are available to be
+used by the exception handling code.
+
+The intended exception handling model is that at exception entry,
+registers {\tt k0-3} are used as scratch space; at exception exit,
+these registers are used to hold the operands of the {\tt rfe}
+instruction.  Register {\tt k0} is not destroyed and can be used to
+hold information such as the current supervisor-mode stack pointer,
+thread structure address, or the like.  In SMP systems, this avoids
+the need to look up such things based on CPU number.
+
+The {\tt rfe} (return from exception) instruction clears the exception
+disable flag and takes three register arguments:
+
+\begin{center}
+\begin{tabular}{l l}
+1st argument	&this register is used to load the program counter.\\
+2nd argument	&bit 0 of this register is loaded into the interrupt disable flag.\\
+3rd argument	&bit 0 of this register is loaded into the user-mode flag.\\
+\end{tabular}
+\end{center}
+
+For compatibility with possible future revisions with expanded
+interrupt masks, the entire contents of the {\tt e1} register should
+be saved at exception time and made available to {\tt rfe} for
+restoration.
+
+The interrupt disable flag inhibits interrupts.  The exception disable
+flag inhibits further exceptions; if an exception occurs while the
+exception disable flag is set, the processor resets.
+
+It is not meaningful to have exceptions disabled and interrupts
+enabled at the same time.  Such a configuration may produce undefined
+behavior.
+
+The exception disable flag is intended to prevent nested exceptions
+causing an unrecoverable loss of data:  if an exception were to occur
+in an exception handler before {\tt e0-3} could be saved, their
+contents, and thus important information about the state of some
+process, would be overwritten.  The exception disable flag should be
+cleared as soon as the exception handler has saved all the necessary
+state to be able to resume if interrupted.  The exception disable
+flag should then be re-asserted before reloading the general-purpose
+registers before returning from exception, in order to ensure that these
+registers are properly restored.
+
+The result of this arrangement is that the only way to fatally crash
+the processor is to have a mistake in the exception entry/exit code. 
+This is, while not ideal, definitely to be preferred to architectures
+where an error such as stack overflow in supervisor mode at any time
+can cause a processor reset.  There is one drawback, however, which is
+that the exception handler must appear in one of the unmapped
+supervisor segments.
+
+
+\begin{figure}[hpt]
+\caption{\label{e3-table} Exception Register {\tt e3}}
+
+\begin{center}
+\begin{tabular}{|l|lp{3.5in}|}
+\hline
+
+bits [31..4]	& \multicolumn{2}{|l|}{Exception Type
+			(see Figure \ref{exceptions-table})}\\
+\hline
+
+bit 3		&DF	&= 1, if the exception occurred on a data fetch.\\
+\hline
+bit 2		&DS	&= 1, if the exception occurred on a data store.\\
+\hline
+bit 1		&IF	&= 1, if the exception occurred on an instruction fetch.\\
+\hline
+bit 0		&SU	&= 1, if the processor was in supervisor mode when the exception occurred.\\
+\hline
+\end{tabular}
+\end{center}
+
+% \end{figure}
+
+% \begin{figure}[hbp]
+\caption{\label{exceptions-table}
+	Valid Values for Bits [31..4] of Exception Register {\tt e3}}
+
+\begin{center}
+\begin{tabular} {|l|l|p{4.0in}|}
+\hline
+{\em Exception type}	& {\em Value}	& {\em Description} \\
+\hline
+IRQ      		& 1    & Generated when the IRQ line on
+				the processor is raised and the interrupt
+				disable flag is not set. \\
+\hline
+Bus error       	& 3	 & Generated when the
+				physical memory bus (external to the processor)
+				rejects a memory access. \\
+\hline
+Illegal Instruction     & 4	& Generated when instruction decoding fails. \\
+\hline
+Privileged Instruction  & 5	& Generated when an instruction that 
+				is reserved for supervisor mode is
+				encountered in user mode. \\
+\hline
+Trap 			& 6     & Generated when a trap instruction is executed.
+				\\
+\hline
+Divide by Zero		& 7	& Generated by a division or mod by zero. \\
+\hline
+Alignment Error		& 8	& Generated if a memory
+				access is generated that does not meet alignment
+				requirements, that is, if an $n$-byte access is 
+				not aligned on an $n$-byte boundary. \\
+\hline
+Segment Privilege	& 9	& Generated if a reference to segments 1,
+				2, or 3 is attempted while in
+				user mode. \\
+\hline
+Register Violation	& 10	& Generated by
+				trying to write a supervisor-only
+				register while in user mode,
+				or trying to write a read-only
+				register other than {\tt r0}. \\
+\hline
+TLB Miss        	& 11	& Generated when address
+				translation via the TLB cannot find a matching
+				valid TLB entry. \\
+\hline
+TLB Protection		& 12	& Generated when address translation via the TLB
+				finds a valid matching TLB entry, but the
+				entry prohibits the requested operation.
+				\\
+\hline
+TLB Multiple Match	& 13	& Generated when a TLB probe detects two (or more)
+				TLB entries for the probe address.\\
+\hline
+TLB Invalid Index	& 14	& Generated when an invalid TLB index is
+				used with {\tt tlbse} or {\tt tlble}. \\
+\hline
+Timer Exception		& 20	& Generated when the timer expires. \\
+\hline
+\end{tabular}
+\end{center}
+\end{figure}
+
+Notes about particular exceptions:
+
+\begin{description}
+
+\item[IRQ] If the IRQ line remains asserted when the interrupt disable
+	flag is cleared again, another IRQ exception will occur. 
+	However, at least one IRQ exception will occur if the IRQ line
+	is raised, even if it is subsequently lowered before the
+	exception occurs.
+
+\item[Trap] The low 24 bits of the trap instruction are not
+	interpreted by the processor and may thus be used by the
+	operating system.
+
+\item[Illegal Instruction]
+
+	An illegal instruction exception occurs when an instruction
+	with an invalid opcode is encountered, or when an invalid
+	operand to a valid opcode is encountered.  Illegal operands
+	include non-existent registers, or odd-numbered registers
+	to instructions that use register pairs.
+
+\end{description}
+

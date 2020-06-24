@@ -1,0 +1,29 @@
+% $Id: rfe.tex,v 1.9 2002/04/16 15:33:58 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{rfe}
+\renewcommand{\INSTdesc}	{Return to User Mode}
+\renewcommand{\INSTopcode}	{0x45}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{src1}
+\renewcommand{\INSTfieldB}	{src2}
+\renewcommand{\INSTfieldC}	{src3}
+\renewcommand{\INSTsemantic}	{
+
+	The interrupt disable flag is set to the value in the lowest
+	bit of \Reg{src2}, and the exception disable flag is set to zero.
+	If the lowest bit of \Reg{src3} is 1, then
+	the processor enters user mode; otherwise it remains in supervisor
+	mode.  (If this instruction is executed in user mode, a privileged
+	instruction exception occurs.)  Execution continues at the address
+	\Reg{src1}.
+
+}
+
+\renewcommand{\INSTprose}	{
+	Return from exception.  Clears the exception disable flag.
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Privileged instruction
+	}

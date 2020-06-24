@@ -1,0 +1,31 @@
+% $Id: trap.tex,v 1.6 2001/07/18 01:59:09 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{trap}
+\renewcommand{\INSTdesc}	{Trap into Supervisor Mode}
+\renewcommand{\INSTopcode}	{0x10}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{unused}
+\renewcommand{\INSTfieldB}	{unused}
+\renewcommand{\INSTfieldC}	{unused}
+
+\renewcommand{\INSTsemantic}	{
+}
+
+\renewcommand{\INSTprose}	{
+
+	Enter supervisor mode.  Continues execution at the address
+	specified in the Exception Handler register (loaded via
+	the {\em leh} instruction). The low 24 bits of the trap
+	instruction are not interpreted by the processor and may
+	thus be used by the operating system.
+
+	Note that when {\tt trap} is used to implement system calls,
+	the address passed to {\tt rfe} must be incremented by 4.
+	Otherwise, the {\tt trap} instruction will simply be
+	executed again.
+
+}
+
+\renewcommand{\INSTexceptions}	{
+	Trap
+	}

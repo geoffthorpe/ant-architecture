@@ -1,0 +1,11 @@
+#!/bin/csh -f
+
+latex ant-arch.tex
+if ($status != 0) then
+	exit 1
+endif
+
+makeindex ant-arch
+
+tex_show ant-arch.tex
+exit $status

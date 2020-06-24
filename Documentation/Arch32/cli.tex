@@ -1,0 +1,19 @@
+% $Id: cli.tex,v 1.7 2002/04/16 15:33:58 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{cli}
+\renewcommand{\INSTdesc}	{Enable Interrupts}
+\renewcommand{\INSTopcode}	{0x49}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{\INSTunusedField}
+\renewcommand{\INSTfieldB}	{\INSTunusedField}
+\renewcommand{\INSTfieldC}	{\INSTunusedField}
+
+\renewcommand{\INSTprose}	{
+
+	Clear the interrupt disable flag to 0, enabling interrupts.
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Privileged instruction
+	}

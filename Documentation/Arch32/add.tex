@@ -1,0 +1,16 @@
+% $Id: add.tex,v 1.6 2001/06/21 15:17:39 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{add}
+\renewcommand{\INSTdesc}	{Addition}
+\renewcommand{\INSTopcode}	{0x80}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{src2}
+
+\renewcommand{\INSTsemantic}	{
+	\Reg{des} $\leftarrow$ \Reg{src1} + \Reg{src2}
+}
+
+\renewcommand{\INSTexceptions}	{}
+

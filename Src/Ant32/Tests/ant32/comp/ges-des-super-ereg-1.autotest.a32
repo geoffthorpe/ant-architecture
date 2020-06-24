@@ -1,0 +1,25 @@
+#@ Instructions 17
+#@ Data 68
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf028002c  ::      lc      r40, 0x8000002c
++           ::  0xf1288000  ::  
++           ::  0x44002800  ::      leh     r40
++           ::  0x4b000000  ::  	cle
++           ::  0xf02c0002  ::      lc      r44, 2          #load into TLB entry 2
++           ::  0xf02ae000  ::      lc      r42, 0x3fffe000 #denotes VPN 0x3ffff
++           ::  0xf12a3fff  ::  
++           ::  0xf02be01f  ::      lc      r43, 0x3fffe01f #map VPN 0x3fffe to page 0xffffe
++           ::  0xf12b3fff  ::  
++           ::  0x42002c2a  ::      tlbse   r44, r42
++           ::  0xd4000004  ::  	bezi	r0, 4
++           ::  0xf031beef  ::      lc  r49, 0xdeadbeef
++           ::  0xf131dead  ::  
++           ::  0x4f000000  ::      halt    #or rather don't =)
++           ::  0xf01e0001  ::      lc  r30, 1
++           ::  0xc3fe1e1e  ::      ges e2, r30, r30
++           ::  0x4f000000  ::      halt
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# end of file

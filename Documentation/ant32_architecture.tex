@@ -1,0 +1,45 @@
+% $Id: ant32_architecture.tex,v 1.48 2002/04/17 20:05:58 ellard Exp $
+% $Date: 2002/04/17 20:05:58 $
+
+\documentclass[11pt]{book}
+\usepackage{makeidx}
+\usepackage{ifthen}
+\input{ant-macros}
+\input{ant-spec}
+\input{ant32-ver}
+
+\makeindex
+
+\setlength{\textheight}{8.0in}
+
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\evensidemargin}{0.0in}
+\raggedbottom
+
+\title{\Huge\bf The Ant-32 Architecture
+		\linebreak
+		{\bf \antVersion}
+		\linebreak
+		\input{ant32_date}
+	}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+
+{\bf Copyright 2001-2002 by the President and Fellows of Harvard College. }
+
+\tableofcontents
+
+\mainmatter
+
+\input{ant32-over}
+\input{ant32-exc}
+\input{ant32-vm}
+\input{ant32-cycle}
+\input{ant32-inst}
+\input{ant32-init}
+
+\end{document}

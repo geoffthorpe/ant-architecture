@@ -1,0 +1,216 @@
+% $Id: ant32-asm.tex,v 1.4 2002/04/17 20:05:58 ellard Exp $
+
+\section{Comments and Whitespace}
+
+A comment begins with a \verb$#$ and continues until the following
+end-of-line.  The only exception to this is when the \verb$#$
+character appears as part of an ASCII character constant (as described
+in section \ref{data-const-sec}).
+
+Once comments have been removed, any line that is not indented defines
+a {\em label}.  The name of the label begins with the first character
+of the line, and continues until a colon ({\tt :}) has been reached. 
+All other lines must be indented.  The recommended level of
+indentation is at least one tab-stop; additional indentation may be
+used, at the discretion of the programmer, to clarify the program
+structure.
+
+\section{Summary of Directives}
+
+\vspace{3mm}
+\noindent
+\begin{tabular}{|ll|p{4.0in}|}
+\hline
+{\bf Name}      & {\bf Parameters}      & {\bf Description}     \\
+\hline
+{\tt .text}	&					&
+		Assemble the following assembly language statements
+		as program instructions.  (This is the default.)
+		\\
+{\tt .data}	&					&
+		Assemble the following assembly language statements
+		as data.
+		\\
+\hline
+{\tt .define}	& {\em name}, {\em value}		&
+		Bind the {\em value} to the {\em name}.
+		\\
+\hline
+{\tt .byte}     & {\em byte1, $\cdots$, byteN }		&
+		Assemble the given byte values.
+		\\
+{\tt .word}     & {\em word1, $\cdots$, wordN }		&
+		Assemble the given word (4-byte) values.
+		\\
+{\tt .ascii}    & {\tt "{\em string}"}			&
+		Assemble the given string.  The string is
+		not zero-terminated.
+		\\
+{\tt .asciiz}   & {\tt "{\em string}"}			&
+		Assemble the given string, including the
+		a zero-terminating byte.
+		\\
+\hline
+{\tt .align}	& {\em size}				&
+		Force alignment to the next address
+		used by the assembler to the given {\em size},
+		skipping over memory if needed.
+		\\
+\hline
+\end{tabular}
+\vspace{3mm}
+
+% \section{The {\tt .text} and {\tt .data} Directives}
+
+\section{Constants}
+\label{data-const-sec}
+
+Several Ant-32 assembly instructions contain 8, 16, or 32-bit constants.
+A 32-bit constant can be specified in a variety of ways:
+as decimal, octal, hexadecimal, or binary numbers, {\sc ASCII} codes (using
+the same conventions as C), or labels.  Examples are shown in the
+following table:
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+Representation	& Value	& Decimal Value \\
+\hline
+{\em Decimal (base 10)}		&	{\tt 65}	&	65 \\
+{\em Hexadecimal (base 16)}	&	{\tt 0x41}	&	65 \\
+{\em Octal (base 8)}		&	{\tt 0101}	&	65 \\
+{\em Binary (base 2)}		&	{\tt 0b01000001}&	65 \\
+{\em {\sc ASCII}}		&	{\tt 'A'}	&	65 \\
+\hline
+{\em Decimal (base 10)}		&	{\tt 10}	&	10 \\
+{\em Hexadecimal (base 16)}	&	{\tt 0xa}	&	10 \\
+{\em Octal (base 8)}		&	{\tt 012}	&	10 \\
+{\em Binary (base 2)}		&	{\tt 0b1010}	&	10 \\
+{\em {\sc ASCII}}		&	{\tt '\verb$\$n'}	&	10 \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{3mm}
+
+The value of a label is the index of the subsequent instruction in
+instruction memory for labels that appear in the code, or the index of
+the subsequent {\tt .byte}, {\tt .word}, or {\tt .ascii} item for
+labels that appear in the data.
+
+The 8 and 16-bit constants can be specified in all the same ways as
+the 32-bit constants {\em except} for labels, which are always 32
+bits.
+
+\section{Symbolic Constants}
+\label{data-symconst-sec}
+\index{.define}
+
+Constants can be given symbolic names via the {\tt .define} directive. 
+This can result in substantially more readable code.  The first
+operand of the {\tt .define} directive is the symbolic name for the
+constant, and the second value is an integer constant.  Unfortunately,
+the integer constant must not be a label or another symbolic constant.
+
+\vspace{3mm}
+{\codesize
+\begin{verbatim}
+        .define ROWS, 10        # Defining ROWS to be 10
+        .define COLS, 10        # Defining COLS to be 10
+
+        lc      g2, ROWS        # Using ROWS as a constant
+        addi    g3, g3, COLS    # Using COLS as a constant
+\end{verbatim}}
+\vspace{3mm}
+
+Note that {\tt .define}'d constants can be redefined at any point.
+
+\section{The {\tt .byte}, {\tt .word}, and {\tt .ascii} Directives}
+\label{data-directive-sec}
+\label{byte-figure}
+
+The {\tt .byte} and {\tt .word} directives are used to specify data
+values to be assembled into the next available locations in memory.
+{\tt .byte} is used to assemble bytes, and {\tt .word} is used to
+assemble 32-bit values.
+
+\vspace{3mm}
+\noindent
+\begin{tabular}{|ll|p{4.0in}|}
+\hline
+{\bf Name}      & {\bf Parameters}      & {\bf Description}     \\
+\hline
+{\tt .byte}     & {\em byte1, $\cdots$, byteN }   &
+		Assemble the given bytes (8-bit values) into the
+		next available locations in the data segment.  As many
+		as 8 bytes can be specified on the same line.  Bytes
+		may be specified as hexadecimal, octal, binary, decimal
+		or character constants.
+                \\
+{\tt .word}     & {\em word1, $\cdots$, wordN }   &
+		Assemble the given words (32-bit values) into the
+		next available locations in the data segment.  As many
+		as 8 words can be specified on the same line.  Words
+		may be specified as labels, hexadecimal, octal, binary, decimal
+		or character constants.
+                \\
+{\tt .ascii}	& {\tt {\em "string"}}		&
+		Assemble the given string (which must be enclosed
+		in double quotes) as a sequence of 8-bit ASCII values.
+		Note that a terminating zero is {\em not}
+		added to string by {\tt .ascii}, and must be
+		placed there explicitly if desired.
+		\\
+{\tt .asciiz}	& {\tt {\em "string"}}		&
+		Assemble the given string (which must be enclosed
+		in double quotes) as a sequence of 8-bit ASCII values.
+		Unlike {\tt .ascii},
+		a terminating zero byte is added to the end of the string.
+		\\
+
+\hline
+\end{tabular}
+\vspace{3mm}
+
+\section{{\tt .align}}
+\index{.align}
+
+The Ant-32 architecture only allows memory references that are {\em
+aligned} according to their size:  4-byte word reads and writes must
+always be aligned on 4-byte boundaries (their address must always be
+divisible by 4).  Byte reads and writes do not have any alignment
+restrictions, since all addresses are divisible by 1.
+
+The {\tt .align} directive is used to ensure that an address is
+divisible by an arbitrary amount.  The {\tt .align} directive is used
+to ensure that addresses are properly aligned.  The {\tt .align}
+directive causes the assembler to skip to the next address which is a
+multiple of its argument {\em size}.  (If the current address is a
+multiple of the {\em size}, then no skip is needed.)
+
+For example, to ensure that the address of a {\tt .word}
+is aligned in a 4-byte boundary after an {\tt .ascii} string:
+
+\begin{verbatim}
+        .ascii  "hello"
+        .align  4	# make sure that xxx is aligned on a word boundary
+xxx :   .word   100
+\end{verbatim}
+
+This will ensure the address {\tt xxx} is aligned on a 4-byte boundary.
+
+{\tt .align} can also be used to align on other boundaries, such as
+page boundaries (by using a size of 4096).
+
+Note that the alignment adjustment is done {\em after} the rest of the
+line is processed, and therefore it is usually incorrect to
+put a label definition on the same line as a {\tt .align}, because
+the label will be assigned to a possibly misaligned address.  For example:
+
+\begin{verbatim}
+xxx:    .align  4       # WRONG: xxx might not be aligned
+        .word   100     # xxx might not be the address of this word.
+
+        .align  4       # RIGHT: yyy will be aligned properly
+yyy:    .word   100     # yyy will be the address of this word
+\end{verbatim}
+

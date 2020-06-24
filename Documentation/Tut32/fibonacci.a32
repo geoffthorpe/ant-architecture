@@ -1,0 +1,70 @@
+#@ Instructions 58
+#@ Data 232
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0050005  ::  	lc	g1, 5
++           ::  0x91020204  ::  	push	g1
++           ::  0xe6050200  ::  
++           ::  0xf03c0020  ::  	call	$fibonacci	# Call Fibonacci(5)
++           ::  0xf13c8000  ::  
++           ::  0xd101003c  ::  
++           ::  0x90020204  ::  	addi	sp, sp, 4	# Restore stack pointer
++           ::  0x4f000000  ::  	halt			# and halt.
++           ::  0x91020208  ::  	entry	0
++           ::  0xe6030204  ::  
++           ::  0xe6010200  ::  
++           ::  0x90030200  ::  
++           ::  0xf03c0000  ::  
++           ::  0xf13c0000  ::  
++           ::  0x8102023c  ::  
++           ::  0xe2050308  ::  	ld4	g1, fp, 8	# g1 gets a copy of the current X
++           ::  0xf03c00cc  ::  	jezi	g1, $fibonacci_basecase
++           ::  0xf13c8000  ::  
++           ::  0xd100053c  ::  
++           ::  0x91050501  ::  	subi	g1, g1, 1	# decrement g1 (computing X-1)
++           ::  0xf03c00cc  ::  	jezi	g1, $fibonacci_basecase
++           ::  0xf13c8000  ::  
++           ::  0xd100053c  ::  
++           ::  0x91020204  ::  	push	g1		# push argument (X-1)
++           ::  0xe6050200  ::  
++           ::  0xf03c0020  ::  	call	$fibonacci	# recursively call fibonacci
++           ::  0xf13c8000  ::  
++           ::  0xd101003c  ::  
++           ::  0xe2050200  ::  	pop	g1		# pop argument (X-1)
++           ::  0x90020204  ::  
++           ::  0x80060400  ::  	mov	g2, g0		# save value of fibonacci(X-1) in g2
++           ::  0x91050501  ::  	subi	g1, g1, 1	# g1 = X-2
++           ::  0x91020204  ::  	push	g2		# preserve g2
++           ::  0xe6060200  ::  
++           ::  0x91020204  ::  	push	g1		# push argument (X-2)
++           ::  0xe6050200  ::  
++           ::  0xf03c0020  ::  	call	$fibonacci
++           ::  0xf13c8000  ::  
++           ::  0xd101003c  ::  
++           ::  0xe2050200  ::  	pop	g1		# pop (X-2)
++           ::  0x90020204  ::  
++           ::  0xe2060200  ::  	pop	g2		# restore g2
++           ::  0x90020204  ::  
++           ::  0x80040406  ::  	add	g0, g0, g2	# compute fibonacci(X-2) + fibonacci(X-1)
++           ::  0x90040400  ::  	return	g0		# return the sum...
++           ::  0x90020300  ::  
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
++           ::  0xf0040001  ::  	return	1
++           ::  0x90020300  ::  
++           ::  0xe2010200  ::  
++           ::  0x90010104  ::  
++           ::  0xe2030204  ::  
++           ::  0x90020208  ::  
++           ::  0xd1000001  ::  
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# $fibonacci_basecase       = -2147483444 (0x800000cc)
+# $fibonacci_recurse        = -2147483556 (0x8000005c)
+# $fibonacci                = -2147483616 (0x80000020)
+# $main                     = -2147483648 (0x80000000)
+# end of file

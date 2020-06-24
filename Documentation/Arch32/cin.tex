@@ -1,0 +1,17 @@
+% $Id: cin.tex,v 1.7 2001/06/21 15:17:45 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{cin}
+\renewcommand{\INSTdesc}	{Console Input}
+\renewcommand{\INSTopcode}	{0x24}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{\INSTunusedField}
+\renewcommand{\INSTfieldC}	{\INSTunusedField}
+
+\renewcommand{\INSTsemantic}	{
+	Input character from simple ``console'' interface.
+}
+
+\renewcommand{\INSTexceptions}	{
+	Illegal-instruction (if unimplemented)
+	}

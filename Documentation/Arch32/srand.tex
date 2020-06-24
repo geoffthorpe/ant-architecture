@@ -1,0 +1,36 @@
+% $Id: srand.tex,v 1.8 2002/04/16 15:33:59 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{srand}
+\renewcommand{\INSTdesc}	{Set Random Seed}
+\renewcommand{\INSTopcode}	{0x61}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{src1}
+\renewcommand{\INSTfieldB}	{src2}
+\renewcommand{\INSTfieldC}	{src3}
+\renewcommand{\INSTsemantic}	{
+}
+
+\renewcommand{\INSTprose}	{
+
+	Seed the random number generator with the 96-bit number formed
+	by concatenating the three src registers.  The initial seed,
+	when the CPU is initialized, is always 0.
+
+	It is implementation-defined how many of the 96 possible bits
+	are actually used to seed the random number generator. The
+	{\em info} instruction can be used to detect how many bits
+	of the seed are actually used on any particular implementation.
+	If fewer than 96 bits are used, the bits are taken first from
+	src1, then src2, and finally src3.  In each case, bits are
+	used from low to high (i.e., if an implementation uses 80 bits,
+	all the bits from src1 and src2 are used while the lower 16 bits
+	from src3 are used).
+
+	{\tt srand} can only be executed in supervisor mode.
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Illegal-instruction (if unimplemented), 
+	Privileged instruction
+	}

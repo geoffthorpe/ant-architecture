@@ -1,0 +1,22 @@
+% $Id: shrui.tex,v 1.9 2002/04/16 15:19:13 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{shrui}
+\renewcommand{\INSTdesc}	{Shift Right Unsigned Immediate}
+\renewcommand{\INSTopcode}	{0x9D}
+\renewcommand{\INSToptype}	{TwoReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{const8}
+
+\renewcommand{\INSTsemantic}	{
+	\Reg{des} $\leftarrow$ \Reg{src1} $>>$ {\em const8}
+}
+
+\renewcommand{\INSTprose} {
+
+	Place into \Reg{des} the value in \Reg{src1} shifted right
+	by the number of bits specified by the value of the low
+	five bits of {\em const8}, filling the high order bits with 0's.
+}
+
+\renewcommand{\INSTexceptions}	{}

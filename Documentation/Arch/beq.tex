@@ -1,0 +1,23 @@
+% $Id
+
+\ThreeRegisterOp{beq}{Branch if equal}{\OPCODE}{reg1}{reg2}{reg3}
+
+\index{beq@{\tt beq}!for Ant-8}
+
+Branch if equal.
+
+\begin{enumerate}
+
+\item Branch to \Reg{reg1} if \Reg{reg2} is equal to \Reg{reg3}:
+
+	\begin{tabular}{lll}
+
+	{\sc PC} $~ \leftarrow$ & \Reg{reg1} &
+			if \Reg{reg2} is equal to \Reg{reg3} \\
+
+	{\sc PC} $~ \leftarrow$ & {\sc PC} & otherwise. \\
+
+	\end{tabular}
+
+\end{enumerate}
+

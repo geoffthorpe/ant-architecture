@@ -1,0 +1,19 @@
+#@ Instructions 6
+#@ Data 39
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0010001  ::  	lc	ra, 1
++           ::  0xf0020002  ::  	lc	sp, 2
++           ::  0xf0020003  ::  	lc	sp, 3
++           ::  0xf006000a  ::  	lc	a0, 10
++           ::  0xf007000b  ::  	lc	a1, 11
++           ::  0xf0020000  ::  	lc	r2, 0
++           ::  0x00000000  ::  
++           ::  0x61626364  ::  
++           ::  0x0a666700  ::  
++           ::  0x00000000  ::  
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# $_data_                   = -2147483624 (0x80000018)
+# end of file

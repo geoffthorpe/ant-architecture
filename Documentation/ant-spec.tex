@@ -1,0 +1,117 @@
+% $Id: ant-spec.tex,v 1.7 2002/01/02 02:53:15 ellard Exp $
+%
+% Macros for printing the info for each instruction in a regular manner.
+%
+% This is a useful hack.  Instead of just scribbling out the
+% spec/description/etc for each opcode as it appears in each place in
+% the document, we put a little effort into trying to make this more
+% modular.  For each instruction, we define a bunch of attribute variables--
+% such as its mnemonics, numeric opcode, brief description, etc.  Then these
+% can be invoked at will.
+%
+% The shortcoming is that these attributes are all bound to global variables,
+% so there can only be one value visible at any instant.
+%
+% So, here's how it typically works:
+%
+% 1. Unset all the variables, using the \INSTreset command, defined here.
+%
+% 2. Set all the variables (or the subset of variables that are relevant)
+%	to whatever instruction you are documenting).  This is typically
+%	accomplished by \input'ing one of the files in Arch32/ or Arch/.
+%
+% 3. Display the values in whatever canonical style you wish.  Typically
+%	only a subset of the variables is shown.  One canonical style is
+%	defined here: 
+
+
+\newcommand{\INSTmnemonic}	{}	% asm mnemonic
+\newcommand{\INSToptype}	{}	% type of op.  Must be one of:
+					% ThreeReg, TwoReg, OneReg
+\newcommand{\INSTopcode}	{}	% numeric value of opcode
+\newcommand{\INSTfieldA}	{}	% First field of instruction
+\newcommand{\INSTfieldB}	{}	% Second field of instruction
+\newcommand{\INSTfieldC}	{}	% Third field of instruction
+\newcommand{\INSTdesc}		{}	% brief mnemonic description
+\newcommand{\INSTsemantic}	{}	% Concise semantics.
+\newcommand{\INSTprose}		{}	% Prose explanation.
+\newcommand{\INSTexceptions}	{}	% Exceptions the inst can generate
+
+
+% Should always do an \INSTreset before setting up the values for
+% a new op.  Otherwise, the previous values will linger, and if they
+% are not reset can pop up in unexpected places.
+
+\newcommand{\INSTreset}		{
+	\renewcommand{\INSTmnemonic}	{}
+	\renewcommand{\INSTdesc}	{}
+	\renewcommand{\INSTopcode}	{}
+	\renewcommand{\INSToptype}	{}
+	\renewcommand{\INSTfieldA}	{}
+	\renewcommand{\INSTfieldB}	{}
+	\renewcommand{\INSTfieldC}	{}
+	\renewcommand{\INSTsemantic}	{}
+	\renewcommand{\INSTprose}	{}
+	\renewcommand{\INSTexceptions}	{}
+}
+
+\newcommand{\INSTunusedField}	{\bf 0}
+
+\newcommand{\INSTshowExceptions}	{
+	\ifthenelse{\equal{}{\INSTexceptions}}{}{
+		\\ {\bf Exceptions: } \INSTexceptions
+	}
+}
+
+% INSTdisplay: How to display the summary line for an instruction.
+%
+% This uses the ThreeRegisterOp, TwoRegisterOp, and OneRegisterOp macros
+% defined in ant-macros.tex.
+
+\newcommand{\INSTdisplay}{
+	\ifthenelse{\equal{ThreeReg}{\INSToptype}}{
+		\ThreeRegisterOp
+				{\INSTmnemonic}{\INSTdesc}{\INSTopcode}
+				{\INSTfieldA}{\INSTfieldB}{\INSTfieldC}
+		\INSTshowExceptions
+	}
+	{
+	\ifthenelse{\equal{TwoReg}{\INSToptype}}{
+		\TwoRegisterOp
+				{\INSTmnemonic}{\INSTdesc}{\INSTopcode}
+				{\INSTfieldA}{\INSTfieldB}{\INSTfieldC}
+		\INSTshowExceptions
+	}
+	{
+	\ifthenelse{\equal{OneReg}{\INSToptype}}{
+		\OneRegisterOp
+				{\INSTmnemonic}{\INSTdesc}{\INSTopcode}
+				{\INSTfieldA}{\INSTfieldB}
+		\INSTshowExceptions
+	}
+	{
+		{\INSTmnemonic}:
+		Oops!  Someone made a mistake in the spec!
+	}}}
+}
+
+% The macro for printing an op spec in the architecture definition for
+% Ant32:  reads in the corresponding file, and then displays the
+% interesting parts.
+% 
+% Doesn't work properly with synonyms (yet).  Makes it easy (easier,
+% anyway) to reformat the specs, which is likely in the future.
+
+\newcommand{\INSTspec}[1]	{
+	\INSTreset		% Reset all the variables to their defaults
+
+	\input{Arch32/#1}	% Read in the instruction template.
+
+	\INSTdisplay		% Emit the summary display line
+
+	\INSTsemantic		% Emit the semantics, if any.
+
+	\INSTprose		% Emit the prose, if any.
+}
+
+% end of ant-spec.tex

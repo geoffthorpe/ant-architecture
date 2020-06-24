@@ -1,0 +1,15 @@
+#@ Instructions 7
+#@ Data 28
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0040001  ::  	lc	g0, 1
++           ::  0xf0064240  ::  	lc	g2, 1000000
++           ::  0xf106000f  ::  
++           ::  0x9007060a  ::  	addi	g3, g2, 10
++           ::  0xf03c1524  ::  	addi	g4, g3, 202020
++           ::  0xf13c0003  ::  
++           ::  0x8008073c  ::  
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# end of file

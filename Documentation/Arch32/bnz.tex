@@ -1,0 +1,22 @@
+% $Id: bnz.tex,v 1.11 2002/04/16 15:19:12 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{bnz}
+\renewcommand{\INSTdesc}	{Branch if Not Zero}
+\renewcommand{\INSTopcode}	{0xD2}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{src2}
+
+\renewcommand{\INSTsemantic}	{
+
+	If the value in \Reg{src1} is non-zero, then branch to the
+	address formed by adding the address of the current
+	instruction and \Reg{src2}.
+	In either case, the address of the current instruction is
+	copied into \Reg{des}.
+
+}
+
+\renewcommand{\INSTexceptions}	{An alignment exception occurs if
+	the branch address is not divisible by 4.}

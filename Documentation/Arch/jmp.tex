@@ -1,0 +1,22 @@
+% $Id: jmp.tex,v 1.4 2002/04/16 01:02:40 ellard Exp $
+
+\OneRegisterOp{jmp}{Jump}{\OPCODE}{(ignored)}{const8}
+
+\index{jmp@{\tt jmp}!for Ant-8}
+
+Jump to a constant address.
+
+\begin{enumerate}
+
+\item \Reg{1} $\leftarrow$ {\sc PC}.
+
+	Note that {\sc PC} has already been incremented, and so the
+	value left in \Reg{1} is set to the address of the instruction
+	following the currently executing instruction.
+
+\item {\sc PC} $\leftarrow$ {\em const8}.
+
+\end{enumerate}
+
+{\em const8} is treated as an unsigned 8-bit integer.
+

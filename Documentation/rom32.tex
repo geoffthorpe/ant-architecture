@@ -1,0 +1,207 @@
+% 12/28/01
+% $Id: rom32.tex,v 1.3 2002/04/16 15:19:09 ellard Exp $
+
+\section{Introduction}
+
+This section describes the default Ant-32 implementation and the
+default ROM.  The default ROM supplied with the implementation of the
+Ant-32 architecture contains a boot routine for initializing the
+machine and several utility functions to simplify writing small
+programs.
+
+\section{Hardware Overview}
+
+The default machine has 4 megs of physical RAM, contiguous from
+physical address 0 to physical address {\tt 0x3fffff}.  Because of the
+manner in which physical memory is addressed in (unmapped) system
+mode, this means that this RAM appears to begin at virtual address
+{\tt 0x80000000} and ends at {\tt 0x803fffff}.  Other RAM sizes are
+possible, however, so it is a mistake to assume that this is always
+the amount of RAM available.
+
+In addition to the RAM, there are 4 pages (16K) of ROM located at the
+top of the physical address space.  This small area of memory is where
+the default ROM is located.
+
+The details of the ROM are best described in the source code for the
+ROM itself, and readers interested in more detail should refer to it. 
+The source for the default ROM is provided as part of the normal
+Ant-32 distribution.
+
+\section{Initialization}
+
+When the machine is booted, if the memory image was constructed in the
+usual fashion (as described in {\tt aa32\_notes.html}), a short
+initialization routine located in the ROM is called before execution
+continues with the main program.
+
+The boot ROM assumes that the memory image for the main program has
+already been loaded into memory, starting at memory location {\tt
+0x80000000}.
+
+Note that there is nothing sacred here-- all of the initializations
+done here can be overridden by the main program.  The purpose of the
+routine supplied in the ROM is simply to supply reasonable defaults so
+that it is, for many purposes, unnecessary to override anything.  The
+only really important thing that the main code needs to take into
+account is that exceptions are enabled by the ROM.
+
+The steps taken by the initialization routine are as follows:
+
+\begin{enumerate}
+
+\item	{\em Determine the size of physical memory.}
+
+	This is done by iteratively probing each page of RAM, starting
+	at physical location 0 and continuing until either the address
+	space of physical RAM is exhausted (at 1 Gbyte) or an invalid
+	page is encountered. 
+
+\item	{\em Initialize the {\tt sp} and {\tt fp} registers.}
+
+	The frame pointer and stack pointer are initialized to point
+	to the ``top'' of physical memory (via addresses in the
+	unmapped segment).  Note that because of the way that the
+	stack operations are implemented, the initial location pointed
+	to by the frame pointer and stack pointer is actually one word
+	{\em past} the end of physical memory.
+
+	The initialization code assumes that it knows how much RAM is
+	actually present.  It is possible to write this routine in
+	such a way that it first detects how much memory there is in
+	the machine, but this has not been implemented yet.
+	
+\item	{\em Prepare for Exceptions, and Zero the Cycle Counters}
+
+	First, the exception handler is set to the address of a
+	routine located in the ROM (named {\tt antSysRomEH}) that
+	prints an error message and halts if a run-time exception
+	occurs.  This is a minimal exception handler (since it
+	doesn't really ``handle'' exceptions, it just makes the
+	results a little less messy).
+
+	Next, the {\em exception disable} flag is cleared, permitting
+	exceptions to occur.
+
+	Finally, the cycle counters and registers used by the
+	probing routines are set to zero, 
+
+\item	{\em Call the Main Code}
+
+	The call to the main code of the program is implemented in the
+	same manner as a zero-argument function call, so that if the
+	``main'' of the program returns, this code will be able to
+	properly halt the machine.
+
+\end{enumerate}
+
+\section{ROM Routines}
+
+The functions in the ROM use the calling conventions described in
+Chapter \ref{advanced-programming-chap}.  For routines that require
+more than one parameter, the parameters are listed in the order that
+they should be pushed onto the stack.
+
+\subsection{Memory Management}
+
+\begin{description}
+
+\item[{\tt antSysSbrkInit}]
+
+	Set the initial address of the boundary (aka {\em break})
+	between preallocated memory and memory available for dynamic
+	memory allocation.
+
+	Note that all memory {\em after} this boundary (at higher
+	addresses) is implicitly assumed to be available for dynamic
+	allocation, which is not a completely accurate assumption,
+	because the stack is also located in this region, and grows
+	down towards the break.  If the break and the frontier of the
+	stack cross, disaster is very likely.  Detecting this
+	situation without adding costly overhead to every {\tt push}
+	requires advanced techniques not described here.
+
+\item[{\tt antSysSbrk}]
+
+	Takes a single argument {\em size}, which is the amount to
+	move the break.  The previous value of the break is returned.
+
+	If the {\em size} is positive, the break is advanced,
+	effectively allocating memory.  If the {\em size} is negative,
+	memory is deallocated.
+
+	Note that the {\em size} is always rounded up (towards
+	positive infinity) to the nearest multiple of 4, in order to
+	ensure that the break is always properly aligned for any
+	memory access operation.  This can cause confusing behavior
+	when trying to deallocate a small amount of memory.  For
+	example, using {\tt antSysSbrk} with a size of 1 advances the
+	break by 4 bytes (allocating 3 extra bytes), but using {\tt
+	antSysSbrk} with a value of -1 does not move the break at all,
+	so no memory is actually deallocated. 
+
+\end{description}
+
+\subsection{Simple I/O Routines}
+
+\begin{description}
+
+\item[{\tt antSysPrintString}]
+
+	Print the zero-terminated {\sc ASCII} string pointed to by the
+	argument.
+
+\item[{\tt antSysPrintSDecimal}]
+
+	Print the argument as a 32-bit signed decimal integer.
+
+\item[{\tt antSysPrintUDecimal}]
+
+	Print the argument as a 32-bit unsigned decimal integer.
+
+\item[{\tt antSysPrintHex}]
+
+	Print the argument as a 32-bit hexadecimal integer.
+
+\item[{\tt antSysReadLine}]
+
+	Read characters until end-of-line or end-of-input is reached. 
+	(The behavior mimics the {\tt fgets} function from the
+	standard C library.)
+
+	This routine takes two parameters, which are pushed onto the
+	stack in the following order:
+
+	\begin{description}
+
+	\item[buffer length] The maximum number of characters to read
+		from the console.
+
+	\item[buffer address] The address of the buffer to place the
+		characters read from the console.
+
+	\end{description}
+
+\item[{\tt antSysReadDecimal}]
+
+	Read characters from the console and interpret them as a
+	32-bit signed decimal number, which is returned.
+
+	Invalid input characters (such as non-digit characters, or a
+	number too large to represent in 32 bits) will result in an
+	arbitrary value being returned.  No error checking is
+	performed.
+
+\item[{\tt antSysReadHex}]
+\index{antSysReadHex}
+
+	Read characters from the console and interpret them as a
+	32-bit hexadecimal number, which is returned.
+
+	Invalid input characters (such as non-hex characters, or a
+	number too large to represent in 32 bits) will result in an
+	arbitrary value being returned.  No error checking is
+	performed.
+
+\end{description}
+

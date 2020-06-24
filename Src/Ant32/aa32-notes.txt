@@ -1,0 +1,81 @@
+# $Id: aa32-notes.txt,v 1.1 2001/12/13 03:22:57 ellard Exp $
+
+		How To Assemble Ant-32 Programs
+
+Flags to aa32:
+
+        -a addr
+
+		Set the base address to the specified addr.  The
+		default base address is 0x80000000, which is the
+		virtual address corresponding to the start of physical
+		memory in the unmapped segment.
+
+        -b
+	
+		If -b is specified, the assembler adds the boot jump
+		to the image.  The boot jump is a special directive to
+		the loader to force the hardware to begin execution
+		at a particular address.  (see -B for more information)
+
+
+	-B addr
+	
+		Set the boot address to the specified address.  The
+		default boot address, if -B is not used, is the base
+		address.  If -b is not specified, then this option has
+		no effect.
+
+        -r file
+	
+		Add the specified file into the created image.  This
+		option is usually used to add a "boot ROM" to the
+		image.
+
+		Note that it does not usually make sense to use both
+		the -b and -r switches, if the file is the image of a
+		boot ROM, since the boot ROM will already contain the
+		directive to set the boot jump.
+
+        -h
+	
+		Print a terse help message, and then exit.
+
+        -V
+	
+		Print the version of the assembler, and then exit.
+
+To assemble an ordinary program:
+
+	aa32 -r ant32rom.a32 PROGRAM.asm
+
+In this example, ant32rom.a32 is the boot-ROM used to initialize the
+system.  See the section about how to assemble a boot ROM for
+directions on how to create an appropriate .a32 file.
+
+To assemble a standalone bootable program, just use the -b switch:
+
+	aa32 -b PROGRAM.asm
+
+If the image is intended to be loaded into a piece of memory that
+starts somewhere other than 0x80000000, then the -B and -a options
+should be used.  Note that although any address can be specified with
+the -a and -B options, it only makes sense to specify a virtual
+address in an unmapped segment and which translates to a valid piece
+of physical memory.
+
+The default Ant-32 machine has four contiguous megabytes of RAM,
+starting at physical address 0 (virtual address 0x80000000), and 16
+kilobytes of ROM at the highest addresses in physical memory
+(0xbfffc000, or physical 0x3fffc000).
+
+Creating a boot ROM is a special case of creating a standalone
+bootable program.  The only difference is using the -B and -a options
+to specify that the program should assemble into the ROM.  For
+example:
+
+	aa32 -b -B 0xbfffc000 -a 0xbfffc000 ROM.asm
+
+The resulting ROM.a32 can be used as a boot ROM.
+
+

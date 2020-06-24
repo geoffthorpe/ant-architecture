@@ -1,0 +1,214 @@
+% $Id: ant8_card.tex,v 1.12 2003/02/21 21:48:40 ellard Exp $
+
+\documentclass[10pt]{report}
+\setlength{\textheight}{8.0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\evensidemargin}{0.0in}
+\raggedbottom
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bf {\sc Ant-8} \input{../CurrVersion} Programming Card}
+\end{center}
+
+\vspace{3mm}
+\noindent
+\begin{tabular}{|ll|p{4.5in}|}
+\hline
+        {\bf Op}        & {\bf Operands}        & {\bf Description}     \\
+\hline
+\hline
+        {\tt add}       & {\em des, src1, src2} &
+                {\em des} gets {\em src1} + {\em src2}.
+                {\tt r1} gets 1 if the result is $>$ 127,
+		-1 if $<$ -128, or 0 otherwise. \\
+\hline
+        {\tt sub}       & {\em des, src1, src2} &
+                {\em des} gets {\em src1} - {\em src2}.
+                {\tt r1} gets 1 if the result is $>$ 127,
+		-1 if $<$ -128, or 0 otherwise. \\
+\hline
+        {\tt mul}       & {\em des, src1, src2} &
+                Multiply {\em src1} and {\em src2},
+                leaving the low-order byte in register {\em des}
+                and the high-order byte in register {\tt r1}. \\
+
+\hline
+        {\tt and}       & {\em des, src1, src2} &
+                {\em des} gets the bitwise logical {\sc and} of
+                {\em src1} and {\em src2}.  {\tt r1} gets the
+                bitwise negation of the {\sc and} of {\em src1} and {\em src2}. \\
+\hline
+        {\tt nor}        & {\em des, src1, src2} &
+                {\em des} gets the bitwise logical {\sc nor} of
+                {\em src1} and {\em src2}.  {\tt r1} gets the
+                bitwise negation of the {\sc nor}
+		of {\em src1} and {\em src2}. \\
+\hline
+        {\tt shf}        & {\em des, src1, src2} &
+		{\em des} gets the bitwise shift of {\em src1} by
+		{\em src2} positions.  If {\em src2} is positive,
+		{\em src1} is shifted to the left, otherwise
+		{\em src1} is shifted to the right.  {\tt r1} gets 0. \\
+\hline
+{\tt beq}       & {\em reg, src1, src2} &
+        Branch to {\em reg} if {\em src1} is equal to {\em src2}.
+        {\tt r1} is unchanged. \\
+\hline
+{\tt bgt}       & {\em reg, src1, src2} &
+        Branch to {\em reg} if {\em src1} $>$ {\em src2}.
+        {\tt r1} is unchanged. \\
+\hline
+{\tt ld1}        & {\em des, src1, uconst4} & 
+        Load the byte at {\em src1 + uconst4} into {\em des}.
+	The sum of {\em} and {\em uconst4} is treated as an unsigned quantity.
+        {\tt r1} is unchanged.
+        \\
+\hline
+{\tt st1}        & {\em reg, src1, uconst4} &
+        Store the contents of register {\em reg} to {\em src1 + uconst4}.
+	The sum of {\em} and {\em uconst4} is treated as an unsigned quantity.
+        {\tt r1} is unchanged.
+        \\
+\hline
+{\tt lc}        & {\em des, const8}      & 
+        Load the constant {\em const8} into {\em des}.
+        {\tt r1} is unchanged. \\
+\hline
+{\tt jmp}	& {\em uconst8}	&
+	Branch unconditionally to the specified constant.
+	{\tt r1} is set to the address
+	of the instruction following the {\tt jmp}. \\
+\hline
+
+{\tt inc}	& {\em reg, const8}	&
+	Add {\em const8} to the specified register.
+                {\tt r1} gets 1 if the result is $>$ 127,
+		-1 if $<$ -128, or 0 otherwise. \\
+\hline
+
+{\tt in}	& {\em des, chan}	&
+	Read in a byte from the peripheral specified by {\em chan},
+	and place it in the destination register.  {\em chan} is
+	{\tt Hex}, {\tt ASCII}, or {\tt Binary}.
+	{\tt r1} gets 1 if EOI is reached, 0 otherwise. \\
+\hline
+{\tt out}	& {\em src1, chan}	&
+	Write the byte in the {\em src1} register to the peripheral
+	specified by {\em chan}. {\em chan} is
+	{\tt Hex}, {\tt ASCII}, or {\tt Binary}.
+	{\tt r1} gets 0. \\
+
+\hline
+        {\tt hlt}   &			&
+		Dump core to {\tt ant8.core}, and halt.
+		\\
+\hline\hline
+	{\tt .byte} & {\em byte1, $\cdots$, byteN }   &
+		Assemble the given bytes (8-bit integers) into the
+		next locations in the data segment.  
+		8 bytes can be specified on one line.  Bytes
+		may be specified as hex, octal, binary, decimal
+		or C-style {\sc ASCII} constants.
+                \\
+\hline 
+\end{tabular}
+
+\begin{center}
+\begin{tabular}{|lp{5.5in}|}
+\hline
+{\em des}       & Any register ({\tt r0} through {\tt r15}). The {\em des} register
+			may be modified by the instruction. \\
+{\em reg}       & Any register ({\tt r0} through {\tt r15}). \\
+{\em src1}      & Any register ({\tt r0} through {\tt r15}). \\
+{\em src2}      & Any register ({\tt r0} through {\tt r15}). \\
+{\em const8}     & Any 8-bit constant (-128 .. 127):
+			an integer (signed), char, or label. \\
+{\em uconst8}	& Any 8-bit constant (0 .. 255):
+			an integer (unsigned) or label. \\
+{\em uconst4}	& Any 4-bit constant integer (0 .. 15). \\
+\hline
+\end{tabular}
+\end{center}
+
+
+\begin{description}
+\item[Registers {\tt r0} and {\tt r1}]
+
+Register {\tt r0} always contains the constant zero.  Many
+instructions modify {\tt r1} as part of their operation.  Registers
+{\tt r0} and {\tt r1} can be used as destination registers, but their
+values are unchanged.
+
+Registers {\tt r2} through {\tt r15} are general-purpose registers.
+
+\item[Comments]
+
+A comment begins with a \verb$#$ and continues until the following
+newline.  The only exception to this is when the \verb$#$ character
+appears as part of an ASCII character constant.
+
+\item[Labels]
+
+Label definitions must begin at the left margin.  All non-blank lines
+that do not begin with a comment or a label definition must be
+indented.  The value of the label is zero, if it begins at the start
+of the program, or the address following the previous 
+instruction or data value specified in the program.
+
+Labels must begin with a letter or an underscore, followed by any
+number of letters, digits, or underscores, followed by a colon.  The
+colon is not part of the label name.  Label names are case-sensitive. 
+A label may only be defined once in a program.  Label references must
+begin with a dollar sign (\verb|$|).
+
+\item[The \_data\_ Label]
+
+A special label, {\tt \_data\_}, is used to mark the boundary between
+the instructions of the program (which must appear before the {\tt
+\_data\_} label) and the data of the program (which appear afterward).
+
+\item[Constants]
+
+Several {\sc Ant-8} assembly instructions contain 8-bit or 4-bit constants.
+
+The 8-bit constants can be specified in a variety of ways:  as
+decimal, octal, hexadecimal, or binary numbers, {\sc ASCII} codes
+(using the same conventions as C, C++, or Java), or labels.  For
+example:
+
+\begin{center}
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+Decimal	& Hexadecimal	& Octal		& Binary	& {\sc ASCII} \\
+\hline
+{\tt 65} & {\tt 0x41} 	& {\tt 0101}	& {\tt 0b01000001} & {\tt 'A' } \\
+{\tt 10} & {\tt 0xa} 	& {\tt 012}	& {\tt 0b01010} & {\tt '\verb$\$n' } \\
+\hline
+\end{tabular}
+\end{center}
+
+The value of a label is the index of the subsequent instruction in
+instruction memory for labels that appear in the code, or the index of
+the subsequent {\tt .byte} item for labels that appear in the data.
+
+The 4-bit constants must be specified as unsigned numbers (using
+decimal, octal, hexadecimal, or binary notation).  ASCII constants or
+labels cannot be used as 4-bit constants, even if their value can be
+represented in 4 bits.
+
+\end{description}
+
+\hrule
+\begin{center}
+{\Large
+{\tt http://www.ant.harvard.edu}
+}
+\end{center}
+
+\end{document}
+

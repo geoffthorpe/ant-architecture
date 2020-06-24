@@ -1,0 +1,254 @@
+% $Id: ant8.tex,v 1.10 2002/10/10 02:38:49 ellard Exp $
+
+\section{Overview}
+
+This document describes the architecture of the 8-bit {\sc Ant-8} processor.
+
+{\sc Ant-8} is a very small and simple processor.
+
+It contains 16 user-visible registers:  14 general-purpose registers
+and two special registers.
+
+The instruction set consists of 16 instructions.
+
+
+\section{{\sc Ant-8} Memory Organization}
+
+The memory of the {\sc Ant-8} processor consists of 256 8-bit
+bytes.  This memory is shared by the instructions and the
+data.
+
+The {\sc Ant-8} architecture is a load/store architecture; the only
+instructions that can access memory are the {\em load} and
+{\em store} instructions.  All other operations access only
+registers.
+
+\section{The {\sc Ant-8} Register Set}
+
+The {\sc Ant-8} processor has 16 registers that can be accessed directly by
+the programmer.  In {\sc Ant-8} assembler, they are named {\tt r0} through
+{\tt r15}.  In {\sc Ant-8} machine language, they are the 4-bit numbers 0
+through 15, and are usually written as a single hexadecimal digit
+({\tt 0x0} through {\tt 0xf}).
+
+Registers {\tt r2} through {\tt r15} are general purpose registers. 
+These registers can be used as both the source and destination
+registers in any of the instructions that use source and destination
+registers; they are read/write registers.
+
+Registers {\tt r0} and {\tt r1} are not general purpose registers and
+can be used only as source registers; they are read-only registers. 
+{\tt r0} always contains the constant zero, and {\tt r1} is used to
+hold values related to the result of the previous instruction.  Some
+instructions do not modify {\tt r1} at all, but several use {\tt r1}
+to store useful results.
+
+If an instruction attempts to write a value to either {\tt r0}
+or {\tt r1}, the instruction executes in the normal manner,
+but no changes are made to the register.
+
+The program counter (or {\sc PC}) is a special 8-bit register that
+contains the offset (or index) into memory of the next instruction to
+execute.  Each instruction is 2 bytes long, and each instruction must
+begin on an even address.  Note that the offset is interpreted as an
+unsigned number and therefore ranges from $0 \cdots \MaxUIntWord$. 
+The {\sc PC} is not directly accessible to the program.
+
+\section{Execution of Programs}
+
+Programs are executed in the following manner:
+
+\subsection{Initialization}
+
+\begin{enumerate}
+
+
+	\item Each location in memory is filled with zero.
+
+	\item All of the registers are set to zero.
+
+	\item The program counter (PC) is set to zero.
+
+	\item The program is loaded into memory from a file.
+
+		See section \ref{executable-file-sec} for information
+		about the program file format.
+
+	\item The fetch and execute loop (described in Section
+		\ref{fetch-and-exec}) is executed until the program
+		halts via the {\tt hlt} instruction, or because the
+		execution encounters an error.
+	
+		Whenever the {\sc Ant-8} processor halts due to any error,
+		it dumps core to a file named {\tt ant8.core}.
+
+\end{enumerate}
+
+\subsection{The Fetch and Execute Loop}
+\label{fetch-and-exec}
+
+\begin{enumerate}
+
+\item Fetch the instruction at the offset in memory indicated
+	by the {\sc PC}.
+
+\item Set {\sc PC} $\leftarrow$ {\sc PC} $+ ~ 2$.
+
+\item Execute the instruction.
+
+	\begin{enumerate}
+ 
+	\item Get the value of the source registers (if any).
+
+	\item Perform the specified operation.
+
+	\item Place the result, if any, into the destination register.
+
+	\item Update register {\tt r1}, if necessary.
+
+	\item Update the {\sc PC}, if necessary (only for branching or
+			jumping instructions:  {\tt beq}, {\tt bgt}, and
+			{\tt jmp} instructions).
+
+	\end{enumerate}
+
+\end{enumerate}
+
+\section{The Instruction Set}
+
+\subsection{Instruction Formats}
+  
+Most of the instructions have the following general instruction format:
+
+\newcommand{\OPCODE}{{\em Operator \newline (4 bits)}}
+
+\begin{description}
+
+\item \ThreeRegisterOp{Op}{Description}
+	{\parbox[t]{0.7in} \OPCODE }
+	{\parbox[t]{0.7in}{Register 1 \\ (4 bits) }}
+	{\parbox[t]{0.7in}{Register 2 \\ (4 bits) }}
+	{\parbox[t]{0.7in}{Register 3 \\ (4 bits) }}
+\end{description}
+
+The lc (load constant), inc (increment), and I/O
+({\tt in}/{\tt out}) instructions have the following format:
+
+\begin{description}
+\item \OneRegisterOp{Op}{Description}
+	{\parbox[t]{0.7in} \OPCODE }
+	{\parbox[t]{0.7in}{Register 1 \\ (4 bits) }}
+	{\parbox[t]{0.7in}{Constant \\ (8 bits) }}
+\end{description}
+
+
+The final two exceptions to this are the {\tt ld1} (load) and {\tt
+st1} (store) instructions, which have the following format:
+
+\begin{description}
+\item \TwoRegisterOp{Op}{Description}
+	{\parbox[t]{0.7in} \OPCODE }
+	{\parbox[t]{0.7in}{Register 1 \\ (4 bits) }}
+	{\parbox[t]{0.7in}{Register 2 \\ (4 bits) }}
+	{\parbox[t]{0.7in}{Constant \\ (4 bits) }}
+\end{description}
+
+The 4 bits of the {\em Operator} are a 1-digit hexadecimal number that
+represents the name of the operator or instruction.  The 4 bits of the
+Register(s) are the number of the register (i.e., {\tt 0x3} will
+represent register 3).
+ 
+\subsection{Notation}
+
+The notation we will use to describe the operands of the
+instructions is given in Figure \ref{operand-types-table}.
+
+\begin{figure}[h]
+\caption{ \label{operand-types-table} {\sc Ant-8} Machine Language Operand Types}
+\vspace{3mm}
+\begin{center}
+\begin{tabular}{|lp{4.5in}|}
+\hline
+
+{\em des}       & Must always be a register index.  \\
+{\em reg}       & Must always be a register index. \\
+{\em src1}      & Must always be a register index. \\
+{\em src2}      & Must always be a register index. \\
+{\em const8}	& Must be an 8-bit constant
+		($\MinIntWord \cdots \MaxIntWord$). \\
+{\em uconst8}	& Must be an 8-bit constant
+		($\MinUIntWord \cdots \MaxUIntWord$). \\
+{\em uconst4}	& Must be a 4-bit constant integer
+			($\MinUIntHWord \cdots \MaxUIntHWord$). \\
+\hline
+\end{tabular}
+
+\vspace{3mm}
+\begin{tabular}{|lrl|}
+\hline
+\MaxIntWord	&	127	& Maximum signed 8-bit integer. \\
+\MinIntWord	&	-128	& Minimum signed 8-bit integer. \\
+\hline
+\MaxUIntWord	&	255	& Maximum unsigned 8-bit integer. \\
+\MinUIntWord	&	0	& Minimum unsigned 8-bit integer. \\
+\hline
+\MaxUIntHWord	&	15	& Maximum unsigned 4-bit integer. \\
+\MinUIntHWord	&	0	& Minimum unsigned 4-bit integer. \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{3mm}
+\end{figure}
+
+Note that the same register can serve as both a source and destination
+in one command.  For instance, you can double the contents of a
+register by adding that register to itself and putting the result back
+in that register, all in one command.
+
+\subsection{Instruction Descriptions}
+
+\begin{description}
+
+\item	\renewcommand{\OPCODE}{{\tt 0 0 0 0}} \input{Arch/hlt}
+\item	\renewcommand{\OPCODE}{{\tt 0 0 0 1}} \input{Arch/lc}
+\item	\renewcommand{\OPCODE}{{\tt 0 0 1 0}} \input{Arch/inc}
+\item	\renewcommand{\OPCODE}{{\tt 0 0 1 1}} \input{Arch/jmp}
+\item	\renewcommand{\OPCODE}{{\tt 0 1 0 0}} \input{Arch/beq}
+\item	\renewcommand{\OPCODE}{{\tt 0 1 0 1}} \input{Arch/bgt}
+\item	\renewcommand{\OPCODE}{{\tt 0 1 1 0}} \input{Arch/ld1}
+\item	\renewcommand{\OPCODE}{{\tt 0 1 1 1}} \input{Arch/st1}
+\item	\renewcommand{\OPCODE}{{\tt 1 0 0 0}} \input{Arch/add}
+\item	\renewcommand{\OPCODE}{{\tt 1 0 0 1}} \input{Arch/sub}
+\item	\renewcommand{\OPCODE}{{\tt 1 0 1 0}} \input{Arch/mul}
+\item	\renewcommand{\OPCODE}{{\tt 1 0 1 1}} \input{Arch/shf}
+\item	\renewcommand{\OPCODE}{{\tt 1 1 0 0}} \input{Arch/and}
+\item	\renewcommand{\OPCODE}{{\tt 1 1 0 1}} \input{Arch/nor}
+\item	\renewcommand{\OPCODE}{{\tt 1 1 1 0}} \input{Arch/in}
+\item	\renewcommand{\OPCODE}{{\tt 1 1 1 1}} \input{Arch/out}
+
+\end{description}
+
+\section{{\sc Ant-8} Executable Files}
+\label{executable-file-sec}
+
+{\sc Ant-8} program files are stored as text, as a sequence of
+hexadecimal numbers, one per line.  Anything that appears after the
+number on each line is ignored by the program loader, although it may
+contain information that is used by the debugger.  Empty blank lines
+or lines that begin with a \verb$#$ are ignored during the execution
+of the program, although they may contain information used by the {\sc
+Ant-8} debugger.  Each line in a program file must be less than 512
+characters in length, and each line must end with a newline.
+
+The program begins with the instructions, which are written as pairs
+of 8-bit hexadecimal numbers.  If any of the hexadecimal numbers that
+are supposed to represent instructions are too large to fit into 8
+bits, then the program is invalid.
+
+The loader reads bytes from the file until either the end of file is
+reached, or 256 bytes have been read.
+
+If there are fewer than 256 bytes specified in the file, the bytes not
+specified are implicitly {\tt 0x00}.
+
+

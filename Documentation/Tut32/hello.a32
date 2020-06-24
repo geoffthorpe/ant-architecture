@@ -1,0 +1,27 @@
+#@ Instructions 12
+#@ Data 61
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0040030  ::          lc      g0, $str_data   # load the address of the string into g0
++           ::  0xf1048000  ::  
++           ::  0xf005002c  ::          lc      g1, $endloop    # load address of the end of the loop.
++           ::  0xf1058000  ::  
++           ::  0xf0060018  ::          lc      g2, $loop       # load address of the start of the loop.
++           ::  0xf1068000  ::  
++           ::  0xe0070400  ::          ld1     g3, g0, 0       # Get the first character from the string
++           ::  0xd1000705  ::          jez     ze, g3, g1      # If the char is zero, we're finished.
++           ::  0x25000700  ::          cout	g3		# Otherwise, print the character.
++           ::  0x90040401  ::          addi    g0, g0, 1       # Increment g0 to point to the next char
++           ::  0xd1000006  ::          jez     ze, ze, g2	# and repeat the process...
++           ::  0x4f000000  ::          halt
++           ::  0x48656c6c  ::  
++           ::  0x6f20576f  ::  
++           ::  0x726c640a  ::  
++           ::  0x00000000  ::  
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# $str_data                 = -2147483600 (0x80000030)
+# $endloop                  = -2147483604 (0x8000002c)
+# $loop                     = -2147483624 (0x80000018)
+# end of file

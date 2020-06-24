@@ -1,0 +1,13 @@
+#@ Instructions 5
+#@ Data 20
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0040080  ::      lc r4, 0x00000080
++           ::  0xf0053d79  ::      lc r5, 0x00013d79
++           ::  0xf1050001  ::  
++           ::  0xc5060405  ::      gtu r6, r4, r5
++           ::  0x4f000000  ::      halt
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# end of file

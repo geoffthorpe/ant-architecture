@@ -1,0 +1,29 @@
+% $Id: tlbpi.tex,v 1.8 2002/04/16 15:33:59 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{tlbpi}
+\renewcommand{\INSTdesc}	{Probe TLB Table}
+\renewcommand{\INSTopcode}	{0x40}
+\renewcommand{\INSToptype}	{TwoReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{\INSTunusedField}
+
+\renewcommand{\INSTsemantic}	{
+}
+
+\renewcommand{\INSTprose}	{
+
+	Probe the TLB table.  Given a virtual address \Reg{src1},
+	find the index of the corresponding TLB entry and place it
+	into the destination register.  If there is no such entry, a -1
+	is given.
+
+	If duplicate matching entires are found, a TLB-duplicate
+	exception will be generated.
+
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Privileged instruction, TLB Multiple Match
+	}

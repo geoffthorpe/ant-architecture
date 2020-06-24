@@ -1,0 +1,25 @@
+% $Id
+
+\ThreeRegisterOp{bgt}{Branch if greater}{\OPCODE}{reg1}{reg2}{reg3}
+
+\index{bgt@{\tt bgt}!for Ant-8}
+
+Branch if greater than.
+     
+\begin{enumerate}
+
+\item Branch to \Reg{reg1} if \Reg{reg2} $>$ \Reg{reg3}:
+
+	\begin{tabular}{lll}
+
+	{\sc PC} $\leftarrow$ & \Reg{reg1} & if \Reg{reg2} $>$ \Reg{reg3} \\
+
+	{\sc PC} $\leftarrow$ & {\sc PC} & otherwise. \\
+
+	\end{tabular}
+
+	The contents of registers {\em reg2} and {\em reg3} are treated
+	as 8-bit two's complement integers.
+
+\end{enumerate}
+

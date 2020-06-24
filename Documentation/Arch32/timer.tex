@@ -1,0 +1,41 @@
+% $Id: timer.tex,v 1.2 2002/04/16 15:33:59 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{timer}
+\renewcommand{\INSTdesc}	{Set Instruction Count Timer}
+\renewcommand{\INSTopcode}	{0x4D}
+\renewcommand{\INSToptype}      {ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src}
+\renewcommand{\INSTfieldC}	{\INSTunusedField}
+
+\renewcommand{\INSTsemantic}	{
+
+	Saves the old value of the timer to \Reg{des}, and sets the
+	timer to \Reg{src}.
+
+	If the timer is disabled, then the value in \Reg{des} will be
+	zero.
+
+	If \Reg{src} is zero or negative, then the timer is disabled
+	(after its original value is saved to \Reg{des}).
+
+	If the timer is enabled, its value is decremented every time
+	an instruction is executed.  When the timer reaches zero,
+	exception 20 occurs if exceptions are enabled.  If exceptions
+	are disabled when the timer expires, then the exception is
+	postponed until exceptions are enabled.
+
+	When the {\tt idle} instruction is executed, if the timer is
+	enabled then it is immediately decremented to zero, causing an
+	immediate timer exception.
+
+}
+\renewcommand{\INSTprose}       {
+
+	Note that this timer is really only an instruction counter and
+	should not be used as a substitute for real time if accurate
+	timing is necessary.
+
+}
+
+\renewcommand{\INSTexceptions}	{Privileged instruction, Timer}

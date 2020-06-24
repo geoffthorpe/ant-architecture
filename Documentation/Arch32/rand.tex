@@ -1,0 +1,22 @@
+% $Id: rand.tex,v 1.5 2001/06/21 15:18:27 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{rand}
+\renewcommand{\INSTdesc}	{Random}
+\renewcommand{\INSTopcode}	{0x20}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{\INSTunusedField}
+\renewcommand{\INSTfieldC}	{\INSTunusedField}
+\renewcommand{\INSTsemantic}	{
+}
+
+\renewcommand{\INSTprose}	{
+
+	Fills the destination register with a random 32-bit value.
+
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Illegal-instruction (if unimplemented)
+	}

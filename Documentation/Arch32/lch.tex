@@ -1,0 +1,25 @@
+% $Id: lch.tex,v 1.8 2001/06/21 15:18:15 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{lch}
+\renewcommand{\INSTdesc}	{Load Constant High}
+\renewcommand{\INSTopcode}	{0xF1}
+\renewcommand{\INSToptype}	{OneReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{const16}
+
+\renewcommand{\INSTsemantic}	{
+	\begin{tabular}{lll}
+	\Reg{des}[31..16]	& $\leftarrow$ & {\em const16} \\
+	\Reg{des}[0..15]	& $\leftarrow$ & \Reg{des}[0..15] \\
+	\end{tabular}
+}
+
+\renewcommand{\INSTprose}	{
+
+	Load {\em const16} into the upper 16 bits of the destination
+	register.  The lower 16 bits of \Reg{des} are unaffected.
+
+}
+
+
+\renewcommand{\INSTexceptions}	{}

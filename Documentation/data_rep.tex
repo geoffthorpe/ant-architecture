@@ -1,0 +1,40 @@
+% 07/09/99
+% $Id: data_rep.tex,v 1.7 2003/02/14 16:52:04 ellard Exp $
+
+\documentclass[makeidx,11pt]{book}
+\usepackage{ifthen}
+\usepackage{makeidx}
+
+\input{dan}
+
+\makeindex
+
+\setlength{\textheight}{8.0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\evensidemargin}{0.0in}
+\raggedbottom
+
+\newtheorem{alghead}{Algorithm}[section]
+\newtheorem{codehead}{Program}[section]
+
+\title{{\Huge\bf Data Representation}}
+
+\begin{document}
+
+\frontmatter
+
+\maketitle
+
+{\bf Copyright 1996-2002 by the President and Fellows of Harvard College. }
+
+\tableofcontents
+
+\mainmatter
+
+\chapter{Data Representation}
+\input{datarep-sec}
+
+\printindex
+
+\end{document}

@@ -1,0 +1,32 @@
+% $Id: shf.tex,v 1.3 2002/04/16 01:02:41 ellard Exp $
+
+\ThreeRegisterOp{shf}{Bit shift}{\OPCODE}{des}{src1}{src2}
+
+\index{shf@{\tt shf}!for Ant-8}
+
+Bit shift.
+
+\begin{enumerate}
+
+\item
+
+\begin{tabular}{lll}
+
+\Reg{des} $\leftarrow$ 
+	& \Reg{src1} \verb$<<$ \Reg{src2} & if \Reg{src2} $>$ 0 \\
+
+\Reg{des} $\leftarrow$ 
+	& \Reg{src1} \verb$>>$ $-$ \Reg{src2} & otherwise \\
+
+\end{tabular}
+
+	The contents of registers {\em src1} and {\em src2}
+	are treated as 8-bit two's complement integers.
+
+\item \Reg{1} $\leftarrow$ 0.
+
+\end{enumerate}
+
+Right shifts are done without sign extension, mimicking the
+behavior of the {\sc C} operator \verb$>>$ for unsigned integers.
+

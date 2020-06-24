@@ -1,0 +1,5 @@
+
+
+.data -> .byte
+
+jmp loses the bogus register argument.

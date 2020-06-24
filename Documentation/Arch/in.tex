@@ -1,0 +1,37 @@
+% $Id: in.tex,v 1.6 2002/10/09 23:53:08 ellard Exp $
+
+
+\TwoRegisterOp{in}{Input}{\OPCODE}{reg}{\em unused}{uconst4}
+
+\index{in@{\tt in} for Ant-8}
+
+The {\tt in} instruction is used to perform input
+of a single character from a peripheral device.
+
+The 4 bits of the {\em uconst4} determine the ``peripheral'' from which
+the byte is read.  The standard Ant-8 implementation has three
+peripherals:
+
+\begin{description}
+
+\item[{\tt 0000}] Hexadecimal --
+	the value is treated as a two-digit hexadecimal number.
+
+\item[{\tt 0001}] Binary --
+	the value is treated as an eight-digit binary number.
+
+\item[{\tt 0010}] {\sc ASCII} --
+	the value is interpreted as an ASCII character code.
+
+\end{description}
+
+\begin{itemize}
+
+\item \Reg{reg} $~ \leftarrow$ one byte read from the input, in one of
+	the formats.
+
+\item \Reg{1} $~ \leftarrow$ 1 if end-of-input (EOI) has been reached,
+	0 otherwise.
+
+\end{itemize}
+

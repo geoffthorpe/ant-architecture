@@ -1,0 +1,479 @@
+% macros.tex
+%
+% Definitions of commands extending Latex for the CS51 Project Book.
+%
+% Bob Walton
+% Dec 7, 1993
+
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{5}
+
+% \AND			\wedge, the math AND operator
+% \OR			\vee, the math OR operator
+% \NOT			\sim, the math NOT operator
+% \IMPLIES		\Rightarrow, the math IMPLIES operator
+% \EQUIV		\equiv, the math EQUIVALENT-TO operator
+%
+% \contributors{<contributor>, <contributor>, ...}
+%			Specifies comma separated list of contributors to
+%			be acknowledged in the preface.
+%
+% \begin{history}{<filename>}
+% <history>		Displays <history> as a quote if \makehistory
+% \end{history}		has been included in the input.  Histories are
+%			used to indicate author, date, and changes to
+%			project documentation files.  Histories are not
+%			printed in the copy of the project book received
+%			by students.
+%
+%			The <filename> is the name of the file whose
+%			history is being given.  It is printed at the
+%			beginning of the history.  The extension is
+%			assumed to be .tex, and is not included in
+%			<filename>.
+%
+%			\end{history} must appear literally without
+%			any spaces just like \end{verbatim}.
+%			
+% \EOL			Indicates a spot in a word where a line break
+%			is OK.  E.g. {\tt car-\EOL stream}.
+%
+% \makehistory		Causes histories to be displayed.
+%
+% \inputfigure{<file>}{<height>}
+%			Inputs a postscript figure from the indicated
+%			file and makes it the indicated height.
+%
+%			Extra vertical space will be put before \inputfigure
+%			only if a blank line proceeds it.  Extra vertical
+%			space will be put after \inputfigure only if
+%			a blank line follows it.
+%
+% \cbox{<code>} 	Displays <code> as code names or phrases
+%			embedded in text.  Similar to \verb but
+%			always terminates with }.
+%
+%			Restriction: \cbox cannot appear in any macro
+%			argument.
+%
+% \$<code>$		Same as \cbox{<code>} except <code> is terminated
+%			by a $.  Cannot appear in any macro argument.
+%
+% \dollar		The $ character.  Same as \$ in normal Latex,
+%			(we redefine \$ above to allow \$<code>$).
+%
+% \cindex{<translated-code>}
+%			Similar to index, and in fact equivalent to:
+%
+%			  \index{<translated-code>@\tt <translated-code>}
+%
+%			where <translated-code> is <code> with the special
+%			characters translated for latex: namely
+%				``\'' is denoted by ``$\backslash$''
+%				``^'' is denoted by ``\^{~}''
+%				``~'' is denoted by ``$\sim$''
+%				``$'' is denoted by ``\dollar''
+%				``#'' is denoted by ``\#''
+%				``%'' is denoted by ``\%''
+%				``&'' is denoted by ``\&''
+%				``_'' is denoted by ``\_''
+%				``{'' is denoted by ``\{''
+%				``}'' is denoted by ``\}''
+%
+% \ckey{<code>}		Same as \cbox but puts <code> in index as per
+%			\index.
+%
+%			Warning: because of limitations of latex, <code>
+%			is communicated to the index as {\tt <code>},
+%			and therefore <code> cannot contain special
+%			characters.  If you need special characters,
+%			use \ickey.
+%
+% \ickey{<code>}{<translated-code>}
+%			Must be used in place of \ckey when <code>
+%			contains characters that cannot be included
+%			in the scope of \tt.
+%
+%			Same as \ckey but calls \cindex with
+%			<translated-code> instead of <code>.
+%
+% \key{<text>}		Applies \em or \bf to <text> and also puts <text>
+%			in the index.
+%
+% \ikey{<text>}{<itext>}
+%			Applies \em or \bf to the first argument <text>,
+%			and puts the second argument <itext> in the index.
+%
+% \begin{code}{<name>}	Displays <code>.  Similar to \begin{verbatim}
+% <code>		but indents or centers <code>.
+% \end{code}
+%			\end{code} must appear literally without
+%			any spaces just like \end{verbatim}.
+%
+%			<name> is ignored during text processing.  It is
+%			used to extract the <code> from the file so it can
+%			be tested.
+%
+%			Extra vertical space will be put before \begin{code}
+%			only if a blank line proceeds it.  Extra vertical
+%			space will be put after \end{code} only if
+%			a blank line follows it.
+%
+% \begin{code*}{<name>}	Ditto but displays spaces as square cups, like
+% <code>		verbatim*.
+% \end{code*}		WARNING: this macro has NEVER WORKED.
+%
+% \begin{labpar}{<label>}
+%			Begin labeled paragraph, which is an indented
+%			paragraph with <label> in the left margin.
+% \end{labpar}		End labeled paragraph.
+%
+% \begin{indentpar}	Begin indented paragraph ({list} with no label).
+% \end{indentpar}	End indented paragraph.
+%
+% \spc			A temporary length command usable in conjunction
+%			with \settowidth.
+%
+% \begin{problems}	Begin a list of problems.
+% \problem		Start the next problem.
+% \end{problems}	End a list of problems.
+%
+% \begin{moreproblems}	Continue a list of problems.
+%			(Just like problems environment,
+%			 but does not reset problem number counter.)
+% \end{moreproblems}	End a continued list of problems.
+%
+% \begin{subproblems}	Begin a list of subproblems.
+% \subproblem		Start the next subproblem.
+% \end{subproblems}	End a list of subproblems.
+%
+% \begin{boxpicture}{<x-size>}{<y-size>}
+% <picture commands>	Like \begin{picture} put sets the size of one
+% \end{boxpicture}	unit so that 100 units is the side of a square
+%			box suitable from making dotted pair diagrams.
+%			<x-size> and <y-size> are the sizes of the
+%			picture in these units.  (0,0) is the lower
+%			left corner, (<x-size>-1,<y-size>-1) is the
+%			upper right corner.
+%
+% \cons{<x>}{<y>}	Draws a CONS cell consisting of two side-by-side
+%			boxes.  The Lower left coordinate of the left
+%			box is  (<x>,<y>), while the lower left coordinate
+%			of the right box is (<x>+100,<y>).
+%
+% \nil{<x>}{<y>}	Draws the lower left to upper right slant line
+%			that indicates a box points at NIL.  <x>,<y> are
+%			the lower left coordinates of the slant line.
+%
+% \sym{<x>}{<y>}{<name>}
+%			Draws a symbol, which is just the symbol <name>,
+%			a piece of text, centered in the box whose lower
+%			left coordinates are <x>, <y>.
+%
+% \lab{<x>}{<y>}{<pos>>}{<text>}
+%			Ditto, but positions the <text>:
+%			    Against the left side of the box if <pos> = l.
+%			    Against the right side of the box if <pos> = r.
+%			    Against the top of the box if <pos> = t.
+%			    Against the bottom of the box if <pos> = b.
+%
+%			<pos> can consist of two letters, one for
+%			horizontal control and one for vertical control.
+%			The default is to center.
+%			
+%
+% \cpointer{<x1>}{<y1>}{<x2>}{<y2>}
+%			Draws a pointer from a CONS cell box (either left
+%			(car) or right (cdr)) to another box.  (<x1>,<y1>)
+%			are the coordinates of the CONS cell box (its
+%			lower leftmost point, actually), and (<y1>,<y2>)
+%			are the coordinates of the target box (also
+%			its lower leftmost point).  The pointer actually
+%			goes from the middle of the CONS box toward the
+%			middle of the target box, but stops at the
+%			boundary of the target box.
+%
+%			Restriction: pointers must be horizontal pointing
+%			right; vertical pointing down; or at 45 degree
+%			angles pointing either down left of down right.
+%
+% \spointer{<x1>}{<y1>}{<x2>}{<y2>}
+%			Ditto but the pointer, instead of starting from
+%			the middle of the box, starts from the edge of the
+%			box.  Used to point from a symbol to any box.
+%
+% \sline{<x1>}{<y1>}{<x2>}{<y2>}
+%			Ditto but a line is drawn instead of a pointer
+%			(i.e. there is no arrowhead).
+%
+
+\newcommand{\AND}{\wedge}
+\newcommand{\OR}{\vee}
+\newcommand{\NOT}{\sim}
+\newcommand{\IMPLIES}{\Rightarrow}
+\newcommand{\EQUIV}{\equiv}
+
+\newcommand{\EOL}{\penalty \exhyphenpenalty}
+
+\newcount\ATCATCODE
+\ATCATCODE=\catcode`@
+
+\catcode `@=11	% @ is now a letter
+
+% The following are alterations of latex.tex macros.
+
+% Variation on @ifnextchar:
+\long\def\ifnexttoken#1#2#3{\let\@tempe #1\def\@tempa{#2}\def\@tempb{#3}%
+	\futurelet\@tempc\@ifnch}
+
+\def\inputfigure#1#2{\ifvmode \vspace{2ex}\else \par\fi
+		    \centerline{\psfig{figure=#1,height=#2}}
+		    \ifnexttoken\par{\vspace{2ex}}{}}
+
+\begingroup \catcode `|=0 \catcode `[= 1
+\catcode`]=2 \catcode `\{=12 \catcode `\}=12
+\catcode`\\=12
+|gdef|@xcode#1\end{code}%
+	[#1|end[code]|ifnexttoken|par[|vspace[2ex]][]]
+|gdef|@sxcode#1\end{code*}%
+	[#1|end[code*]|ifnexttoken|par[|vspace[2ex]][]]
+|long|gdef|@xhistory#1\end{history}[|end[history]]
+|endgroup
+
+\newlength{\codewidth}
+
+\def\code #1{\ifvmode \vspace{2ex}\else \par\fi % must be before setlength
+	     \setlength{\codewidth}{\linewidth}%
+	     \addtolength{\codewidth}{-\parindent}%
+	     \begin{minipage}[t]{\codewidth}%\small
+	     \@verbatim \frenchspacing\@vobeyspaces \@xcode}
+\def\endcode{\endtrivlist\if@endpe\@doendpe\fi\end{minipage}}
+
+\@namedef{code*} #1{%
+	     \ifvmode \vspace{2ex}\else \par\fi % must be before setlength
+	     \setlength{\codewidth}{\linewidth}%
+	     \addtolength{\codewidth}{-\parindent}%
+	     \begin{minipage}[t]{\codewidth}%\small
+	     \@verbatim \@xscode}
+\@namedef{endcode*}{\endtrivlist\if@endpe\@doendpe\fi\end{minipage}}
+
+\let\dollar\$
+% \begingroup \catcode `|=0 \catcode `[= 1
+% \catcode`]=2 \catcode `\{=12 \catcode `\}=12 \catcode `$=12
+% \catcode`\\=12
+% |gdef|cbox #1[|verb }#1}]
+% |gdef|$[|verb $]
+% |endgroup
+
+\gdef\cindex #1{\index{#1@{\tt #1}}}
+\gdef\ckey #1{\cbox{#1}\index{#1@{\tt #1}}}
+\gdef\ickey #1#2{\cbox{#1}\index{#2@{\tt #2}}}
+
+\gdef\key #1{{\em #1}\index{#1}}
+\gdef\ikey #1#2{{\em #1}\index{#2}}
+
+\def\history#1{\begingroup \@noligs \let\do\@makeother \dospecials \@xhistory}
+\def\endhistory{\endgroup}
+\def\makehistory{\def\history##1{\begin{quote} \small {\bf ##1}:}
+		 \def\endhistory{\end{quote}}}
+
+\def\contributors #1{\def\contributorlist{#1}}
+
+% End of altered latex.tex macros.
+
+\catcode `@=\ATCATCODE	% @ is now restored
+
+\newenvironment{labpar}[1]%
+	{\begin{list}{#1}{\settowidth{\leftmargin}{#1}%
+			  \addtolength{\leftmargin}{\labelsep}%
+			  \settowidth{\labelwidth}{#1}%
+			  \setlength{\partopsep}{\parskip}%
+			  \setlength{\parskip}{0in}%
+			  \setlength{\topsep}{0in}%
+			  \item}}%
+	{\end{list}}
+
+\newenvironment{indentpar}%
+	{\begin{list}{}{}\item}%
+	{\end{list}}
+
+\newcounter{pnumber}
+\newenvironment{problems}%
+	{\begin{list}{\arabic{pnumber}.}{\usecounter{pnumber}}}%
+	{\end{list}}
+\newcommand{\problem}{\item}
+
+\newcounter{mpnumber}
+\newenvironment{moreproblems}%
+	{\setcounter{mpnumber}{\value{pnumber}}%
+	 \begin{list}{\arabic{pnumber}.}{\usecounter{pnumber}}%
+	 \setcounter{pnumber}{\value{mpnumber}}}%
+	{\end{list}}
+
+\newcounter{spnumber}
+\newenvironment{subproblems}%
+	{\begin{list}{(\alph{spnumber})}{\usecounter{spnumber}}}%
+	{\end{list}}
+\newcommand{\subproblem}{\item}
+
+\newlength{\spc}
+
+\newcount\TCOUNTX
+\newcount\TCOUNTY
+\newcount\TCOUNTZ
+
+\newenvironment{boxpicture}[2]%
+	{\setlength{\unitlength}{0.002in}
+	 \begin{picture}(#1,#2)
+	}%
+        {\end{picture}}
+
+\newcommand{\cons}[2]
+	{\put(#1,#2){\begin{picture}(200,100)
+		     \put(0,0){\framebox(200,100){}}
+		     \put(100,0){\line(0,1){100}}
+		     \end{picture}
+		    }
+	}
+
+\newcommand{\sym}[3]
+	{\put(#1,#2){\makebox(100,100){\tt #3}}
+        }
+
+\newcommand{\lab}[4]
+	{\put(#1,#2){\makebox(100,100)[#3]{\tt #4}}
+        }
+
+\newcommand{\nil}[2]
+        {\put(#1,#2){\line(1,1){100}}
+        }
+
+
+\newcommand{\cpointer}[4]
+       	{\TCOUNTX=#1
+	 \advance\TCOUNTX by 50
+	 \TCOUNTY=#2
+	 \advance\TCOUNTY by 50
+
+	 \ifnum#2=#4 {\TCOUNTZ=#3
+		      \advance\TCOUNTZ by -\TCOUNTX
+		      \put(\number\TCOUNTX,\number\TCOUNTY)
+				{\vector(1,0){\TCOUNTZ}}
+		     }
+	\else {
+		\ifnum#1<#3 {\TCOUNTZ=#3
+		     	     \advance\TCOUNTZ by -\TCOUNTX
+		     	     \put(\number\TCOUNTX,\number\TCOUNTY)
+					{\vector(1,-1){\TCOUNTZ}}
+		    	    } 
+		\fi
+		\ifnum#1=#3 {\TCOUNTZ=#4
+			     \advance\TCOUNTZ by 100
+			     \multiply\TCOUNTZ by -1
+			     \advance\TCOUNTZ by \TCOUNTY
+		     	     \put(\number\TCOUNTX,\number\TCOUNTY)
+					{\vector(0,-1){\TCOUNTZ}}
+		    	    } 
+		\fi
+		\ifnum#1>#3 {\TCOUNTZ=#3
+			     \advance\TCOUNTZ by 100
+			     \multiply\TCOUNTZ by -1
+		     	     \advance\TCOUNTZ by \TCOUNTX
+		     	     \put(\number\TCOUNTX,\number\TCOUNTY)
+					{\vector(-1,-1){\TCOUNTZ}}
+		    	    } 
+		\fi
+	      }
+
+	\fi
+        }
+
+\newcommand{\spointer}[4]
+       	{\TCOUNTX=#1
+	 \advance\TCOUNTX by 50
+	 \TCOUNTY=#2
+	 \advance\TCOUNTY by 50
+
+	 \ifnum#2=#4 {\TCOUNTZ=#3
+		      \advance\TCOUNTX by 50
+		      \advance\TCOUNTZ by -\TCOUNTX
+		      \put(\number\TCOUNTX,\number\TCOUNTY)
+				{\vector(1,0){\TCOUNTZ}}
+		     }
+	\else {
+		\ifnum#1<#3 {\TCOUNTZ=#3
+			     \advance\TCOUNTX by 50
+			     \advance\TCOUNTY by -50
+		     	     \advance\TCOUNTZ by -\TCOUNTX
+		     	     \put(\number\TCOUNTX,\number\TCOUNTY)
+					{\vector(1,-1){\TCOUNTZ}}
+		    	    } 
+		\fi
+		\ifnum#1=#3 {\TCOUNTZ=#4
+			     \advance\TCOUNTY by -50
+			     \advance\TCOUNTZ by 100
+			     \multiply\TCOUNTZ by -1
+			     \advance\TCOUNTZ by \TCOUNTY
+		     	     \put(\number\TCOUNTX,\number\TCOUNTY)
+					{\vector(0,-1){\TCOUNTZ}}
+		    	    } 
+		\fi
+		\ifnum#1>#3 {\TCOUNTZ=#3
+			     \advance\TCOUNTX by -50
+			     \advance\TCOUNTY by -50
+			     \advance\TCOUNTZ by 100
+			     \multiply\TCOUNTZ by -1
+		     	     \advance\TCOUNTZ by \TCOUNTX
+		     	     \put(\number\TCOUNTX,\number\TCOUNTY)
+					{\vector(-1,-1){\TCOUNTZ}}
+		    	    } 
+		\fi
+	      }
+
+	\fi
+        }
+
+\newcommand{\sline}[4]
+       	{\TCOUNTX=#1
+	 \advance\TCOUNTX by 50
+	 \TCOUNTY=#2
+	 \advance\TCOUNTY by 50
+
+	 \ifnum#2=#4 {\TCOUNTZ=#3
+		      \advance\TCOUNTX by 50
+		      \advance\TCOUNTZ by -\TCOUNTX
+		      \put(\number\TCOUNTX,\number\TCOUNTY)
+				{\line(1,0){\TCOUNTZ}}
+		     }
+	\else {
+		\ifnum#1<#3 {\TCOUNTZ=#3
+			     \advance\TCOUNTX by 50
+			     \advance\TCOUNTY by -50
+		     	     \advance\TCOUNTZ by -\TCOUNTX
+		     	     \put(\number\TCOUNTX,\number\TCOUNTY)
+					{\line(1,-1){\TCOUNTZ}}
+		    	    } 
+		\fi
+		\ifnum#1=#3 {\TCOUNTZ=#4
+			     \advance\TCOUNTY by -50
+			     \advance\TCOUNTZ by 100
+			     \multiply\TCOUNTZ by -1
+			     \advance\TCOUNTZ by \TCOUNTY
+		     	     \put(\number\TCOUNTX,\number\TCOUNTY)
+					{\line(0,-1){\TCOUNTZ}}
+		    	    } 
+		\fi
+		\ifnum#1>#3 {\TCOUNTZ=#3
+			     \advance\TCOUNTX by -50
+			     \advance\TCOUNTY by -50
+			     \advance\TCOUNTZ by 100
+			     \multiply\TCOUNTZ by -1
+		     	     \advance\TCOUNTZ by \TCOUNTX
+		     	     \put(\number\TCOUNTX,\number\TCOUNTY)
+					{\line(-1,-1){\TCOUNTZ}}
+		    	    } 
+		\fi
+	      }
+
+	\fi
+        }

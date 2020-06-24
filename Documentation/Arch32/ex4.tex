@@ -1,0 +1,31 @@
+% $Id: ex4.tex,v 1.4 2001/06/21 15:17:55 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{ex4}
+\renewcommand{\INSTdesc}	{Exchange Word}
+\renewcommand{\INSTopcode}	{0xEA}
+\renewcommand{\INSToptype}	{TwoReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{const8}
+
+\renewcommand{\INSTsemantic}	{
+	\begin{tabular} { l l }
+	\Reg{des}	& $\leftarrow$ \Mem{\Reg{src1} + {\em const8}} \\
+	\Mem{\Reg{src1} + {\em const8}} 	& $\leftarrow$ \Reg{des} \\
+	\end{tabular}
+
+}
+
+\renewcommand{\INSTprose}	{
+
+
+Exchange contents of register with location in memory.
+The exchange operation can be used to implement synchronization
+primitives.
+
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Bus error, Alignment error
+	}

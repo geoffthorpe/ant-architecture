@@ -1,0 +1,68 @@
+% $Id: ant32-fp.tex,v 1.2 2002/01/02 02:13:48 ellard Exp $
+
+The ANT-32 architecture also provides between 8 and 256 64-bit floating point
+registers, named f0-f255.  f0 is read-only, and always contains the
+constant 0.0.  Like r0, f0 may be used as a destination register, but
+if f0 is used as the destination register then the instruction is
+performed but f0 is unchanged.
+
+Floating point arithmetic take 3 floating point registers. 
+
+\begin{description}
+
+\item \ThreeRegisterOp{fadd}{Floating Point Addition}{0x80}{fdes}{fsrc1}{fsrc2}
+
+	\Reg{fdes} $\leftarrow$ \Reg{fsrc1} $+$ \Reg{fsrc2}
+
+\item \ThreeRegisterOp{fsub}{Floating Point Subtraction}{0x81}{fdes}{fsrc1}{fsrc2}
+
+	\Reg{fdes} $\leftarrow$ \Reg{fsrc1} $-$ \Reg{fsrc2}
+
+\item \ThreeRegisterOp{fmul}{Floating Point Multiply}{0x82}{fdes}{fsrc1}{fsrc2}
+
+	\Reg{fdes} $\leftarrow$ \Reg{fsrc1} $\times$ \Reg{fsrc2}
+
+\item \ThreeRegisterOp{fdiv}{Floating Point Divide}{0x83}{fdes}{fsrc1}{fsrc2}
+
+	\Reg{fdes} $\leftarrow$ \Reg{fsrc1} $/$ \Reg{fsrc2}
+
+\end{description}
+
+The floating point comparison instructions take two floating point
+registers and one integer register.  The integer register is set to 1
+if the condition is met, 0 otherwise.
+
+\begin{description}
+
+\item \ThreeRegisterOp{feq}{FP Equal}{0x84}{des}{fsrc1}{fsrc2}
+\item \ThreeRegisterOp{fgt}{FP Greater Than}{0x85}{des}{fsrc1}{fsrc2}
+\item \ThreeRegisterOp{fge}{FP Greater Than or Equal}{0x86}{des}{fsrc1}{fsrc2}
+
+\end{description}
+
+The conversion instructions take an integer register and a floating
+point register.
+
+\begin{description}
+
+\item \ThreeRegisterOp{flt}{Float}{0x88}{fdes}{src1}{XXX}
+
+	Convert from integer to floating point.
+
+\item \ThreeRegisterOp{fix}{Fix}{0x89}{des}{fsrc1}{XXX}
+
+	Convert from floating point to integer.
+
+\item \ThreeRegisterOp{r2f}{Convert to FP}{0x8E}{fdes}{src1}{src2}
+
+	Paste together the bits from two integer registers and place
+	them into a floating point register.
+
+\item \ThreeRegisterOp{f2r}{Convert from FP}{0x8F}{des1}{des2}{fsrc1}
+
+	Split the bits from one floating point register and place them
+	into two integer registers.
+
+\end{description}
+
+

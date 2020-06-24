@@ -1,0 +1,47 @@
+#@ Instructions 36
+#@ Data 144
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf03cdcba  ::  	addio     r28, r29, 16702650	# fedcba
++           ::  0xf13c00fe  ::  
++           ::  0xa01c1d3c  ::  
++           ::  0xf03cdcba  ::  	addio     r28, r29, 16702650	# fedcba
++           ::  0xf13c00fe  ::  
++           ::  0xa01c1d3c  ::  
++           ::  0xf03cffff  ::  label0:	addio     r28, r29, 65535	# ffff
++           ::  0xf13c0000  ::  
++           ::  0xa01c1d3c  ::  
++           ::  0xf03c0018  ::  	addio     r28, r29, $label0	# abcde
++           ::  0xf13c8000  ::  
++           ::  0xa01c1d3c  ::  
++           ::  0xf03cdcba  ::  	subio     r28, r29, 16702650	# fedcba
++           ::  0xf13c00fe  ::  
++           ::  0xa11c1d3c  ::  
++           ::  0xf03cdcba  ::  	subio     r28, r29, 16702650	# fedcba
++           ::  0xf13c00fe  ::  
++           ::  0xa11c1d3c  ::  
++           ::  0xf03cffff  ::  label1:	subio     r28, r29, 65535	# ffff
++           ::  0xf13c0000  ::  
++           ::  0xa11c1d3c  ::  
++           ::  0xf03c0078  ::  	subio     r28, r29, $label2	# abcde
++           ::  0xf13c8000  ::  
++           ::  0xa11c1d3c  ::  
++           ::  0xf03cdcba  ::  	mulio     r28, r29, 16702650	# fedcba
++           ::  0xf13c00fe  ::  
++           ::  0xa21c1d3c  ::  
++           ::  0xf03cdcba  ::  	mulio     r28, r29, 16702650	# fedcba
++           ::  0xf13c00fe  ::  
++           ::  0xa21c1d3c  ::  
++           ::  0xf03cffff  ::  label2:	mulio     r28, r29, 65535	# ffff
++           ::  0xf13c0000  ::  
++           ::  0xa21c1d3c  ::  
++           ::  0xf03c0048  ::  	mulio     r28, r29, $label1	# abcde
++           ::  0xf13c8000  ::  
++           ::  0xa21c1d3c  ::  
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# $label2                   = -2147483528 (0x80000078)
+# $label1                   = -2147483576 (0x80000048)
+# $label0                   = -2147483624 (0x80000018)
+# end of file

@@ -1,0 +1,87 @@
+% $Id: info.tex,v 1.14 2001/07/06 03:51:40 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{info}
+\renewcommand{\INSTdesc}	{Information Request}
+\renewcommand{\INSTopcode}	{0x11}
+\renewcommand{\INSToptype}	{OneReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{const16}
+
+\renewcommand{\INSTsemantic}	{
+
+	The value placed in \Reg{des} depends on the value of {\em
+	const16}.  See figure \ref{info req figure} on page
+	\pageref{info req figure} for a complete listing of the valid
+	values and their meanings.
+
+\begin{figure}[ht]
+\caption{Information Request: values placed in des register}
+\label{info req figure}
+\begin{center}
+\begin{tabular}{|l|p{4.in}|}
+\hline
+{\em const16}	&{\em value placed in des register}\\
+\hline
+\hline
+0	& The number of general-purpose registers
+
+	This count does not include the kernel registers, exception
+	registers, or cycle counters.  In current implementations it
+	is fixed at 64, but future implementations may allow values
+	from 8 to 240.  \\
+\hline
+1	& {\em Reserved} \\
+\hline
+2	& The number of TLB entries
+\\
+\hline
+3	& The number of bits used by {\tt srand} (0..96):
+	if {\tt srand} is unimplemented, then this value is zero.
+\\
+\hline
+4	& {\em Reserved} \\
+\hline
+5	& Optional feature support: \\
+ 	& bits 0..3: number of {\tt cin} channels (0 to 15) \\
+	& bits 4..7: number of {\tt cout} channels (0 to 15) \\
+ 	& bit 8:  1 if {\tt rand} is supported \\
+ 	& bit 9:  1 if {\tt srand} is supported \\
+\hline
+6	& Processor manufacturer ID code
+
+	ID codes 0..255 are reserved for the Ant development team.  \\
+\hline
+7	& Processor spec version:
+	the version of the processor specification to which
+	processor conforms. \\
+	& bits 24..31: major version number \\
+	& bits 16..23: minor version number \\
+	& bits 8..15: release number \\
+	& bits 0..7: release status (0xA = $\alpha$, 0xB = $\beta$, 0xF = stable) \\
+	& For example, the processor version for the implementation
+	of version 3.1.0a of Ant32 is 
+	{\tt 0x0301000A}. \\
+\hline
+8	& CPU number (always 0 on a uniprocessor) \\
+\hline
+9	& Processor implementation version
+
+	The meaning of this value is defined by the processor
+	manufacturer.  \\
+\hline
+
+\end{tabular}
+\end{center}
+
+Note:  for all other values of {\em const16}, 0 is placed in the
+destination register.
+
+\end{figure}
+
+% \end{description}
+
+}
+
+% \renewcommand{\INSTprose}	{ }
+
+\renewcommand{\INSTexceptions}	{}

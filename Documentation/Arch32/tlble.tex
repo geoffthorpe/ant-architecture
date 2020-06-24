@@ -1,0 +1,36 @@
+% $Id: tlble.tex,v 1.9 2002/04/16 15:33:59 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{tlble}
+\renewcommand{\INSTdesc}	{Load TLB Entry}
+\renewcommand{\INSTopcode}	{0x41}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{\INSTunusedField}
+
+\renewcommand{\INSTsemantic}	{
+}
+
+\renewcommand{\INSTprose}	{
+
+	Load TLB entry.  Loads the TLB entry indicated by the index
+	value in \Reg{src1} into the general-purpose register pair
+	referenced by \Reg{des}.  {\em des} must be an even-numbered
+	register.
+
+	The lower word of the TLB entry is loaded into register \Reg{des},
+	and upper word of the TLB entry is loaded into register \Reg{des+1},
+
+	If the index is greater than or equal to the number of TLB
+	entries, a TLB invalid index exception occurs.
+
+	If {\em des} is not even, an illegal instruction exception
+	occurs.
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Privileged instruction,
+	Illegal instruction,
+	TLB invalid index
+	}

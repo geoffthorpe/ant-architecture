@@ -1,0 +1,26 @@
+% $Id: sys.tex,v 1.2 2002/04/16 01:02:41 ellard Exp $
+
+\OneRegisterOp{sys}{System call}{\OPCODE}{des}{const8}
+
+\index{sys@{\tt sys}!for Ant-8}
+
+System Call.
+	
+\begin{enumerate}
+
+\item If {\em const8} is not a valid syscall, then an
+	"invalid syscall" error occurs, and the
+	processor halts.
+
+\item Make the system call associated with the number
+	in the contents of code.  The argument or
+	destination of the system call is \Reg{reg}
+	(and \Reg{1}, in some cases).
+
+\item \Reg{1} is modified, as described below.
+
+\end{enumerate}
+
+System calls and their arguments are described in
+section \ref{sys-sec}.
+

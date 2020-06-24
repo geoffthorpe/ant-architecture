@@ -1,0 +1,16 @@
+% $Id: and.tex,v 1.7 2001/06/21 15:17:42 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{and}
+\renewcommand{\INSTdesc}	{Bitwise {\sc and}}
+\renewcommand{\INSTopcode}	{0x88}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{src2}
+
+\renewcommand{\INSTsemantic}	{
+	\Reg{des} $\leftarrow$ \Reg{src1} {\sc and} \Reg{src2}
+}
+
+
+\renewcommand{\INSTexceptions}	{}

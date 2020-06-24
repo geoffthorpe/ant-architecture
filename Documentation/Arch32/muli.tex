@@ -1,0 +1,16 @@
+% $Id: muli.tex,v 1.8 2001/06/21 15:18:22 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{muli}
+\renewcommand{\INSTdesc}	{Multiply Immediate}
+\renewcommand{\INSTopcode}	{0x92}
+\renewcommand{\INSToptype}	{TwoReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{const8}
+
+\renewcommand{\INSTsemantic}	{
+	\Reg{des} $\leftarrow$ \Reg{src1} $\times$ {\em const8}
+}
+
+
+\renewcommand{\INSTexceptions}	{}

@@ -1,0 +1,42 @@
+% $Id: ant-macros.tex,v 1.7 2002/01/02 02:13:47 ellard Exp $
+
+\newcommand{\ThreeRegisterOp}[6]{
+	\vspace{0.1in}
+	\begin{tabular}{p{0.6in}p{2.4in}|p{0.6in}|p{0.6in}|p{0.6in}|p{0.6in}|}
+	\cline{3-6}
+	\fbox{\tt\Large #1} & {\bf #2} &
+			#3 & {\em #4} & {\em #5} & {\em #6} \\
+	\cline{3-6}
+	\end{tabular}
+	\vspace{0.1in}
+}
+
+% TwoRegisterOp is actually exactly the same as ThreeRegisterOp right now.
+% It exists only to clarify the spec (and because perhaps in the future
+% we will distinguish them).
+
+\newcommand{\TwoRegisterOp}[6]{\ThreeRegisterOp{#1}{#2}{#3}{#4}{#5}{#6}}
+
+\newcommand{\OneRegisterOp}[5]{
+	\vspace{0.1in}
+	\begin{tabular}{p{0.6in}p{2.4in}|p{0.6in}|p{0.6in}|p{1.4in}|}
+	\cline{3-5}
+	\fbox{\tt\Large #1}	& {\bf #2} &
+			#3 & {\em #4} & {\em #5} \\
+	\cline{3-5}
+	\end{tabular}
+	\vspace{0.1in}
+}
+
+\newcommand{\MaxIntWord}{{\bf\tt MAX\_INT8}}
+\newcommand{\MinIntWord}{{\bf\tt MIN\_INT8}}
+\newcommand{\MaxUIntWord}{{\bf\tt MAX\_UINT8}}
+\newcommand{\MinUIntWord}{{\bf\tt MIN\_UINT8}}
+\newcommand{\MaxUIntHWord}{{\bf\tt MAX\_UINT4}}
+\newcommand{\MinUIntHWord}{{\bf\tt MIN\_UINT4}}
+
+\newcommand{\Reg}[1]{{\bf\tt R({\em #1})}}
+\newcommand{\Mem}[1]{{\bf\tt MEMORY(#1)}}
+
+\newcommand{\tw}[1]{\tt {#1}}
+

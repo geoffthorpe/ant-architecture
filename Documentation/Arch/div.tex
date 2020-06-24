@@ -1,0 +1,26 @@
+% $Id
+
+\ThreeRegisterOp{div}{Division with remainder}{\OPCODE}{des}{src1}{src2}
+
+\index{div@{\tt div}!for Ant-8}
+
+Integer division (with remainder).
+	
+\begin{enumerate}
+
+\item If \Reg{src2} is zero, a "division by zero" error occurs
+	and the processor halts.
+
+\item \Reg{des} $\leftarrow$ \Reg{src1} / \Reg{src2} (integer division). 
+	The special case of $\MinIntWord / -1$ is defined as zero, with
+	remainder \MinIntWord.
+
+	The contents of registers {\em src1} and {\em src2} are
+	treated as 8-bit two's complement integers.
+
+\item \Reg{1} $\leftarrow$ the remainder (or modulus)
+	of \Reg{src1} / \Reg{src2},  which is defined as
+	\Reg{src1} - \Reg{src2} $\times$ (\Reg{src1} / \Reg{src2}).
+
+\end{enumerate}
+

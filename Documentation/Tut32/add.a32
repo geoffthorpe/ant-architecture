@@ -1,0 +1,12 @@
+#@ Instructions 4
+#@ Data 16
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0050001  ::          lc      g1, 1           # load 1 into g1.
++           ::  0xf0060002  ::          lc      g2, 2           # load 2 into g2.
++           ::  0x80040506  ::          add     g0, g1, g2      # g0 = g1 + g2.
++           ::  0x4f000000  ::          halt                    # Halt - end execution.
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# end of file

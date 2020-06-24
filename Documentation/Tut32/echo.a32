@@ -1,0 +1,24 @@
+#@ Instructions 13
+#@ Data 52
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0050020  ::          lc      g1, $print
++           ::  0xf1058000  ::  
++           ::  0x24040000  ::          cin     g0              # g0 = getchar ();
++           ::  0x90060401  ::  	addi	g2, g0, 1	# Looking for -1...
++           ::  0xd3000605  ::          jnz     ze, g2, g1      # if not at EOI, go to $print.
++           ::  0xf03c0030  ::          j       $exit           # otherwise, go to $exit.
++           ::  0xf13c8000  ::  
++           ::  0xd100003c  ::  
++           ::  0x25000400  ::          cout    g0		# putchar (g0);
++           ::  0xf03c0008  ::          j       $loop           # iterate, go back to $loop.
++           ::  0xf13c8000  ::  
++           ::  0xd100003c  ::  
++           ::  0x4f000000  ::          halt                    # Exit
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# $exit                     = -2147483600 (0x80000030)
+# $print                    = -2147483616 (0x80000020)
+# $loop                     = -2147483640 (0x80000008)
+# end of file

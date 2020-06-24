@@ -1,0 +1,18 @@
+% $Id: mod.tex,v 1.8 2001/06/21 15:18:20 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{mod}
+\renewcommand{\INSTdesc}	{Modulo}
+\renewcommand{\INSTopcode}	{0x84}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{src2}
+
+\renewcommand{\INSTsemantic}	{
+	\Reg{des} $\leftarrow$ \Reg{src1} {\sc mod} \Reg{src2}
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Division-by-zero
+	}

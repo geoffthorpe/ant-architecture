@@ -1,0 +1,708 @@
+% $Id: datarep-sec.tex,v 1.5 2002/04/17 20:05:58 ellard Exp $
+
+\section{Introduction}
+
+In order to understand how a computer is able
+to manipulate data and perform computations,
+you must first understand how data is represented by a computer.
+
+At the lowest level, the indivisible unit of data in a computer is a
+{\em bit}\index{bit}.
+A bit represents a single binary value, which may be either 1 or 0.
+In different contexts, a bit value of 1 and 0 may also be referred to as
+``true'' and ``false'',
+``yes'' and ``no'',
+``high'' and ``low'',
+``set'' and ``not set'', or
+``on'' and ``off''.
+
+The decision to use binary values, rather than something larger (such
+as decimal values) was not purely arbitrary-- it is due
+in a large part to the relative simplicity of building electronic
+devices that can manipulate binary values.
+
+
+\section{Representing Integers}
+
+\subsection{Unsigned Binary Numbers}
+\index{unsigned binary numbers}
+
+%%% This really needs some explanation here.
+
+While the idea of a number system with only two values may
+seem odd, it is actually very similar to the decimal system
+we are all familiar
+with, except that each digit is a bit containing a 0 or 1
+rather than a number from 0 to 9.
+(The word ``bit'' itself is a contraction of the words ``binary digit'')
+For example, figure~\ref{datarep-binary-decimal-table} shows several
+binary numbers, and the equivalent decimal numbers.
+
+\begin{figure}[hbtp]
+\caption{Binary and Decimal Numbers}
+\label{datarep-binary-decimal-table}
+\begin{center}
+\begin{tabular}{|rcr|}
+\hline
+{\bf Binary}    &       & {\bf Decimal} \\
+\hline
+       0        & =             & 0     \\
+       1        & =             & 1     \\
+      10        & =             & 2     \\
+      11        & =             & 3     \\
+     100        & =             & 4     \\
+     101        & =             & 5     \\
+     110        & =             & 6     \\
+$\vdots$        & $\vdots$      & $\vdots$      \\
+11111111        & =             & 255   \\
+\hline
+\end{tabular}
+\end{center}
+\end{figure}
+
+In general, the binary representation of $2^{k}$ has a $1$ in
+binary digit $k$ (counting from the {\em right}, starting at 0)
+and a $0$ in every other digit.
+(For notational convenience,
+the $i$th bit of a binary number $A$ will be
+denoted as $A_{i}$.)
+
+The binary representation of a number that is not a power
+of 2 has the bits set corresponding to the powers of two
+that sum to the number:  for example, the decimal number
+$6$ can be expressed in terms of powers of 2 as
+$1 \times 2^{2} ~+~ 1 \times 2^{1} ~+~ 0 \times 2^{0}$,
+so it is written in binary as $110$.
+
+An eight-digit binary number is commonly called a {\em byte}.
+In this text, binary numbers will usually be written as bytes
+(i.e. as strings of eight binary digits).  For example, the binary number
+$101$ would usually be written as $00000101$-- a $101$
+padded on the left with five zeros, for a total of eight digits.
+
+Whenever there is any possibility of ambiguity between
+decimal and binary notation, the {\em base} of the number
+system (which is 2 for binary, and 10 for decimal) is
+appended to the number as a subscript.  Therefore, $101_{2}$
+will always be interpreted as the binary representation for five,
+and never the decimal representation of one hundred and one
+(which would be written as $101_{10}$).
+
+\subsubsection{Conversion of Binary to Decimal}
+\label{datarep-binary-to-decimal-sec}
+
+To convert an unsigned binary number to a decimal number, add
+up the decimal values of the powers of 2 corresponding to bits
+which are set to 1 in the binary number.
+Algorithm~\ref{datarep-binary-to-decimal-alg} shows a method to do this.
+Some examples of conversions from binary to decimal
+are given in figure~\ref{datarep-bin-to-dec-figure}.
+
+\begin{algorithm}{Binary to Decimal}{datarep-binary-to-decimal-alg}{
+        To convert a binary number to decimal.
+}
+
+\begin{itemize}
+\item   Let $X$ be a binary number, $n$ digits in length, composed of bits
+                $X_{n-1} \cdots X_{0}$.
+\item   Let $D$ be a decimal number.
+\item   Let $i$ be a counter.
+\end{itemize}
+
+\begin{enumerate}
+\item   Let $D \leftarrow 0$.
+\item   Let $i \leftarrow 0$.
+\item   While $i < n$ do:
+        \begin{itemize}
+        \item   If $X_{i}$ is $1$
+                (i.e. if bit $i$ in $X$ is $1$),
+                then set $D \leftarrow (D + 2^{i})$.
+        \item   Set $i \leftarrow (i + 1)$.
+        \end{itemize}
+\end{enumerate}
+\end{algorithm}
+
+\begin{figure}[hbtp]
+\caption{Examples of Conversion from Binary to Decimal}
+\label{datarep-bin-to-dec-figure}
+\begin{center}
+\begin{tabular}{|lclclcr|}
+\hline
+{\bf Binary}    & & & & & & {\bf Decimal} \\
+\hline
+
+00000000        & = &   $0$                     & = &
+                        $0$                     & = & 0 \\
+& & & & & & \\
+00000101        & = & $2^2 + 2^0$               & = &
+                        $4 + 1$                 & = & 5 \\
+& & & & & & \\
+00000110        & = & $2^2 + 2^1$               & = &
+                        $4 + 2$                 & = & 6 \\
+& & & & & & \\
+00101101        & = & $2^5 + 2^3 + 2^2 + 2^0$   & = &
+                        $32 + 8 + 4 + 1$        & = & 45 \\
+& & & & & & \\
+10110000        & = & $2^7 + 2^5 + 2^4$         & = &
+                        $128 + 32 + 16$         & = & 176 \\
+\hline
+\end{tabular}
+\end{center}
+\end{figure}
+
+
+Since there are $2^{n}$ unique sequences of $n$ bits,
+if all the possible bit sequences of length $n$ are used,
+starting from zero, the largest number will be $2^{n} - 1$.
+
+\subsubsection{Conversion of Decimal to Binary}
+\label{datarep-decimal-to-binary-algorithm}
+
+An algorithm for converting a decimal number to binary notation is
+given in algorithm~\ref{datarep-decimal-to-binary-alg}.
+
+\begin{algorithm}{Decimal to Binary}{datarep-decimal-to-binary-alg}{
+        To convert a positive decimal number to binary.
+}
+
+\begin{itemize}
+\item   Let $X$ be an unsigned binary number, $n$ digits in length.
+\item   Let $D$ be a positive decimal number, no larger than $2^{n} - 1$.
+\item   Let $i$ be a counter.
+\end{itemize}
+\begin{enumerate}
+\item   Let $X \leftarrow 0$ (set all bits in $X$ to $0$).
+\item   Let $i \leftarrow (n - 1)$.
+\item   While $i \geq 0$ do:
+        \begin{enumerate}
+        \item   If $D \geq 2^{i}$, then
+                \begin{itemize}
+                \item   Set $X_{i} \leftarrow 1$
+                        (i.e. set bit $i$ of $X$ to $1$).
+                \item   Set $D \leftarrow (D - 2^{i})$.
+                \end{itemize}
+        \item   Set $i \leftarrow (i - 1)$.
+        \end{enumerate}
+\end{enumerate}
+\end{algorithm}
+
+\subsubsection{Addition of Unsigned Binary Numbers}
+\label{datarep-unsigned-addition-sec}
+
+Addition of binary numbers can be done in exactly the same
+way as addition of decimal numbers, except that all of the
+operations are done in binary (base 2) rather than
+decimal (base 10).
+Algorithm~\ref{datarep-unsigned-addition-alg} gives a method
+which can be used to perform binary addition.
+
+\begin{algorithm}{Unsigned Binary Addition}{datarep-unsigned-addition-alg}{
+        Addition of unsigned binary numbers.
+}
+
+\begin{itemize}
+\item   Let $A$ and $B$ be a pair of $n$-bit binary numbers.
+\item   Let $X$ be a binary number which will hold the sum of $A$ and $B$.
+\item   Let $c$ and $\hat{c}$ be carry bits.
+\item   Let $i$ be a counter.
+\item   Let $s$ be an integer.
+\end{itemize}
+\begin{enumerate}
+\item   Let $c \leftarrow 0$.
+\item   Let $i \leftarrow 0$.
+\item   While $i < n$ do:
+        \begin{enumerate}
+	\item	Set $s \leftarrow A_{i} + B_{i} + c$.
+        \item   Set $X_{i}$ and $\hat{c}$ according to the 
+		following rules:
+		\begin{itemize}
+		\item	If $s$ is $0$, then
+			$X_{i} \leftarrow 0$ and $\hat{c} \leftarrow 0$.
+		\item	If $s$ is $1$, then
+			$X_{i} \leftarrow 1$ and $\hat{c} \leftarrow 0$.
+		\item	If $s$ is $2$, then
+			$X_{i} \leftarrow 0$ and $\hat{c} \leftarrow 1$.
+		\item	If $s$ is $3$, then
+			$X_{i} \leftarrow 1$ and $\hat{c} \leftarrow 1$.
+		\end{itemize}
+        \item   Set $c \leftarrow \hat{c}$.
+        \item   Set $i \leftarrow (i + 1)$.
+        \end{enumerate}
+\end{enumerate}
+
+\end{algorithm}
+
+When algorithm~\ref{datarep-unsigned-addition-alg} terminates,
+if $c$ is not 0, then an {\em overflow}\index{overflow}
+has occurred-- the resulting number is simply too large to
+be represented by
+an $n$-bit unsigned binary number.
+
+\subsection{Signed Binary Numbers}
+\index{signed binary numbers}
+
+The major flaw with the representation that we've used for
+unsigned binary numbers is that it doesn't include a way to
+represent negative numbers.
+
+There are a number of ways to extend the unsigned representation
+to include negative numbers.
+One of the easiest is to add an additional bit
+to each number that is used to represent the {\em sign} of the
+number-- if this bit is $1$, then the number is negative; otherwise
+the number is positive (or vice versa).
+This is analogous to the way that we write negative numbers
+in decimal-- if the first symbol of the number is a negative sign,
+then the number is negative, otherwise the number is positive.
+
+Unfortunately, when we try to adapt the algorithm for addition
+to work properly with this representation, this apparently simple
+method turns out to cause some trouble.
+Instead of simply adding the numbers together
+as we do with unsigned numbers, we now need to consider
+whether the numbers being added are positive or negative.
+If one number is positive and the other negative, then we
+actually need to do subtraction instead of addition, so
+we'll need to find an algorithm for subtraction.  Furthermore,
+once we've done the subtraction, we need to compare the
+the unsigned magnitudes of the numbers to determine whether the
+result is positive or negative!
+
+Luckily, there is a representation that allows us to represent
+negative numbers in such a way that addition (or subtraction)
+can be done easily, using algorithms very similar to the ones
+that we already have.
+The representation that we will use
+is called {\em two's complement} notation.
+\index{two's complement}
+\index{2's complement}
+
+To introduce two's complement, we'll start by defining, in
+algorithm~\ref{datarep-twos-complement-negate-alg}, the
+algorithm that is used to compute the negation of a two's complement number.
+
+\begin{algorithm}{Two's Complement Negation}
+	{datarep-twos-complement-negate-alg}{
+        Negation of a two's complement number.
+}
+
+\begin{enumerate}
+\item   Let $\bar{x}$ be the
+        {\em logical complement}\index{logical complement} of $x$.
+
+        The logical complement (also called the {\em one's complement})
+        \index{one's complement} \index{1's complement}
+        is formed by flipping all the bits in the number, changing
+        all of the $1$ bits to $0$, and vice versa.
+
+\item   Let $X \leftarrow \bar{x} + 1$.
+
+        If this addition {\em overflows}, then the overflow bit
+        is discarded.
+\end{enumerate}
+
+By the definition of two's complement, the resulting $X$ is the
+negation of the original $x$.
+
+\end{algorithm}
+
+Figure~\ref{datarep-twos-complement-neg-table}
+shows the process of negating several
+numbers.  Note that the negation of zero is zero.
+
+\begin{figure}[hbtp]
+\caption{Examples of Negation Using Two's Complement}
+\begin{center}
+\label{datarep-twos-complement-neg-table}
+
+\begin{tabular}{llcr}
+                & 00000110      & = & 6 \\
+1's complement  & 11111001      &   &   \\
+Add 1           & 11111010      & = & -6 \\
+\\
+\end{tabular}
+
+\begin{tabular}{llcr}
+                & 11111010      & = & -6 \\
+1's complement  & 00000101      &   &   \\
+Add 1           & 00000110      & = & 6 \\
+\\
+\end{tabular}
+
+\begin{tabular}{llcr}
+                & 00000000      & = & 0 \\
+1's complement  & 11111111      &   &   \\
+Add 1           & 00000000      & = & 0 \\
+\\
+\end{tabular}
+\end{center}
+\end{figure}
+
+This representation has several important properties:
+\begin{itemize}
+\item   The leftmost (most significant)
+        bit also serves as a sign bit; if 1, then the number is negative,
+        if 0, then the number is positive or zero.
+
+\item   The rightmost (least significant)
+        bit of a number always determines
+        whether or not the number is odd or even--
+        if bit 0 is 0, then the number is even, otherwise the number is odd.
+
+\item   The largest positive number that can be represented in
+        two's complement notation in an $n$-bit binary number is $2^{n-1} - 1$.
+        For example, if $n$ is $8$, then the largest positive number is
+        $01111111 ~~=~~ 2^{7} - 1 ~~=~~ 127$.
+
+\item   Similarly, the ``most negative'' number is $-2^{n-1}$, so
+        if $n = 8$, then it is $10000000$, which is $-2^{7} ~~=~~ -128$.
+        Note that the negative of the most negative number (in this
+        case, 128) cannot be represented in this notation.
+\end{itemize}
+
+
+\subsubsection{Addition and Subtraction of Signed Binary Numbers}
+
+The same addition algorithm that was used for unsigned binary numbers
+also works properly for two's complement numbers.
+
+\begin{tabular}{llcr}
+        \\
+        &       00000101        & = & 5         \\
+  $+$   &       11110101        & = & -11       \\
+\hline
+        &       11111010        & = & -6        \\
+        \\
+\end{tabular}
+
+Subtraction is also done in a similar way: to subtract A from B, take
+the two's complement of A and then add this number to B.
+
+The conditions for detecting overflow are different for signed
+and unsigned numbers, however.  If we use
+algorithm~\ref{datarep-unsigned-addition-alg} to add two unsigned numbers,
+then if $c$ is $1$ when the addition terminates,
+this indicates that the result has an absolute value
+too large to fit the number of bits allowed.
+With signed numbers, however, $c$ is not relevant, and an overflow
+occurs when the signs of both numbers being added are the same
+but the sign of the result is opposite.  If the two numbers being added have
+opposite signs, however, then an overflow {\em cannot} occur.
+
+For example, consider the sum of $1$ and $-1$:
+
+\begin{tabular}{llcrl}
+        \\
+        &       00000001        & = & 1         & \\
+  $+$   &       11111111        & = & -1        & \\
+\hline
+        &       00000000        & = & 0         & {\bf Correct!}        \\
+        \\
+\end{tabular}
+
+In this case, the addition will overflow, but it is not
+an error, since the result that we get (without considering
+the overflow) is exactly correct.
+
+On the other hand, if we compute the sum of 127 and 1, then
+a serious error occurs:
+
+\begin{tabular}{llcrl}
+        \\
+        &       01111111        & = & 127       &       \\
+  $+$   &       00000001        & = & 1         &       \\
+\hline
+        &       10000000        & = & -128      & {\bf Uh-oh!}  \\
+        \\
+\end{tabular}
+
+Therefore, we must be very careful when doing signed binary arithmetic
+that we take steps to detect bogus results.
+In general:
+\begin{itemize}
+\item   If $A$ and $B$ are of the same sign, but $A + B$ is of
+        the opposite sign, then an overflow or wraparound error
+        has occurred.
+\item   If $A$ and $B$ are of different signs, then $A + B$ will
+        never overflow or wraparound.
+\end{itemize}
+
+\subsubsection{Shifting Signed Binary Numbers}
+
+Another useful property of the two's complement notation
+is the ease with which numbers can be multiplied or divided by
+two.  To multiply a number by two, simply shift the number ``up''
+(to the left) by one bit, placing a 0 in the least significant bit.
+To divide a number in half, simply shift the the number ``down''
+(to the right) by one bit (but do not change the sign bit).
+
+Note that in the case of odd numbers, the effect of shifting
+to the right one bit is like dividing in half, rounded towards
+negative infinity, so that 51 shifted to the right one bit becomes 25,
+while -51 shifted to the right one bit becomes -26.
+
+\begin{figure}
+\caption{ Doubling and Halving Two's Complement Numbers }
+\begin{center}
+\begin{tabular}{llcr}
+\\
+                & 00000001      & = & 1 \\
+Double          & 00000010      & = & 2 \\
+Halve		& 00000000      & = & 0 \\
+\\
+                & 00110011      & = & 51 \\
+Double          & 01100110      & = & 102 \\
+Halve           & 00011001      & = & 25 \\
+\\
+                & 11001101      & = & -51 \\
+Double          & 10011010      & = & -102 \\
+Halve           & 11100110      & = & -26 \\
+\\
+\end{tabular}
+\end{center}
+\end{figure}
+
+\subsubsection{Hexadecimal Notation}
+\index{hexadecimal}
+\index{octal}
+
+Writing numbers in binary notation can soon get tedious,
+since even relatively small numbers require many
+binary digits to express.  A more compact notation, called {\em hexadecimal}
+(base 16), is usually used to express large binary numbers.
+In hexadecimal, each digit represents four unsigned binary digits.
+
+Another notation, which is not as common currently, is called {\em octal}
+and uses base eight to represent groups of three bits.
+Figure~\ref{datarep-hex-oct-table} show examples of binary, decimal, octal, and
+hexadecimal numbers.
+
+\begin{figure}
+\caption{Hexadecimal and Octal}
+\label{datarep-hex-oct-table}
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+\hline
+Binary  & 0000  & 0001  & 0010  & 0011  & 0100  & 0101  & 0110  & 0111  \\
+\hline
+Decimal & 0     & 1     & 2     & 3     & 4     & 5     & 6     & 7     \\
+\hline
+Hex     & 0     & 1     & 2     & 3     & 4     & 5     & 6     & 7     \\
+\hline
+Octal   & 0     & 1     & 2     & 3     & 4     & 5     & 6     & 7     \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+\hline
+Binary  & 1000  & 1001  & 1010  & 1011  & 1100  & 1101  & 1110  & 1111  \\
+\hline
+Decimal & 8     & 9     & 10    & 11    & 12    & 13    & 14    & 15    \\
+\hline
+Hex     & 8     & 9     & A     & B     & C     & D     & E     & F     \\
+\hline
+Octal   & 10    & 11    & 12    & 13    & 14    & 15    & 16    & 17    \\
+\hline
+\end{tabular}
+\end{center}
+\end{figure}
+
+For example, the number ${\tt 200}_{10}$ can be written as
+${\tt 11001000}_{2}$,
+${\tt C8}_{16}$, or
+${\tt 310}_{8}$.
+
+\section{Representing Characters}
+
+Just as sequences of bits can be used to represent numbers,
+they can also be used to represent the letters of the alphabet,
+as well as other characters.
+
+Since all sequences of bits represent numbers, one way to
+think about representing characters by sequences of bits
+is to choose a number that corresponds to each character.
+The most popular correspondence currently is the ASCII character set.
+\index{ASCII}
+ASCII, which stands for the American Standard Code for Information
+Interchange, uses 7-bit integers to represent characters, using the
+correspondence shown in table~\ref{ascii}.
+
+%%% Jam the ASCII table in here.
+\begin{figure}[hbt]
+\caption{The ASCII Character Set}
+\label{ascii}
+\index{ASCII}
+\begin{center}
+\input{ascii}
+\end{center}
+\end{figure}
+
+When the ASCII character set was chosen, some care was taken to
+organize the way that characters are represented in order to make
+them easy for a computer to manipulate.  For example, all of the
+letters of the alphabet are arranged in order, so that sorting
+characters into alphabetical order is the same as sorting in
+numerical order.
+In addition, different classes of characters
+are arranged to have useful relations.  For example, to convert
+the code for a lowercase letter to the code for the same letter in
+uppercase, simply set the 6th bit of the code to 0 (or subtract 32).
+ASCII is by no means the only character set to have
+similar useful properties, but it has emerged as the standard.
+
+The ASCII character set does have some important limitations, however.
+One problem is that the character set only defines the representations
+of the characters used in written English.  This causes problems with
+using ASCII to represent other written languages.  In particular,
+there simply aren't enough bits to represent all the written characters
+of languages with a larger number of characters (such as Chinese or
+Japanese).  Already new character sets which address these problems
+(and can be used to represent characters of many languages side
+by side) are being proposed, and eventually there will unquestionably
+be a shift away from ASCII to a new multilanguage standard\footnote{
+        This shift will break many, many existing programs.  Converting
+        all of these programs will keep many, many programmers busy
+        for some time.}.
+
+%% This section isn't really very good, and
+%% is unnecessary for CS50 anyway, so out it goes...
+%% \input{datarep/datarep-representing-rational-numbers-de1}
+
+\section{Representing Programs}
+
+Just as sequences of bits can be used to represent numbers, they can
+also be used to represent instructions for a computer to perform. 
+Unlike the two's complement notation for integers, which is a standard
+representation used by nearly all computers, the representation of
+instructions, and even the set of instructions, varies widely from one
+type of computer to another.
+
+The {\sc Ant-8} architecture, which is the focus of the rest of this
+document, uses a relatively simple and straightforward representation. 
+Each instruction is exactly 16 bits in length, and consists of several
+bit fields, as depicted in
+figure~\ref{datarep-ant-instruction-figure}.
+
+\begin{figure}[hbtp]
+\caption{{\sc Ant-8} Instruction Formats}
+\label{datarep-ant-instruction-figure}
+\begin{center}
+\begin{tabular}{|p{1.0in}|p{1.0in}|p{1.0in}|p{1.0in}|}
+\hline
+4 bits & 4 bits & 4 bits & 4 bits \\
+\hline
+\hline
+op & des & reg1 & reg2 \\
+\hline
+op & des & reg1 & 4-bit constant \\
+\hline
+op & reg & \multicolumn{2}{|l|}{8-bit constant} \\
+\hline
+\end{tabular}
+\end{center}
+\end{figure}
+
+The first four bits (reading from the left, or high-order bits) of
+each instruction are called the {\tt op} field.  The op field
+determines what operation the instruction represents.  Depending on
+what the op is, the rest of the instruction may represent the names of
+registers or constants used by the op.
+
+For example, the instruction $1234_{16}$ has an op of 1, which
+corresponds to the operation of loading a constant ({\tt
+lc}).\footnote{The fact that most of the instructions consist of four
+4-bit fields makes hexadecimal notation particularly appropriate for
+expressing {\sc Ant-8} instructions.} With the addition operation, the
+next 4-bit fields is interpreted as the names of the register to use
+load the constant into, and the last 8 bits are the constant to load. 
+Therefore, instruction $1234_{16}$ places the value {\tt 0x34} into
+register 2.  (The {\tt lc} instruction and the rest of the {\sc Ant-8}
+instructions are described more fully in the {\sc Ant-8} tutorial.)
+
+\section{Memory Organization}
+
+We've seen how sequences of binary digits can be used
+to represent numbers, characters, and instructions.
+In a computer, these binary digits
+are organized and manipulated in discrete groups,
+and these groups are said to be the {\em memory} of the computer.
+
+\subsection{Units of Memory}
+
+The smallest of these groups, on most computers,
+is called a {\em byte}\index{byte}.
+On nearly all currently popular computers a byte is composed of 8 bits.
+
+The next largest unit of memory is usually composed of
+16 bits.  What this unit is called varies from computer
+to computer-- on smaller machines, this is often called
+a {\em word}\index{word}, while on newer architectures that
+can handle larger chunks of data,
+this is called a {\em halfword}\index{halfword}.
+
+The next largest unit of memory is usually composed of 32 bits.
+Once again, the name of this unit varies-- on smaller machines,
+it is referred to as a {\em long}\index{long}, while
+on newer and larger machines it is called a {\em word}\index{word}.
+
+Finally, on the newest machines, the computer also can handle
+data in groups of 64 bits.  On a smaller machine, this is known
+as a {\em quadword}\index{quadword}, while on a larger machine
+this is known as a {\em long}\index{long}.
+
+\subsubsection{Historical Perspective}
+
+There have been architectures that have used nearly
+every imaginable word size-- from 6-bit bytes to 9-bit bytes,
+and word sizes ranging from 12 bits to 48 bits.
+There are even a few architectures that have no fixed
+word size at all (such as the CM-2) or word sizes that
+can be specified by the operating system at runtime.
+
+Over the years, however, most architectures have converged
+on 8-bit bytes and 32-bit longwords.
+An 8-bit byte is a good match for the ASCII character set
+(which has some popular extensions that require 8 bits),
+and a 32-bit word has been, at least until recently,
+large enough for most practical purposes.
+
+\subsection{Addresses and Pointers}
+
+Each unique byte\footnote{
+	In some computers, the smallest distinct unit of memory
+	is not a byte.  For the sake of simplicity, however,
+	this section assumes that the smallest distinct unit
+	of memory on the computer in question is a byte.}
+of the computer's memory is given a unique identifier, known
+as its {\em address}.  The {\em address of} a piece of memory is
+often referred to as a {\em pointer to} that piece of memory--
+the two terms are synonymous, although there are many contexts
+where one is commonly used and the other is not.
+
+The memory of the computer itself is often organized as a large array
+(or group of arrays) of bytes of memory.  In this organization, the
+address of each byte of memory is simply the index of the memory array
+location where that byte is stored.
+
+
+\subsection{Summary}
+
+In this chapter, we've seen how computers represent integers
+using groups of bits, and how basic arithmetic and other
+operations can be performed using this representation.
+
+We've also seen how the integers or groups of bits can be used
+to represent several different kinds of data,
+including written characters (using the ASCII character codes),
+instructions for the computer to execute,
+and addresses or pointers, which can be used to reference other data.
+
+There are also many other ways that information can be represented
+using groups of bits, including representations for rational
+numbers (usually by a representation called {\em floating point}),
+irrational numbers, graphics, arbitrary character sets, and
+so on.  These topics, unfortunately, are beyond the scope of this
+chapter.
+

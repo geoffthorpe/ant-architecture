@@ -1,0 +1,259 @@
+% $Id: ad8.tex,v 1.5 2002/04/16 01:02:37 ellard Exp $
+%
+
+\section{Getting Started With {\tt ad8}}
+
+The ordinary way of running {\tt ad8} is to invoke
+{\tt ad8} with a single command-line argument, which is the name of
+the {\tt .ant} file you wish to debug: 
+
+\begin{verbatim}
+        % ad8 myfile.ant
+\end{verbatim}
+
+In response, {\tt ad8} will print out the first instruction in the
+program, and then prompt the user for more instructions.  For example,
+if the first instruction in {\tt myfile.ant} was {\tt add r2, r3, r4},
+then the screen would look like:
+
+\begin{verbatim}
+	0x00:   add  r2=(0x00), r3=(0x00), r4=(0x00)
+        >> 
+\end{verbatim}
+
+The first number on the line (in this case, {\tt 0x00}) indicates the
+address of the next instruction to execute.  In this case, since we
+have loaded the program but have not executed anything yet, the next
+instruction the {\sc Ant-8} will execute is the first instruction in the
+program, which is always the instruction at address 0.
+
+The number in parentheses following each of the register names is the
+current value stored in each register, expressed in hexadecimal-- in
+this example, all of registers {\tt r2}, {\tt r3}, and {\tt r4}
+contain the value zero.
+
+Whenever {\tt ad8} is waiting for you to type something, it will
+display the next {\sc Ant-8} instruction that it will execute (unless
+you tell it to jump to some other part of your program), followed by
+the \verb$>>$ prompt.
+
+All {\tt ad8} commands end in a newline; {\tt ad8} will not
+carry out any commands until you press the return or ``enter'' key.
+Furthermore, only one {\tt ad8} command can appear on each line.
+
+The most important command to remember is {\tt h}, which prints the
+{\em help} screen.  All of the {\tt ad8} commands are listed on the
+help screen, so if you forget the names or uses of any of them, you
+can always find them again here. 
+
+Most of the commands consist of a single character 
+followed by the enter key.  Several of the commands, however, also
+allow an {\em address} to be supplied.  This address specifies
+the location in data memory or instruction memory that the command
+will act upon.  The address can be specified as an integer (in
+octal, decimal, or hexadecimal notation) or as a label.  If the
+address is omitted, an address of 0 is used.
+
+\subsection{Other Uses of {\tt ad8}}
+
+Ordinarily, {\tt ad8} is used for interactive debugging.  It does
+have two other modes, however: it can simply run the Ant-8 program and exit
+when the program is finished, or it can disassemble the program and then
+exit.  These modes can be specified on the command-line:
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+{\bf Flag} & {\bf Meaning} \\
+\hline
+\hline
+{\tt -r} & Run the program, and then exit. \\
+{\tt -d} & Disassemble the program, and then exit. \\
+\hline
+\end{tabular}
+\end{center}
+
+If both the {\tt -r} and {\tt -d} flags appear on the
+command-line, whichever appears {\em last} determines which mode is
+selected.
+
+Finally, if a {\tt -h} flag appears on the command-line, {\tt ad8}
+only prints a short help message and then exits. 
+
+\section{ {\tt ad8} Commands}
+
+\subsection{Debugger Commands}
+
+\begin{description}
+\item[\Large \fbox{\tt q}]
+
+	Quit {\tt ad8}. 
+
+\item[\Large \fbox{\tt R}]
+
+	Reload the program and reinitialize memory.
+
+	If you are editing and reassembling the program in another
+	window, there is no need to exit {\tt ad8} and start again
+	with the new version:  you can use the {\bf R} command to
+	quickly load the new program.
+
+	The {\bf R} command is also useful for resetting the
+	contents of the data memory and the registers to their
+	initial state.  Note that the {\tt r} command
+	(described in the next section) {\em does not}
+	reset the contents of memory or registers.
+
+\end{description}
+
+\subsection{Running a Program}
+
+\begin{description}
+
+\item[\Large \fbox{\tt r}]
+
+	Run the program, starting from PC = 0.
+
+	The program will run until it executes a {\tt hlt}, detects a
+	fault of any kind, or a breakpoint is reached.
+
+\item[\Large \fbox{\tt g}]
+
+	Start (or resume) executing the program, starting from
+	wherever the PC currently points.  Very useful when
+	used with the {\bf j} command (described next) or
+	breakpoints (described later).
+
+\item[\Large \fbox{\tt j {\em addr}}]
+
+	Jump to the specified address.  Sets the PC to
+	{\em addr}.
+
+	This command is particularly useful, in combination
+	with {\bf g}, as a way to test a small section of a
+	program, instead of executing the entire program.
+
+\item[\Large \fbox{\tt n}]
+
+	Execute the next instruction and then stop.
+
+\item[\Large \fbox{\tt t}]
+
+	Toggle trace mode.  If trace mode is off, then turn it
+	on; if on, then turn it off.
+
+	When trace mode is on, {\tt ad8} prints each
+	instruction and its address before executing it.
+	This provides a {\em trace} of the execution.
+	It is particularly useful for finding bugs like
+	infinite loops.
+
+\end{description}
+
+\subsection{Examining the Ant-8}
+
+\begin{description}
+
+\item[\Large \fbox{\tt p}]
+
+	Print the contents of the registers.
+
+	The contents are displayed in the following format:
+
+{\small
+\begin{verbatim}
+r00  r01  r02  r03  r04  r05  r06  r07  r08  r09  r10  r11  r12  r13  r14  r15
+ 00   00   00   00   00   00   00   00   00   00   00   00   00   00   00   00
+  0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+\end{verbatim}
+}
+
+	The first line of the output lists the register
+	numbers (in decimal).  The second and third lines show
+	the values in each register:  the second line in
+	hexadecimal notation, and the third line in signed
+	decimal.
+
+	Note that this display is designed to fill an
+	80-column screen.  If your display is less that 80
+	columns wide, this output will be considerably more
+	difficult to read. 
+
+\item[\Large \fbox{\tt d}]
+
+	Displays the values stored in memory as data, in hexadecimal
+	notation.
+
+	The {\tt d} command has three forms:
+
+	\begin{description}
+
+	\item[\fbox{\tt d}]
+
+		Print the byte values of every byte of memory.
+
+	\item[\fbox{\tt d {\em addr}}]
+
+		Print the value of the byte stored in the given {\em
+		addr} in memory.
+
+	\item[\fbox{\tt d {\em addr1}, {\em addr2}}]
+
+		Print all of the byte values starting at {\em addr1}
+		and continuing to {\em addr2} in memory.
+
+	\end{description}
+
+\item[\Large \fbox{\tt i {\em addr}}]
+
+	Disassemble and print instruction stored in memory.
+
+	Like the {\tt d} command, the {\tt i} command has three forms:
+
+	\begin{description}
+
+	\item [\fbox{\tt i}]
+
+		Disassemble and print all of the instructions in
+		memory.
+
+	\item [\fbox{\tt i {\em addr}}]
+
+		Disassemble and print the instruction at the given
+		{\em addr} in memory.
+
+	\item [\fbox{\tt i {\em addr1}, {\em addr2}}]
+
+		Disassemble and print all of the instructions starting
+		at {\em addr1} and continuing to {\em addr2} in
+		memory.
+
+	\end{description}
+
+\end{description}
+
+\subsection{Setting Breakpoints}
+
+{\em Breakpoints} provide a way to stop execution at any point in the
+program.  The typical use is to set a breakpoint at the start of an
+interesting part of the program, and then run the program (using the
+{\tt r} or {\tt g} command).  The program will execute until the
+instruction at the address of the breakpoint is about to be executed,
+and then stop.
+
+\begin{description}
+
+\item[\Large \fbox{\tt b {\em addr}}]
+
+	Set a breakpoint at the specified address.
+
+\item[\Large \fbox{\tt c {\em addr}}]
+
+	Remove the breakpoint (if any) at the specified address.
+
+\item[\Large \fbox{\tt C}]
+
+	Remove all breakpoints (if any).
+
+\end{description}
+

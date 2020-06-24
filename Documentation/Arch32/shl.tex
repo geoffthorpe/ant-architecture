@@ -1,0 +1,23 @@
+% $Id: shl.tex,v 1.8 2002/04/16 15:19:13 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{shl}
+\renewcommand{\INSTdesc}	{Shift Left}
+\renewcommand{\INSTopcode}	{0x8E}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{src2}
+
+\renewcommand{\INSTsemantic}{
+	\Reg{des} $\leftarrow$ \Reg{src1} $<<$ \Reg{src2}
+}
+
+\renewcommand{\INSTprose} {
+	Place into \Reg{des} the value in \Reg{src1} shifted left
+	by the number of bits represented by the value in the low
+	five bits of \Reg{src2}, filling the low order
+	bits with 0's.
+}
+
+
+\renewcommand{\INSTexceptions}	{}

@@ -1,0 +1,23 @@
+% $Id: gtu.tex,v 1.8 2001/06/21 15:18:00 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{gtu}
+\renewcommand{\INSTdesc}	{Greater Than (Unsigned)}
+\renewcommand{\INSTopcode}	{0xC5}
+\renewcommand{\INSToptype}	{ThreeReg}
+\renewcommand{\INSTfieldA}	{des}
+\renewcommand{\INSTfieldB}	{src1}
+\renewcommand{\INSTfieldC}	{src2}
+\renewcommand{\INSTsemantic}	{
+
+	\begin{tabular}{lll}
+
+	\Reg{des} $\leftarrow$ & 1 & if \Reg{src1} $>$ \Reg{src2} \\
+
+	\Reg{des} $\leftarrow$ & 0 & otherwise. \\
+
+	\end{tabular}
+
+}
+
+
+\renewcommand{\INSTexceptions}	{}

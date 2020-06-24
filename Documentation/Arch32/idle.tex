@@ -1,0 +1,25 @@
+% $Id: idle.tex,v 1.6 2002/04/16 15:33:58 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{idle}
+\renewcommand{\INSTdesc}	{Idle the Processor}
+\renewcommand{\INSTopcode}	{0x4E}
+\renewcommand{\INSToptype}      {ThreeReg}
+\renewcommand{\INSTfieldA}	{\INSTunusedField}
+\renewcommand{\INSTfieldB}	{\INSTunusedField}
+\renewcommand{\INSTfieldC}	{\INSTunusedField}
+
+\renewcommand{\INSTsemantic}	{
+	Idle the processor until an interrupt arrives.
+}
+\renewcommand{\INSTprose}       {
+	The CPU enters an idle state until the external interrupt line
+	becomes active, whether or not the interrupt disable flag is
+	set.
+
+        In normal usage, the {\tt idle} instruction is invoked with
+        interrupts disabled and is followed by a {\tt cli} instruction,
+        so that the interrupt that terminated the {\tt idle} can be
+        delivered.
+}
+
+\renewcommand{\INSTexceptions}	{Privileged instruction}

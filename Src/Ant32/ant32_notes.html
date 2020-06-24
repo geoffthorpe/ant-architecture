@@ -1,0 +1,82 @@
+<html>
+<!-- # $Id: ant32_notes.html,v 1.4 2002/05/06 23:28:24 ellard Exp $ -->
+<head>
+<title>
+Using ant32
+</title>
+</head>
+<body>
+
+<h1>
+Using <kdb> ant32 </kbd>
+</h1>
+
+Usage:
+
+<pre>
+	ant32 <em>[options]</em> <em>ant-file</em>
+</pre>
+
+<em>ant-file</em> must be a file created by <kbd>aa32</kbd> (or
+equivalent tool).  The possible <em>options</em> are listed below. 
+<p>
+
+<dl>
+
+
+<dt> <font size="+1"><b>-d</b></font> <p>
+
+<dd> Dump core (a complete copy of the machine state) to
+	<kbd>ant32.core</kbd> at exit. <p>
+
+<dt> <font size="+1"><b>-h</b></font> <p>
+
+<dd> Print a terse message describing the commandline flags, and
+	then exit. <p>
+
+<dt> <font size="+1"><b>-m <em>size</em></b></font> <p>
+
+<dd> Use the given RAM size instead of the default (1024 4K pages, or
+	4 megabytes).  Note that <em>size</em> is specified in pages,
+	not bytes.  <p>
+
+	<B>Note:</B> Using a system with a reduced memory size can be
+	a great aid for debugging small programs-- stray pointers are
+	easier to detect.  Unfortunately, some images (such as the
+	default boot ROM image) make assumptions about the amount of
+	RAM available, and may not work correctly with other sizes
+	unless modified appropriately.  <p>
+
+<dt> <font size="+1"><b>-M <em>size</em></b></font> <p>
+
+<dd> Use the given ROM size instead of the default (4 4K pages, or 16
+	kilobytes).  Note that <em>size</em> is specified in pages,
+	not bytes.  <p>
+
+	In the standard implementation of the Ant-32 architecture, the
+	ROM pages are located at the highest addresses in the address
+	space.  The last page of the address space must contain a ROM
+	page, which is used to hold the boot vector address.  <p>
+
+<dt> <font size="+1"><b>-r <em>number</em></b></font> <p>
+
+<dd> Use the given <em>number</em> of general registers, instead of
+	the default (64).  The valid ranges are 64-240.  <p>
+
+<dt> <font size="+1"><b>-t <em>number</em></b></font> <p>
+
+<dd> Use the given <em>number</em> of TLB entries, instead of the
+	default (32).  The valid ranges are 32-1024, and must always
+	be a power of 2.  <p>
+
+<dt> <font size="+1"><b>-V</b></font> <p>
+
+<dd> Print the version of <kbd>ant32</kbd>, and then exit. <p>
+
+</dl>
+
+<hr>
+Copyright 2001-2002 by the President and Fellows of Harvard College.
+
+</body>
+</html>

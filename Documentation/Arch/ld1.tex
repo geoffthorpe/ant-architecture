@@ -1,0 +1,25 @@
+% $Id: ld1.tex,v 1.5 2002/10/09 23:53:08 ellard Exp $
+
+\ThreeRegisterOp{ld1}{Load one byte}{\OPCODE}{des}{src1}{uconst4}
+
+\index{ld1@{\tt ld1}!for Ant-8}
+
+Load a value from memory into \Reg{des}.
+
+Note that \Reg{src1} is treated as an unsigned value
+		(\MinUIntWord $\cdots ~$ \MaxUIntWord).
+
+\begin{enumerate}
+
+\item If \Reg{src1} + {\em uconst4} $> ~$ \MaxUIntWord,
+	an "invalid address" error occurs and the processor halts.
+	{\em uconst4} is treated
+	as an unsigned 4-bit integer, while \Reg{src1} is treated as
+	an unsigned 8-bit value.
+
+\item The 8-bit number located at data memory position
+	(\Reg{src1} + {\em uconst4})
+	is loaded into \Reg{des}.
+
+\end{enumerate}
+

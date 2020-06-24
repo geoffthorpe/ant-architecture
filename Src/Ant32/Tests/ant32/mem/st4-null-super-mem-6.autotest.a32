@@ -1,0 +1,25 @@
+#@ Instructions 17
+#@ Data 68
+#@ SINGLE_ADDRESS_SPACE
+#@ END OF OPTIONS
+# start of data
+0x80000000  ::  0xf0040000  ::      lc r4, 0x00000000
++           ::  0xf005101f  ::      lc r5, 0x0000101f
++           ::  0xf0060000  ::      lc r6, 0x00000000
++           ::  0x42000604  ::      tlbse r6, r4
++           ::  0xf0080000  ::      lc r8, 0x40000000
++           ::  0xf1084000  ::  
++           ::  0xf009101f  ::      lc r9, 0x0000101f
++           ::  0xf00a0001  ::      lc r10, 0x00000001
++           ::  0x42000a08  ::      tlbse r10, r8
++           ::  0xf00bbeef  ::      lc r11, 0xdeadbeef
++           ::  0xf10bdead  ::  
++           ::  0xf00cffff  ::      lc r12, 0x3fffffff
++           ::  0xf10c3fff  ::  
++           ::  0xf00dffff  ::      lc r13, 0x3fffffff
++           ::  0xf10d3fff  ::  
++           ::  0xe60b0c01  ::      st4 r11, r12, 1
++           ::  0x4f000000  ::      halt
+0xfffffffc  ::  0x80000000  ::  Boot it!
+# end of data
+# end of file

@@ -1,0 +1,729 @@
+% DJE, PAE
+%
+% 02/20/94 - Created for MIPS/SPIM, then later ported to Ant,
+% then Ant8.
+%
+% 11/02/01 - Retrofitted to Ant-32.
+%
+% $Id: tut32.tex,v 1.14 2002/04/22 16:32:22 ellard Exp $
+
+\chapter{Ant-32 Assembly Language Programming }
+\label{ant-asm-tut-intro}
+
+This chapter is a tutorial for the basics of Ant-32 assembly
+language programming and the Ant-32 environment.  This section
+covers the basics of the Ant-32 assembly language, including
+arithmetic operations, simple I/O, conditionals, loops, and accessing
+memory.
+
+\section{What is Assembly Language?}
+\index{assembly}
+
+Computer instructions are represented, in a computer, as sequences of
+bits.  Generally, this is the lowest possible level of representation
+for a program -- each instruction is equivalent to a single,
+indivisible action of the CPU.  This representation is called {\em
+machine language}, and it is the only form that can be ``understood''
+directly by the computer.
+
+A slightly higher-level representation (and one that
+is much easier for humans to use) is called {\em assembly language}.
+Assembly language is closely related to machine language,   
+and there is usually a straightforward way to translate
+programs written in assembly language into machine language.
+(This translation is usually implemented by a program called
+an {\em assembler}.)
+Assembly language is usually a direct translation of the
+machine language; one instruction in assembly language
+corresponds to one instruction in the machine language.
+
+Because of the close relationship between machine and assembly
+languages, each different machine architecture usually has its own
+unique assembly language (in fact, a particular architecture may have
+several).
+
+\section{Getting Started with Ant-32 Assembly: {\tt add.asm}}
+\index{add.asm}
+
+To get our feet wet, we'll write an assembly language program named
+{\tt add.asm} that computes the sum of 1 and 2.  Although this task is
+very simple, in order to accomplish it we will need to explore several
+key concepts in Ant-32 assembly language programming.
+
+\subsection{Registers}
+
+Like many modern CPU architectures, the Ant-32 CPU can only
+operate directly on data that is stored in special locations called
+{\em registers}.  The Ant-32 hardware architecture has 64
+general-purpose registers.  However, some of these registers are
+reserved for use by the assembler, and some are reserved for other
+special purposes.
+
+In the Ant-32 software architecture, there are 56
+general-purpose registers available.  These are named {\tt g0} through
+{\tt g55}.  Each of these registers can hold a single 32-bit value.
+
+One of the registers that is defined to have a special meaning is
+the {\em zero register} ({\tt ze}), which always contains the constant
+zero.  Any values can be assigned to {\tt ze}, but the assignment has
+no effect.
+
+While most modern computers have many megabytes of memory, it is
+unusual for a computer to have more than a few dozen registers.  Since
+most computer programs use much more data than can fit into these
+registers, it is usually necessary to juggle the data back and forth
+between memory and the registers, where it can be operated upon by the
+CPU.  (The first few programs that we write will only use registers,
+but in section \ref{load-store-sec} the use of memory is introduced.)
+
+\subsection{Commenting}
+\index{commenting}
+
+Before we start to write the executable statements of our program,
+it is important to write a comment that describes what the
+program is supposed to do, and what algorithm will be used to
+accomplish this task.  In the Ant-32 assembly language, any text
+between a pound sign ({\tt \#}) and the subsequent newline is
+considered to be a comment, and is ignored by the assembler.  Good
+comments are absolutely essential!  Assembly language programs are
+notoriously difficult to read unless they are well organized and
+properly documented.
+
+Therefore, we start by writing the following:
+
+{\codesize
+\begin{verbatim}
+# Dan Ellard
+# add.asm-- A program that computes the sum of 1 and 2,
+#       leaving the result in register g0.
+# Registers used:
+# g0 - used to hold the result.
+
+# end of add.asm
+\end{verbatim}}
+
+Even though this program doesn't actually do anything yet, at least
+anyone reading our program will know what this program is {\em
+supposed} to do, and perhaps who to blame if it doesn't work.
+
+Unlike programs written in higher level languages, it is usually
+appropriate to comment every line of an assembly language program,
+often with seemingly redundant comments.  Uncommented code that seems
+obvious when you write it will be baffling a few hours later.  While a
+well-written but uncommented program in a high level language might be
+relatively easy to read and understand, even the most well-written
+assembly code is unreadable without appropriate comments.  Some
+programmers prefer to add comments that paraphrase the steps performed
+by the assembly instructions in a higher-level language.
+
+We are not finished commenting this program, but we've done all that
+we can do until we know a little more about how the program will
+actually work.
+
+\subsection{Finding the Right Instructions}
+
+Next, we need to figure out what instructions the computer will need
+to execute in order to add two numbers.  (Since the Ant-32
+architecture has relatively few instructions, it won't be long before
+you have memorized the names of all of the frequently-occurring
+instructions, but when you are getting started you'll need to spend
+some time browsing through the list of instructions, looking for ones
+that you can use to do what you want.) A summary of the user-level
+instructions is given in Chapter \ref{ant32-inst}, on page
+\pageref{ant32-inst}.
+
+Scanning through the list of instructions, we find the the {\tt add}
+instruction, which adds two numbers together.
+The {\tt add} instruction takes three operands, which must appear
+in the following order:
+
+\begin{enumerate}
+
+\item A register that will be used to hold the result of the addition. 
+	For our program, this will be {\tt g0}.
+
+\item A register that contains the first number to be added. 
+	Therefore, we're going to have to place the value 1 into a
+	register before we can use it as an operand of {\tt add}. 
+	Checking the list of registers used by this program (which is
+	an essential part of the commenting) we select {\tt g1}, and
+	make note of this in the comments.
+
+\item A register that holds the second number to be added.  We're also
+	going to have to place the value 2 into a register before we
+	can use it as an operand of {\tt add}.  Checking the list of
+	registers used by this program we select {\tt g2}, and make
+	note of this in the comments.
+
+\end{enumerate}
+
+We now know how we can add the numbers, but we have to figure out how
+to place 1 and 2 into the appropriate registers.  To do this, we can
+use the {\tt lc} ({\em load constant}) instruction, which places a
+constant into a register.  Therefore, we arrive at the following
+sequence of instructions:
+
+{\codesize
+\begin{verbatim}
+# Dan Ellard
+# add.asm-- A program that computes the sum of 1 and 2,
+#       leaving the result in register g0.
+# Registers used:
+# g0 - used to hold the result.
+# g1 - used to hold the constant 1.
+# g2 - used to hold the constant 2.
+
+        lc      g1, 1           # g1 = 1
+        lc      g2, 2           # g2 = 2
+        add     g0, g1, g2      # g0 = g1 + g2.
+
+# end of add.asm
+\end{verbatim}}
+
+It is important to note that the {\tt lc} instruction is not
+always implemented by a single Ant-32 instruction.  The {\tt lc}
+instruction can handle any 32-bit constant, but the Ant-32
+hardware architecture only contains instructions for dealing directly
+with 16-bit constants.  In the case where the constant has a magnitude
+too large to fit into 16 bits, the assembler expands the {\tt lc}
+instruction into two real instructions.
+
+For the small constants in this program, we could use {\tt lcl} (a
+native instruction) instead of {\tt lc}, but it's easier to simply
+always use {\tt lc} and let the assembler decide how to handle it.
+
+%%% &&& Not done here.
+%%% should there be a way to disable pseudo-ops?
+
+\subsection{Completing the Program}
+
+These three instructions perform the calculation that we want, but
+they do not really form a complete program.  We have told the
+processor what we want it to do, but we have not told it to stop
+after it has done it!
+
+Ant-32 programs always begin executing at the first instruction
+in the program.  There is no rule for where the program ends, however,
+and if not told otherwise the Ant-32 processor will read past
+the end of the program, interpreting whatever it finds as instructions
+and trying to execute them.  It might seem sensible (or obvious) that
+the processor should stop executing when it reaches the ``end'' of the
+program (in this case, the {\tt add} instruction on the last line),
+but there are some situations where we might want the program to
+continue past the ``end'' of the program, or stop before it reaches
+the end.  Therefore, the Ant-32 architecture contains an
+instruction named {\tt halt} that {\em halts} the processor.
+
+The {\tt halt} instruction does not take any operands.  (For more
+information about {\tt halt}, consult Section \ref{halt-inst-sec} on
+page \pageref{halt-inst-sec}.)
+
+\index{add.asm (complete listing)}
+\input{Tut32/add}
+
+\subsection{The Format of Ant-32 Assembly Programs}
+
+As you read {\tt add.asm}, you may notice several formatting
+conventions -- every instruction is indented, and each line contains at
+most one instruction.  These conventions are {\em not} simply a matter
+of style, but are actually part of the definition of the Ant-32
+assembly language.
+
+The first rule of Ant-32 assembly formatting is that
+instructions {\em must} be indented.  Comments do not need to be
+indented, but all of the code itself must be.  The second rule of
+Ant-32 assembly formatting is that only one instruction can appear on
+a each line.  (There are a few additional rules, but these will not be
+important until section \ref{Labels-subsec}.)
+
+Unlike many programming languages, where the use of whitespace and
+formatting is largely a matter of style, in Ant-32 assembly
+language some use of whitespace is required.
+
+\subsection{Assembling and Running Ant-32 Assembly Language Programs}
+\index{ad32}
+\index{aa32}
+\index{ant32}
+
+At this point, we should have a complete program.  Now, it's time to
+run it and see what happens.
+
+The principal way of running an Ant-32 program is to use the
+command-line tools:  the assembler {\tt aa32}, the debugger {\tt ad32}
+and VM {\tt ant32}.
+
+\subsubsection{Using the Command-line Tools}
+\index{aa32}
+
+Before the command-line tools can run on a program, the program must be
+written in a file.  This file must be plain text, and by convention
+Ant-32 assembly language files have a suffix of {\tt .asm}.  In
+this example, we will assume that the file {\tt add.asm} contains a
+copy of the {\tt add} program listed earlier.
+
+Before we can run the program, we must {\em assemble} it.  The
+assembler translates the program from the assembly language
+representation to the machine language representation.  The assembler
+for Ant-32 is called {\tt aa32}, so the appropriate command
+would be:
+
+\index{aa32}
+\begin{verbatim}
+                aa32 add.asm
+\end{verbatim}
+
+This will create a file named {\tt add.a32} that contains the
+Ant-32 machine-language representation of the program in {\tt
+add.asm} (and some additional information that is used by the
+debugger).
+
+Now that we have the assembled version of the program, we can test it
+by loading it into the Ant-32 debugger in order to execute it. 
+The name of the Ant-32 debugger is {\tt ad32}, so to run the
+debugger, use the {\tt ad32} command followed by the name of the machine
+language file to load.  For example, to run the program that we just
+wrote and assembled:
+
+\index{ad32}
+\begin{verbatim}
+                ad32 add.a32
+\end{verbatim}
+
+After starting, the debugger will display the following
+prompt: {\tt >>}.
+Whenever you see the {\tt >>} prompt, you know that the debugger
+is waiting for you to specify a command for it to execute.
+
+Once the program is loaded, you can use the {\tt r} (for {\em run})
+command to run it:
+\begin{verbatim}
+                >> r
+\end{verbatim}
+
+The program runs, and then the debugger indicates that it is ready to
+execute another command.  Since our program is supposed to
+leave its result in register {\tt g0}, we can verify that the
+program is working by asking the debugger to print out the contents of
+the registers using the {\tt p} (for {\em print}) command,
+to see if it contains the result we expect:
+
+{\codesize
+\begin{verbatim}
+
+>> p 
+g0 :  00000003 00000001 00000002 00000000 00000000 00000000 00000000 00000000
+g8 :  00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+g16:  00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+g24:  00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+g32:  00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+g40:  00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+g48:  00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+ra:   00000000
+sp:   00000000
+fp:   00000000
+\end{verbatim}}
+
+The {\tt p} command displays the contents of all of the registers. 
+The first column shows what registers are displayed on that line.  For
+example, the first line lists the values in registers {\tt g0} through
+{\tt g7}.  The register values are printed in hexadecimal.
+
+To print the value of particular registers, specify the names of those
+registers as part of the {\tt p} command.  For example, to print the
+values of only {\tt g0}, {\tt g1}, and {\tt g2}:
+
+{\codesize
+\begin{verbatim}
+>> p g0, g1, g2
+g0 :  hex: 0x00000003  dec:           3  ascii: '\003'
+g1 :  hex: 0x00000001  dec:           1  ascii: '\001'  
+g2 :  hex: 0x00000002  dec:           2  ascii: '\002'
+\end{verbatim}}
+
+Note that the format of the display is different when the {\tt p}
+command includes specific registers.  First the hexadecimal
+representation of the value in the register is printed, then the
+decimal representation, and finally the {\sc ASCII} representation (if
+the value is in the ASCII range).  If the {\sc ASCII} value is
+printable, the corresponding character is displayed.  Otherwise, the
+value is shown as a 3-digit octal number (as shown in this example).
+
+Using the {\tt p} command, we can examine the registers to make sure
+that the calculation was carried out properly.  Then we can use the
+{\tt q} command to exit the debugger.
+
+{\tt ad32} includes a number of features that will make debugging your
+Ant-32 assembly language programs much easier.  Type {\tt h}
+(for {\em help}) at the {\tt >>} prompt for a full list of the {\tt
+ad32} commands, or consult {\tt ad32\_notes.html} for more information.
+
+\index{ant32}
+
+Once your program is debugged, you can use the {\tt ant32} program to
+execute your {\tt .a32} files.  {\tt ant32} simply runs an Ant-32
+program and then exits.
+
+\section{Branches, Jumps, and Conditional Execution: {\tt larger.asm}}
+\index{jumping}
+\index{larger.asm}
+
+The next piece of code that we will write will compare two numbers
+(stored in registers {\tt g1} and {\tt g2}) and put the larger of the
+two in register {\tt g0}.
+
+The basic structure of this program is similar to the one used by
+{\tt add.asm}, except that we're computing the maximum rather than the
+sum of two numbers.  The difference is that the behavior of this
+program depends upon the values in {\tt g1} and {\tt g2}, which are
+unknown when the program is written.  The program must be able to
+decide whether to execute instructions to copy the number from {\tt
+g1} into {\tt g0}, or copy the number from {\tt g2} into {\tt g0}. 
+This is known as {\em conditional execution} -- whether or not certain
+parts of program are executed depends on a condition that is not known
+when the program is written.
+
+\subsection{Comparison Instructions}
+
+Our program requires a way to compare two integers to determine
+whether the first is larger than the second.  Fortunately, the
+Ant-32 instruction set contains several instructions that make
+comparing integers easy:
+
+\vspace{3mm}
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+{\tt eq}  & Equal \\
+{\tt gts} & Greater Than (signed) \\
+{\tt ges} & Greater Than or Equal (signed) \\
+{\tt gtu} & Greater Than (unsigned) \\
+{\tt geu} & Greater Than or Equal (unsigned) \\
+\hline
+\end{tabular}
+\end{center}
+\vspace{3mm}
+
+The result of a comparison operation is that 1 is placed in the
+destination register if the condition is true, 0 otherwise.
+For example,
+
+        \begin{verbatim}
+                gts     g0, g1, g2
+        \end{verbatim}
+
+will cause {\tt g0} to get the value 1 if the value in register {\tt
+g1} is greater than the value in register {\tt g2} (when the values
+are interpreted as signed numbers).
+
+\subsection{Branching and Jumping}
+
+Ant-32 contains instructions that allow the programmer to
+specify that execution should {\em branch} (or {\em jump}) to a
+location other than the next instruction, or continue with the next
+instruction, based on the value stored in a register.  These
+instructions allow conditional execution to be implemented in assembly
+language (although not nearly as succinctly as the methods provided in
+higher-level languages).
+
+
+In Ant-32 assembler, there are several jump instructions.  The
+one we will focus on for this program is {\tt jez}, which stands for
+{\em jump if equal zero}.  The format of {\tt jez} is:
+
+\begin{alltt}
+                jez     {\em des}, {\em cond}, {\em addr} \end{alltt}
+
+where {\em des}, {\em cond}, and {\em addr} are the names of
+registers.  If the value in the {\em cond} register is zero, then
+execution will jump to the address specified by the {\em addr}
+register; otherwise, execution will continue with the next
+instruction.  In either case, the address of the currently executing
+instruction is stored in the {\em des} register.  (Capturing the
+address of the {\tt jez} instruction in the {\em des} register makes
+it possible to use {\tt jez} to implement function calls, as discussed
+in Chapter \ref{advanced-programming-chap}.)
+
+In addition to {\tt jez}, Ant-32 includes several other jump
+constructs, such as {\tt jnz} ({\em jump if not equal zero}), {\tt
+jezi}, {\tt jnzi}, and {\tt j} (an unconditional jump).
+
+In addition to the jump instructions, Ant-32 provides several
+branching instructions, such as {\tt bez} and {\tt bnz} ({\em branch
+if equal/not equal zero}), and {\tt bezi}, {\tt bnzi}, and {\tt b}.
+
+There is a potential for confusion between the terms ``branching'' and
+``jumping''.  In their common usage as verbs to describe what happens
+in a program, they are nearly synonymous.  In the actual hardware,
+however, there are two distinct kinds of instructions, which implement
+this notion in very different ways, and the distinction between them
+in very important.  The jump instructions cause execution to transfer
+to an {\em absolute} address, while the branch instructions cause the
+execution to transfer to an address calculated {\em relative} to the
+current address.  For example, consider the following instructions:
+
+\begin{center}
+\begin{tabular}{|l|p{5.0in}|}
+\hline
+	{\tt j 12}	& Continue executing at location 12
+			in memory. \\
+\hline
+
+	{\tt b 12}	& Continue executing at the twelth instruction
+			past the current instruction. \\
+\hline
+\end{tabular}
+\end{center}
+
+Which of these instructions is more appropriate in a particular
+context depends on a number of factors.  It is much easier to write
+relocatable code using branches, but often more intuitive to write
+simple code using jumps.  Human coders usually find jumps easier to
+understand, while compilers and other automatic code generators find
+it easier to use the branching instructions.
+
+One particular difficulty with using the branching instructions is
+that some of the instructions in the assembly language expand to more
+than one hardware instruction, and the number of instructions in the
+expansion can depend on several things.  For example, in order to know
+how many instructions an {\tt lc} will really require, it is necessary
+to know how large the constant is.  This makes using the branch
+instructions difficult unless you entirely avoid using the synthetic
+instructions that can expand to more than one size -- easy for a code
+generator to do, but awkward for a human.
+ 
+\subsection{Labels}
+\label{Labels-subsec}
+\index{labels}
+
+In order to use a jump instruction, we need to know the address of
+the location in memory that we want to jump to.  Keeping track of
+the numeric addresses in memory of the instructions that we want to
+jump to is troublesome and tedious at best -- a small error can make
+our program misbehave in strange ways, and if we change the program at
+all by inserting or removing instructions, we will have have to
+carefully recompute all of these addresses and then change all of the
+instructions that use these addresses.  This is much more than most
+humans can reasonably keep track of.  Luckily, the computer is very
+good at keeping track of details like this, and so the Ant-32
+assembler provides {\em labels}, a way to provide a human-readable
+shorthand for addresses.
+
+A {\em label} is a symbolic name for an address in memory.  In
+Ant-32 assembler, a {\em label definition} is an identifier followed
+by a colon.  Ant-32 identifiers use the same conventions as
+Python, Java, C, C++, and many other contemporary languages:
+
+\begin{itemize}
+
+\item Ant-32 identifiers must begin with an underscore, an
+	uppercase character (A-Z) or a lowercase character (a-z).
+
+\item Following the first character there may be zero or more
+	underscores, or uppercase, lowercase, or numeric (0-9)
+	characters.  No other characters can appear in an identifier.
+
+\item Although there is no intrinsic limit on the length of
+	Ant-32 identifiers, some Ant-32 tools may reject
+	identifiers longer than 100 characters.
+
+\end{itemize}
+
+The definition of a label must be the first item on a line, and must
+begin in the ``zero column'' (immediately after the left margin). 
+Label definitions {\em cannot} be indented, but all other non-comment
+lines {\em must} be.
+
+Since label definitions must begin in column zero, only one label
+definition is permitted on each line of assembly language, but a
+location in memory may have more than one label.  Giving the same
+location in memory more than one label can be very useful.  For
+example, the same location in your program may represent the end of
+several nested ``if'' statements, so you may find it useful to give
+this instruction several labels corresponding to each of the nested
+``if'' statements.
+
+When a label appears alone on a line, it refers to the following
+memory location.  This is often good style, since it allows the use of
+long, descriptive labels without disrupting the indentation of the
+program.  It also leaves plenty of space on the line for the
+programmer to write a comment describing what the label is used for,
+which is very important since even relatively short assembly language
+programs may have a large number of labels.
+
+Because labels represent addresses, they are effectively constants. 
+Therefore, we can use {\tt lc} to load the address represented by a
+label into a register, in the same manner as we loaded the constants
+1 and 2 into registers in the {\tt add.asm} program.
+
+\subsection{Jumping Using Labels}
+\index{jump with labels}
+
+Using the comparison and jump instructions and labels we can do
+what we want in the {\tt larger.asm} program.  Since the jump
+instructions take a register containing an address as their first
+argument, we need to somehow load the address represented by the label
+into a register.  We do this by using the {\tt lc} ({\em load
+constant}) command.  The {\tt larger.asm} program illustrates how this
+is done.
+
+\input{Tut32/larger}
+
+Note that Ant-32 does not have an instruction to {\em
+copy} or {\em move} the contents of one register to another.  We can
+achieve the same result, however, by adding zero to the source
+register and saving the result in the destination register.  (There
+are several other instructions we could use in a similar manner to
+achieve the same result, but using addition is straightforward.)
+
+We can use the {\tt add} instruction and use the zero register ({\tt
+ze}) to supply a zero.  Alternatively, we can use the {\tt addi}
+instruction.  The {\tt addi} instruction (and the other arithmetic
+instructions that end in ``{\tt i}'') are called {\em immediate}
+instructions because one of their operands is a constant.
+
+\subsection{Running {\tt larger.asm} Using {\tt ad32}}
+
+Like the previous example program, we need to assemble {\tt
+larger.asm}, using {\tt aa32}, to create the file {\tt larger.a32},
+before we can run the program.  Once the program is assembled, we can
+run it using either {\tt ant32} or {\tt ad32}.  Unfortunately, this
+program isn't very interesting -- since it never loads any values into
+registers {\tt g1} and {\tt g2}, the result will always be the same. 
+In a real program, we would take the numbers from the user at
+runtime -- but unfortunately, reading in numbers is actually a
+complicated exercise by itself.  Luckily, we can use the debugger to
+load values into registers, and this will allow us to test the
+logic of our program.
+
+The {\tt lc} debugger command mimics the {\tt lc} mnemonic in
+the assembly language.  For example, the command
+
+\begin{verbatim}
+                lc g1, 10
+\end{verbatim}
+
+loads the number 10 into register {\tt g1}.
+
+To test our program, we can use the {\tt lc} command to load numbers
+into registers {\tt g1} and {\tt g2}, the {\tt r} command to run the
+program, and then the {\tt p} command to see the result.  An entire
+such debugger session is shown in Figure \ref{ad32-lc-fig}.  The user
+commands are shown in a bold font.  Note that {\tt ad32} prints the
+address of the next instruction to be executed and the source code for
+that instruction (unless the processor is halted), before each prompt.
+
+\begin{figure}
+\hrule
+\caption{\label{ad32-lc-fig}
+	Using {\tt lc} to initialize registers in {\tt ad32}.
+	User input is shown in bold font.}
+
+{\small
+\begin{alltt}
+0x80000000:              lc      g4, $g2_larger  # put the address of g2_larger into g4
+>> {\bf lc g1, 100}
+
+0x80000000:              lc      g4, $g2_larger  # put the address of g2_larger into g4
+>> {\bf lc g2, 200}
+
+0x80000000:              lc      g4, $g2_larger  # put the address of g2_larger into g4
+>> {\bf r}
+PC = 0x80000024, Status = CPU Halted
+HALTED at (0x80000028)
+
+>> {\bf p g0}
+g0 :  hex: 0x000000c8  dec:         200  
+\end{alltt}
+}
+\hrule
+\end{figure}
+
+\section{Strings and {\tt cout}: {\tt hello.asm}}
+\index{hello.asm}
+\index{cout}
+\label{hello-sec}
+\label{load-store-sec}
+
+The next program that we will write is the ``Hello World'' program,
+a program that simply prints the message ``Hello World'' to the screen
+and then halts.
+
+Ant-32 includes a very simple text-based console, with
+instructions to read and write single characters.  The instruction for
+writing a single character is named {\tt cout} (for {\em console
+output}).
+
+Because there is no way in Ant-32 to print out more than one
+character at a time, we must use a loop to print out each character of
+the string, starting at the beginning and continuing until we reach
+the end of the string.
+
+The string ``{\tt Hello World}'' is not part of the instructions of
+the program, but it is part of the memory used by the program.  The
+assembler places all data values (not instructions) after all of the
+instructions in memory.
+
+The way that the initial contents of data memory are defined is via
+the {\tt .byte} directive.  {\tt .byte} looks like an instruction that
+takes as many as eight 8-bit constants, but it is not an instruction
+at all.  Instead, it is a directive to the assembler to fill in the
+next available locations in memory with the given values.
+
+Data and instructions are seperated by using two assembler directives: 
+{\tt .data} and {\tt .text}.  The {\tt .data} directive tells the
+assembler to assemble the subsequent lines into the data area, and the
+{\tt .text} directive tells the assembler to assemble the subsequent
+lines into the {\em text} or instruction memory.  In the assembled
+version of your program, all of the text is placed at the beginning,
+and all of the data is placed immediately after the text.
+
+Note that the assembler assumes that the program starts with
+instructions, so it is not necessary for the first line of the program
+to be a {\tt .text}.  (Since none of the earlier examples in this
+document used any data memory at all, they didn't need either the {\tt
+.text} or {\tt .data} directives, but almost all the programs we will
+see from this point forward will use them.)
+ 
+In our programs, we will use the following convention for ASCII
+strings:  a {\em string} is a sequence of characters terminated by a 0
+byte.  For example, the string ``hi'' would be represented by the
+three characters `h', `i', and 0.  Using a 0 byte to mark the end of
+the string is a convenient method, used by several contemporary
+languages.
+
+The program {\tt hello.asm} is an example of how to use labels and
+treat characters in memory as strings:
+
+\index{hello.asm (complete listing)}
+\input{Tut32/hello}
+
+The label {\tt str\_data} is the symbolic representation of the
+memory location where the string begins in data memory.
+
+\section{Character I/O: {\tt echo.asm}}
+\index{echo.asm}
+\label{echo-sec}
+\index{character I/O}
+\index{cin}
+
+Now that we have mastered character output, we'll turn our attention
+to reading and writing single characters.  The program we'll write in
+this section simply echoes whatever you type to it, until EOI ({\em end
+of input}) is reached.
+
+The instruction for reading a character from the console is named {\tt
+cin} (for {\em console input}).  The way that EOI is detected in
+Ant-32 is that when the EOI is reached, any attempt to use {\tt cin}
+to read more input will immediately fail, and a negative value will be
+placed in the destination register to indicate that there was an
+error.  (If the {\tt cin} succeeds, then the destination register gets
+a value between 0 and 255.)
+
+Therefore, our program will loop, continually using {\tt cin} to read
+characters, and checking after each {\tt cin} to see whether or not
+the EOI has been reached.
+
+\input{Tut32/echo}
+
+%%% end of tut32.tex
+

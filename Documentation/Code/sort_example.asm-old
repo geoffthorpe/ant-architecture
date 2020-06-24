@@ -1,0 +1,107 @@
+#
+# PAE 9/8/97 I haven't touched this one yet
+#
+# This program runs a very simple sort on 5 numbers read in from the
+# user.  The numbers are read into 5 consecutive bytes in memory, called
+# 'array[]' in the comments of the program.  The algorithm used for sorting
+# can be described in pseudo-C-code as:
+#	for (i = 0; i < 5; i++) {
+#		for (j = i+1; j < 5; j++) {
+#			if (array[i] > array[j])
+#				swap (array, i, j);
+#		}
+#	}
+# The function 'swap' does what you expect - it swaps the contents of
+# array[i] and array[j].
+
+# If you entered numbers in the order 2, 5, 3, 1, 4, 'array' would look
+# like this as the code goes through the loops:
+
+# start         	2 5 3 1 4
+# i == 0, j == 3	1 5 3 2 4
+# i == 1, j == 2	1 3 5 2 4
+# i == 1, j == 3	1 2 5 3 4
+# i == 2, j == 3	1 2 3 5 4
+# i == 3, j == 4	1 2 3 4 5
+
+# It's not very efficient as sorting algorithms go, but it works.
+
+# Use of REGISTERS
+# r2 is the number of numbers in the array (5 for this program)
+# r3 is the counter i (for the outer loop) (also used for reading numbers)
+# r4 is the increment (1) used for both loops
+# r5 is the address of the array
+# r6 is used for the numbers read in, and later used for printing 'array'
+# r7 is the counter j (for the inner loop)
+# r8 and r9 hold array[i] and array[j] when we're inside the loops
+# r10 is used for formatting the print of the sorted array
+# r11 is used for addresses
+
+start:				### start is where registers are initialized
+	lc	r2, 5		# r2 is the number of numbers
+	lc	r3, 0		# r3 is i, a counter
+	lc	r4, 1		# r4 is 1, the increment
+	lc	r5, 0		# r5 is the address of the array, the
+				# start of memory (address 0)
+
+read_numbers:			### read_numbers : read in numbers for array
+	lc	r11, $init_i
+	beq	r11, r2, r3	# branch if we've read in 5 numbers
+
+	sys	r6, 5		# read in a number, put in r6
+	st1	r6, r5, r3	# store the new number in array[i]
+	add	r3, r3, r4	# increment the counter (i)
+
+	jmp	r11, $read_numbers	# go to the top of the loop
+
+init_i:
+	lc	r3, 0		# re-initialize i for the outer loop
+
+outer_loop:			### start of outer loop of sort
+	lc	r11, $post_sort
+	beq	r11, r2, r3	# if i == 5, we're done with outer loop
+
+inner_loop:			### start of inner loop of sort
+	add	r7, r3, r4	# initialize j, j = i + 1
+
+	lc	r11, $finish_outer_loop
+	beq	r11, r2, r7	# if j == 5, we're done with inner loop
+
+compare_and_swap:
+	ld	r8, r5, r3	# r8 = array[i]
+	ld	r9, r5, r7	# r9 = array[j]
+
+	lc	r11, $finish_inner_loop
+	bgt	r11, r9, r8	# if (array[j] > array[i]), don't swap
+
+	st	r8, r5, r7	# put array[i] into array[j]
+	st	r9, r5, r3	# put array[j] into array[i]
+
+finish_inner_loop:		### bottom of inner loop
+	add	r7, r7, r4	# increment j
+
+	jmp	r0, $inner_loop	# go to top of inner loop
+
+finish_outer_loop:		### bottom of outer loop
+	add	r3, r3, r4	# increment i
+
+	jmp	r0, $outer_loop	# go to top of outer loop
+
+post_sort:			### after the array is sorted
+	lc	r10, ' '	# r10 holds a space for printing
+	lc	r3, 0		# re-initialize i to 0
+
+print_array:			### print_array is the loop for printing array
+	lc	r11, $end
+	beq	r11, r2, r3	# if i == 5, we're done
+
+	ld	r6, r5, r3	# r6 = array[i]
+	sys	r6, 2		# print array[i]
+	sys	r10, 2		# print a space
+	add	r3, r3, r4	# increment i
+
+	jmp	r0, $print_array # go back to the top of the loop
+
+end:				### We're Done
+	sys	r0, 0		# Halt
+

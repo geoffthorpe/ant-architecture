@@ -1,0 +1,24 @@
+% $Id: st4.tex,v 1.8 2001/06/21 15:18:35 ellard Exp $
+
+\renewcommand{\INSTmnemonic}	{st4}
+\renewcommand{\INSTdesc}	{Store Word}
+\renewcommand{\INSTopcode}	{0xE6}
+\renewcommand{\INSToptype}	{TwoReg}
+\renewcommand{\INSTfieldA}	{src1}
+\renewcommand{\INSTfieldB}	{src2}
+\renewcommand{\INSTfieldC}	{const8}
+
+\renewcommand{\INSTsemantic}	{
+	\Mem{\Reg{src2} + {\em const8}} $\leftarrow$ \Reg{src1}
+		}
+
+\renewcommand{\INSTprose}	{
+
+	Store word.
+
+}
+
+
+\renewcommand{\INSTexceptions}	{
+	Bus error, Alignment error
+	}

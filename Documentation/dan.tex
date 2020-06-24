@@ -1,0 +1,67 @@
+%%% 02/26/94
+%%% An attempt at writing my own macros...
+
+\newcommand{\codesize}{\small}
+
+%%% algorithm environment:
+%%%     Arg 1 is some description of the algorithm.
+%%%     Arg 2 is the reference name of the algorithm.
+\newenvironment{algorithm}[2]{
+        \begin{figure}[hbtp]
+        \hrule
+	\vspace{2mm}
+        \begin{alghead}
+        \label{#2}
+        {\em #1}
+        \end{alghead}
+        % \hrule
+}{
+        \vspace{3mm}
+        \hrule
+        \end{figure}
+}
+
+%%% dan-code environment:
+%%%     Arg 1 is the name of the program or code fragment.
+%%%     Arg 2 is the reference name of the code.
+%%%     Arg 3 is any additional text to add to the preface of the code.
+\newenvironment{dan-code}[3]{
+        \newpage
+        \section{{\tt #1}}
+        \label{#2}
+        \index{#1 (complete listing)}
+        #3
+        \vspace{3mm}
+        \hrule
+        \vspace{3mm}
+        \footnotesize
+}{
+        \normalsize
+        \vspace{3mm}
+        \hrule
+}
+
+\newcommand{\marginnote}[1]{\marginpar{{\bf {\footnotesize #1}}}}
+
+%% The variables must be set before any of the following macros
+%% can be used.  They should be assigned in the root of the document,
+%% not here, however.
+%%
+%% UseDefaultAntOpcodes - True if the Ant uses the default opcodes
+%%	(whatever they happen to be at any given instant...) instead
+%%	of some variation.  Currently, the only variation is for QRR,
+%%	which omits sys and adds halt and in/out.
+%%
+%% AllowUnwriteableDes - The current ANT faults if the program tries
+%%	to write r0 or r1.  If this bool is true, then the processor
+%%	does not fault.  I just silently ignores the write, leaving
+%%	r0 with zero (always) and r1 with whatever it would have been
+%%	had the destination register been something else...
+%%
+%%	As if 1/19, the default is to fault.  However, this is very
+%%	likely to change in the future.
+
+\newboolean{UseDefaultAntOpcodes}
+\newboolean{AllowUnwriteableDes}
+
+%%% end of dan.tx

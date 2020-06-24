@@ -1,0 +1,43 @@
+% $Id: ant-sys.tex,v 1.2 2002/01/02 02:13:48 ellard Exp $
+
+\vspace{3mm}
+\noindent
+\begin{tabular}{|l|c|p{4.75in}|}
+\hline
+{\bf Service}   & {\bf Code}    & {\bf Description} \\
+\hline
+\hline
+{\tt SysHalt}		& 0     & Halt the processor.   \\
+{\tt SysDump}		& 1     & Dump core to file {\tt ant.core}.   \\
+\hline
+{\tt SysPutChar}	& 2     & Print the contents of {\em reg} as an
+                                        ASCII character.  \\
+{\tt SysGetChar}	& 3     &
+                                Read a character into {\em reg}.  {\em reg}
+                                must not be {\tt r0} or {\tt r1}.  If
+                                EOF, {\tt r1} is set to 1. \\
+\hline
+{\tt SysPutInt}		& 4     & Print the contents of {\em reg} as a signed
+				decimal number.
+                                        \\
+{\tt SysGetInt}		& 5     &
+                                Read a line of input, interpret it as a
+				decimal integer, and place its value
+				into {\em reg}.  {\em reg}
+                                must not be {\tt r0} or {\tt r1}.  If
+                                EOF, {\tt r1} is set to 1.  If the line
+				is too long, or empty, {\tt r1} is set to 2.
+				If the line contains extraneous characters
+				that are not part of the number, {\tt r1}
+				is set to 3.  If the number is too large
+				or too small to be represented as a signed
+				8-bit number, {\tt r1} is set to 4. \\
+\hline
+{\tt SysPutStr}		& 6     & Print the 0-terminated {\sc ASCII}
+				string that starts at {\em reg}.
+				If the string is unterminated, a fault
+				occurs and the ANT halts.
+                                        \\
+\hline
+\end{tabular}
+

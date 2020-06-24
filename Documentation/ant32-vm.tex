@@ -1,0 +1,208 @@
+% $Id: ant32-vm.tex,v 1.3 2002/04/17 20:05:58 ellard Exp $
+
+\chapter{Virtual Memory Architecture}
+\label{VirtualMemoryArchitecture}
+
+Ant-32 is a paged architecture, with additional segmentation in the
+virtual address space.  The page size is 4KB.
+
+Ant-32 contains a software-managed translation look-aside buffer (TLB)
+that maps virtual addresses to physical addresses.  The TLB contains
+at least 16 entries, and the number of entries must be a power of two. 
+A TLB miss generates an exception.
+
+The top 2 bits of each virtual address determine the segment number.
+Segment 0 is the only segment accessible in user mode, while
+segments 1-3 are accessible only in supervisor mode.
+
+Ant-32 supports up to one GB of physical address space.  Physical
+memory begins at address 0, but need not be contiguous.  Memory-mapped
+devices are typically located at the highest addresses, but the
+implementor is free to place them wherever necessary.
+
+Each segment is one GB in size, corresponding to the size of physical
+memory, but corresponds to a different way of interpreting virtual
+addresses or accessing the memory.  Segments 0 and 1 are mapped
+through the TLB, and may be cached.  Segments 2 and 3 are not mapped
+through the TLB-- the physical address for each virtual address in
+these segments is formed by removing the top two bits from the virtual
+address.  Segment 2 may be cached, but segment 3 is never cached for
+either read or write access (and is intended to be used for
+memory-mapped devices).
+
+The next 18 bits of each virtual address are the virtual page number. 
+The bottom 12 bits are the offset into the page.
+
+\begin{figure}[ht]
+\caption{TLB Entry Format}
+
+\begin{center}
+\begin{tabular}{l|p{0.7in}|p{2.5in}|p{1.2in}|}
+\cline{2-4}
+		& bits 31-30 & bits 29-12	& bits 11-0 \\
+\cline{2-4}
+Upper Word	& 0	& Physical page	number	& Page Attributes \\
+\cline{2-4}
+Lower Word	& Segment & Virtual page number	& {\em (Available for OS)} \\
+\cline{2-4}
+\end{tabular}
+\end{center}
+\end{figure}
+
+Each TLB entry consists of two 32-bit words.  The top 20 bits of the
+upper word are the top 20 bits of the physical address of the page (if
+the VALID bit is not set in the lower word).  Note that since Ant-32
+physical addresses are only 30 bits long, the upper two bits of the
+address, when written as a 32-bit quantity, must always be zero.  The
+lower 12 bits of the lower word contain the page attributes bits.  The
+page attributes include {\sc VALID}, {\sc READ}, {\sc WRITE}, {\sc
+EXEC}, {\sc DIRTY}, and {\sc UNCACHE} bits, as defined in figure
+\ref{TLB-attr-bits}.  The remaining bits are reserved.
+
+The top 20 bits of the lower word are the top 20 bits of the virtual
+address (the segment number and the virtual page number for that
+address).  The lower 12 bits of the upper word are ignored by the
+address translation logic, but are available to be used by the
+operating system to hold relevant information about the page.
+
+\begin{figure}[ht]
+\caption{\label{TLB-attr-bits} TLB Page Attribute Bits}
+
+\begin{center}
+\begin{tabular}{|p{1.0in}|p{0.2in}|p{0.2in}|p{0.2in}|p{0.2in}|p{0.2in}|p{0.2in}|}
+\hline
+	{\em Reserved} & U & D & V & R & W & X \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|l|l|p{4in}|}
+\hline
+{\bf Name}	& {\bf Bit}	& {\bf Description} \\
+\hline
+\hline
+{\sc EXEC}	& 0	& Instruction fetch memory access to addresses mapped
+				by this TLB entry is allowed. \\
+\hline
+{\sc WRITE}	& 1 	& Write memory access to addresses mapped
+				by this TLB entry is allowed. \\
+\hline
+{\sc READ}	& 2	& Read memory access to addresses mapped
+				by this TLB entry is allowed.  \\
+\hline
+{\sc VALID}	& 3	& Indicates a valid TLB entry.  When this is
+			set to 0, the contents of the rest of the TLB
+			entry are irrelevant.  \\
+
+\hline
+{\sc DIRTY}	& 4	& Indicates a dirty page.  When this is set to 1,
+			it indicates that the page referenced by this TLB
+			entry has been written.  This bit is set to 1
+			automatically whenever a write occurs to the page,
+			but can be reset to 0 using the instructions that
+			modify TLB entries. \\
+
+\hline
+{\sc UNCACHE}	& 5	& An uncacheable page.  When this is set to 1,
+			the page referenced by the entry will not be
+			cached in any processor cache.  \\
+
+\hline
+\end{tabular}
+\end{center}
+\end{figure}
+
+Note that the top bit of the virtual address in the TLB will always be
+zero, because only segments 0 and 1 are mapped through the TLB, and
+the top two bits of the physical address will always be zero because
+physical addresses have only 30 bits.  If values other than zero are
+assigned to these bits the result is undefined.
+
+Translation from virtual to physical addresses is done as follows for
+any fetch, load, or store:
+
+\begin{enumerate}
+
+	\item The virtual address is split into the segment, virtual
+		page number, and page offset.
+
+	\item If the page offset is not divisible by the size of the
+		data being fetched, loaded, or stored, an alignment
+		exception occurs.
+
+		All memory accesses must be aligned according to their
+		size.  In Ant-32, there are only two sizes-- bytes, and
+		4-byte words.  Word addresses must be divisible by 4,
+		while byte addresses are not restricted.
+
+	\item If the segment is not 0 and the CPU is in user mode, a
+		segment privilege exception occurs.
+
+	\item If the segment is 2 or 3, then the virtual address (with
+		the segment bits set to zero) is treated as the
+		physical address, and the algorithm terminates.
+
+	\item The TLB is searched for an entry corresponding to the
+		segment and virtual page number, and with its {\sc
+		VALID} bit set to 1.  If no such entry exists, a TLB
+		miss exception occurs.
+
+		Note that if there are two or more valid TLB entries
+		corresponding to the same virtual page, exception 13
+		(TLB multiple match) will occur when the entry table
+		is searched.  (This exception will also occur if the
+		{\tt tlbpi} instruction is used to search the TLB
+		table.)
+
+	\item If the operation is not permitted by the page, a
+		TLB protection exception occurs.
+
+		Note that a memory location can be fetched for
+		execution if its TLB entry is marked as executable
+		even if it is not marked as readable.
+
+	\item Otherwise, the physical address is constructed from the
+		top 20 bits of the upper word of the TLB and the lower
+		12 bits of the virtual address.
+
+	\item If the physical address does not exist (which can only
+		be detected when a memory operation is performed) a
+		bus error exception occurs.
+
+\end{enumerate}
+
+Any of the exceptions that can occur during this process can be caught
+by the operating system, and the offending instruction can be
+restarted if appropriate.
+
+Note that the order in which the conditions that trigger these
+exceptions are checked is {\bf undefined}, except for the dependency
+that segment privileges are checked before the TLB is probed, and the
+TLB protection is checked before the address is sent to the memory
+system.  For example, attempting to load a word from address {\tt
+0x80001001} in user mode can cause either an alignment exception
+(because the page offset is not divisible by 4) or a segment privilege
+exception (because the segment is 1 and the processor is in user
+mode).
+
+Along with a 30-bit physical address, an {\em uncache} bit is sent to
+the memory system whenever a memory operation is performed.  This bit
+is defined by the following rules:
+
+\begin{itemize}
+
+\item If the segment is 0 or 1, then the {\em uncache} bit is set to
+	the value of the {\sc UNCACHE} bit of the TLB entry that maps
+	that address.
+
+\item If the segment is 2, then the {\em uncache} bit is set to 0.
+
+\item If the segment is 3, then the {\em uncache} bit is set to 1.
+
+\end{itemize}
+
+If the implementation does not include a cache, or the cache
+is disabled, then this bit is ignored.
+
+

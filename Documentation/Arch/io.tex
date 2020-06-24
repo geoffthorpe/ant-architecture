@@ -1,0 +1,46 @@
+% $Id: io.tex,v 1.2 2002/04/16 01:02:40 ellard Exp $
+
+
+\OneRegisterOp{io}{Input/Output}{\OPCODE}{reg}{const8}
+
+\index{io@{\tt in} for Ant-8}
+\index{in@{\tt in} for Ant-8}
+\index{out@{\tt out} for Ant-8}
+
+The {\tt io} instruction is used to perform either or input or output
+of a single character to or from a peripheral device.
+
+The upper 4 bits of the {\em const8} determine the direction of I/O:
+
+\begin{itemize}
+
+\item If the upper 4 bits are {\tt 0000}, then the byte is read from
+	the peripheral into the specified register.
+
+\item If the upper 4 bits are {\tt 0001}, then the value in {\em reg}
+	is written to the peripheral.
+
+\item The results of this instruction are undefined for any other
+	values of the top four bits of {\em reg}.
+
+\end{itemize}
+
+The lower 4 bits of the {\em const8} determine the ``peripheral'' that
+the byte is read or written to.  The standard Ant-8 implementation has three 
+peripherals:
+
+\begin{description}
+
+\item[{\tt 0000}] Hexadecimal --
+	the value is treated as a two-digit hexadecimal number.
+
+\item[{\tt 0001}] Binary --
+	the value is treated as a eight-digit binary number.
+
+\item[{\tt 0002}] {\sc ASCII} --
+	the value is interpreted as an ASCII character code.
+
+\end{description}
+
+
+

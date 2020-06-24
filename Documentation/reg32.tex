@@ -1,0 +1,501 @@
+% $Id: reg32.tex,v 1.18 2002/04/22 16:32:21 ellard Exp $
+% $Date: 2002/04/22 16:32:21 $
+
+\section{Introduction}
+
+Any of the general registers in the Ant-32 architecture can, in
+general, be used in whatever way the programmer wishes.  The
+architecture imposes no restrictions or limitations (apart from the
+restriction that the zero register always contains the constant 0, and
+that for the operations that take a register pair as an operand, the
+register pair must begin with an even-numbered register).
+
+Most software architectures, however, include some conventions about
+the use of specific registers.  These conventions are principally
+focussed on supporting features of high-level languages, such as
+functions, recursion, and separate compilation.
+
+In order to facilitate the implementation of higher-level software
+architectures using Ant-32, the Ant-32 tools support two register
+names and conventions.
+
+The first is a very simple model, useful for introductory programming
+courses and demonstrating how function calls and recursion can be
+implemented.  This convention is the focus of the rest of this document.
+
+The second is a more advanced model, which refines the simple model in
+a manner that allows for more efficient code.  It is described only
+briefly in this document.
+
+\section{Simple Register Use Conventions}
+
+The simple register use conventions implement a straight-forward stack
+architecture.  The conventions are outlined in Figure
+\ref{simple-conventions-fig}, and described in more detail below.
+
+\begin{figure}
+\caption{\label{simple-conventions-fig} Simplified Register Use Conventions}
+
+\begin{center}
+\begin{tabular}{|l|l|p{2.0in}|}
+
+\hline
+	{\bf Mnemonic}	& {\bf Registers} & {\bf Description} \\
+\hline
+\index{ze - the zero register}
+	{\tt ze}	& {\tt r0}		& Always zero \\
+\hline
+\index{ra - the return address}
+	{\tt ra}	& {\tt r1}		& Return address \\
+\hline
+\index{sp - the stack pointer}
+	{\tt sp}	& {\tt r2}		& Stack pointer \\
+\hline
+\index{fp - the frame pointer}
+	{\tt fp}	& {\tt r3}		& Frame pointer \\
+\hline
+	{\tt g0-g55}	& {\tt r4 - r59}	& General-purpose registers \\
+\hline
+\index{u0-u3 - scratch registers}
+	{\tt u0-u3}	& {\tt r60 - r63}	& Reserved registers \\
+\hline
+
+\end{tabular}
+\end{center}
+
+\end{figure}
+
+\subsection{{\tt ze} - The zero register}
+
+	The {\tt ze} register is simply register zero, which always
+	contains the number zero.
+
+\subsection{{\tt ra} - The Return Address}
+
+	The {\tt ra} register is used to store the return address of
+	the most recent function call.
+
+\subsection{{\tt sp} - The Stack Pointer}
+
+	{\tt sp} is used as the {\em stack pointer}.  The stack grows
+	``downward''; a push moves the stack pointer to a numerically
+	lower address, and a pop moves the stack pointer toward
+	numerically greater address.
+
+	The Ant-32 architecture does not contain native push or pop
+	instructions, and these operations require more than one
+	instruction to execute.  The push and pop operations, for
+	example, can be coded as shown in Figure
+	\ref{simple-push-pop}.
+
+	In general, {\tt sp} points to the ``top'' of the stack
+	(although this may seem somewhat confusing, since the stack
+	grows downward -- so the top of the stack is located at the lowest
+	address).  This convention can be relaxed in order to
+	implement groups of push or pop operations (see Figure
+	\ref{combined-push-pop}), as long as the stack pointer is
+	never moved past any values that are still on the stack.
+
+
+	\begin{figure}
+	\hrule
+	\caption{\label{simple-push-pop}
+			Implementing {\tt push} and {\tt pop}}
+
+        \begin{verbatim}
+                # push register g0:
+                subi    sp, sp, 4
+                st4     g0, sp, 0
+
+                # pop into register g1:
+                ld4     g1, sp, 0
+                addi    sp, sp, 4
+        \end{verbatim}
+	\hrule
+	\end{figure}
+
+	The Ant-32 assembler provides macro implemenations of {\tt
+	push} and {\tt pop}, using this method.
+
+	\begin{figure}
+	\hrule
+	\caption{\label{combined-push-pop}
+			Combining Multiple Push or Pop Operations}
+			\vspace{3mm}
+
+	For consecutive pushes and pops, it can increase code
+	efficiency to reduce the number of {\tt addi} and {\tt subi}
+	instructions by aggregating the movement of the stack pointer,
+	as shown in the following code fragment.
+
+	\begin{verbatim}
+                # push registers g0, g1, g2:
+                subi    sp, 12
+                st4     g0, sp, 8
+                st4     g1, sp, 4
+                st4     g2, sp, 0
+
+                # pop into registers g3, g4, g5:
+                ld4     g3, sp, 0
+                ld4     g4, sp, 4
+                ld4     g5, sp, 8
+                addi    sp, 12
+        \end{verbatim}
+	\hrule
+	\end{figure}
+
+\subsection{{\tt fp} - The Frame Pointer}
+
+The {\tt fp} register is used as a {\em frame pointer}.  The frame is
+often used to implement activation records, or simplify the
+implementation of function calls.
+
+\subsection{{\tt g0}-{\tt g55} - General-Purpose Registers}
+
+These registers are free to be used for any purpose.
+
+\subsection{{\tt u0}-{\tt u3} - Reserved Registers}
+
+These registers are reserved for use by the assembler.  They are used
+as scratch space for the expansion of macros.  They should not be used
+for any other purpose, and programs should never make any assumptions
+about their contents.
+
+\section{Function Calls}
+\index{function calls}
+
+This section describes how the stack pointer, frame pointer, and
+return address registers can be used to implement the abstraction of
+function calls.  The description is divided into four steps:
+
+\begin{enumerate}
+
+\item	Preparing to call the function and performing the call.
+
+\item	Function preamble.
+
+\item	Preparing to return from the function.
+
+\item	Cleaning up after the function call.
+
+\end{enumerate}
+
+\subsection{Preparing to Call: Using {\tt call}}
+\label{reg32-call-sec}
+\index{call}
+
+\begin{enumerate}
+
+\item All of the {\tt g-}registers whose values need to be preserved
+	are pushed onto the stack.  The order that they are pushed
+	onto the stack is up to the caller.
+
+	Before the function call takes place, the caller must save any
+	registers that contain necessary values, because otherwise the
+	function might overwrite these values.
+
+\item The arguments to the function are pushed onto the stack, in the
+	reverse order that they appear (from right to left).
+
+	The stack only contains whole words (32-bit values).  If the
+	arguments to the function are 8 or 16-bit values, then they
+	are still pushed as the lower 8 or 16 bits of a 32-bit value,
+	requiring four bytes of storage.  It is the responsibility of
+	the called function to ignore the extra bits.
+
+\item Jump or branch to the function (using {\tt jez}, {\tt jnz}, {\tt
+	bez}, or {\tt bnz}), specifying the return address register
+	{\tt ra} as the destination register.
+
+\end{enumerate}
+
+Note that the last step can be accomplished with the {\tt call} macro.
+
+\subsection{Handling the Call: Using {\tt entry}}
+\index{entry}
+\label{reg32-entry-sec}
+
+\begin{enumerate}
+
+\item The current value of the {\tt fp} and {\tt ra} registers
+	are pushed onto the stack.
+
+\item The frame pointer gets a copy of the stack pointer.
+
+\item The stack pointer is decremented by the size of the local frame. 
+	The area of memory thus allocated between the stack pointer
+	and the frame pointer is used for local storage -- for example,
+	the local variables of the current function.
+
+	Note that the local frame size must always be a multiple of 4,
+	so that the stack pointer is always aligned properly on a
+	4-byte boundary.
+
+\end{enumerate}
+
+These steps can be accomplished by using the {\tt entry} macro.  This
+macro takes a single constant argument, which is the size of the stack
+frame to create.
+
+After this preamble is finished, the stack contains the information
+about the function call in the order shown in Figure
+\ref{simple-stack-call}.
+
+\begin{figure}
+\caption{\label{simple-stack-call} Stack at start of call.}
+
+\begin{center}
+
+\begin{tabular}{|l|l|l|}
+\hline
+{\bf Address}	& {\bf Contents} & {\bf Description} \\
+\hline
+$\vdots$	& {\tt g0} $\cdots$ {\tt g55}	&
+		Saved copies of {\tt g-}registers. \\
+$\vdots$	& $\vdots$			& \\
+\hline
+${\tt fp} + 8 + (N ~ \times 4 )$ 	& $arg_{N}$	& \\
+$\vdots$	& $\vdots$			& 
+		Arguments to the function. \\
+${\tt fp} + 8$	& $arg_{0}$		& \\
+
+\hline
+${\tt fp} + 4$	& {\tt fp}			&
+		The saved value of the {\tt fp}. \\
+\hline
+${\tt fp} + 0$	& {\tt ra}			&
+		The saved value of the {\tt ra}. \\
+\hline
+${\tt fp} - 4$	& 				& \\
+$\vdots$	& $\vdots$			&
+		{\em local variables}		\\
+${\tt fp} - (4 + (M ~ \times 4))$	&	& \\
+\hline
+\end{tabular}
+
+\end{center}
+
+\end{figure}
+
+Note that the function can always access its arguments and local
+variables via fixed offsets relative to the frame pointer, and the
+stack pointer is free to move.  For example, the first argument
+($arg_{0}$) is accessible at the address ${\tt fp} + 8$, while the
+second argument is at address ${\tt fp} + 12$, and so forth.
+
+During a function call, the stack pointer can be used to manage the
+allocation of dynamic but function-private storage.  If the storage
+requirements of the function can be computed in advance, however, it
+can be just as convenient to allocate this space from the frame.
+
+\subsection{Returning from a Call: Using {\tt return}}
+\index{return}
+\label{reg32-return-sec}
+
+\begin{enumerate}
+
+\item The return value (if any) is put into register {\tt g0}.
+
+	Functions that return multiple values, or a single value that
+	is too large to fit into a single register, use a more
+	complicated method for returning their values.  This method is
+	not documented here.
+
+\item The stack pointer is reset to contain a copy of the frame
+	pointer.
+
+\item The return address is popped into {\tt ra}, and then
+	the {\tt ra} register is incremented by 4.
+
+	This increment is necessary because when the function is
+	called via a jump or branch instruction, {\tt ra} gets the
+	address of the instruction that performed the call.  The
+	address we want to return to is the address of the instruction
+	after the call.
+
+\item The frame pointer is popped into {\tt fp}.
+
+	At this point, the stack pointer is in the same position as it
+	was before the function was called.
+
+\item Use the {\tt jez} instruction to jump to the {\tt ra}.
+
+\end{enumerate}
+
+For a function that returns a single value, the {\tt return} macro is
+provided to perform all of these steps.  The single operand to the
+{\tt return} macro can be the name of the register that contains the value
+to return, or the constant to return.
+
+\subsection{Handling the Return}
+
+When the execution resumes in the caller, the stack is exactly the
+same as it was before the jump to the caller.  All that remains is to
+save the results, and restore the rest of the environment to the way
+it was before the call took place.  This can be done by popping the
+parameters and then by popping the saved {\tt g}-registers.  Once the
+stack is restored, execution can resume as normal.
+
+\section{Examples of Functions}
+
+\newpage
+Program {\tt add-func.asm} gives a very simple example of a
+function that takes two arguments and returns their sum.
+
+\vspace{3mm}
+\hrule
+\index{add-func.asm}
+\input{Tut32/add-func}
+
+\newpage
+Program {\tt fibonacci.asm} gives an example of a recursive
+function.
+
+\vspace{3mm}
+\hrule
+\index{fibonacci.asm}
+\input{Tut32/fibonacci}
+
+\newpage
+\section{Advanced Register Use Conventions}
+\index{function calls, optimized}
+
+\subsection{Optimizing Saving and Restoring of Registers}
+
+The function calling conventions described in the first part of this
+chapter can result in very inefficient code.  For example, imagine
+that we have a function $\alpha$ that calls function $\beta$.  Before
+$\alpha$ calls $\beta$, it has to save all the registers it is using. 
+If $\alpha$ uses many registers, and $\beta$ only uses a few, then it
+may be that many of $\alpha$'s registers didn't need to be saved,
+because their values weren't modified by $\beta$ at all.
+
+One solution to this particular problem is to change the
+responsibility for saving the registers to the called function -- in
+this case, $\beta$ would be responsible for saving and restoring the
+few registers that it uses.  Unfortunately, in the opposite case,
+where $\alpha$ only uses a few registers and $\beta$ uses many, then
+this approach results in the same kind of inefficiency as we saw
+initially.
+
+Ideally, each function would have its own set of registers available
+for its exclusive use.  Unfortunately, this is impossible:  typical
+programs have thousands of functions but processors only have dozens
+of registers -- and even if a huge number of registers were available,
+recursive functions would still be a problem.
+
+However, there is a relatively straightforward way to solve most of
+this problem, by dividing the register set into two groups -- one group
+which is caller-saved (like all the registers in the earlier
+convention) and a second which is callee-saved.  Ideally, functions
+that call other functions will use the callee-saved registers, and
+{\em leaf functions} (functions that do not call other functions) or
+the base case code of recursive functions will use the caller-saved
+registers.  If, in our previous example, $\beta$ is a leaf function,
+then if $\alpha$ uses only callee-saved registers, and $\beta$ uses
+only caller-saved registers, then no registers will need to be saved
+at all.
+
+\subsection{Optimizing Parameter Passing}
+
+Another cause of inefficiency in the normal function call conventions
+is the pushing of the parameters onto the stack, and then accessing them
+via the frame pointer.   In terms of the number of instructions executed,
+this convention is not terribly inefficient -- but in terms of the {\em kind}
+of instructions executed, it can be very slow.  Passing the parameters on
+the stack means storing to memory and then loading from memory, and on
+most modern processors accessing memory is at least an order of magnitude 
+slower than accessing values in registers.
+
+Therefore, to optimize the passing of parameters, we reserve a small
+number of registers to use for passing parameters.  If there are more
+parameters than will fit in these registers, the remainder are passed
+on the stack as before.  Studies of existing bodies of software have
+shown, however, that six (or even four) argument registers are
+sufficient for an overwhelming majority of common functions.
+
+\subsection{The Advanced Conventions}
+
+\begin{figure}
+\caption{\label{advanced-conventions-fig} Advanced Register Use Conventions}
+
+\begin{center}
+\begin{tabular}{|l|l|p{2.0in}|}
+
+\hline
+	{\bf Mnemonic}	& {\bf Registers} & {\bf Description} \\
+\hline
+	{\tt ze}	& {\tt r0}		& Always zero \\
+\hline
+	{\tt ra}	& {\tt r1}		& Return address \\
+\hline
+	{\tt sp}	& {\tt r2}		& Stack pointer \\
+\hline
+	{\tt fp}	& {\tt r3}		& Frame pointer \\
+\hline
+	{\tt v0-1}	& {\tt r4 - r5}		& Returned values \\
+\hline
+	{\tt a0-5}	& {\tt r6 - r11}	& Argument registers \\
+\hline
+	{\tt s0-23}	& {\tt r12 - r35}	& Callee-saved \\
+\hline
+	{\tt t0-23}	& {\tt r36 - r59}	& Caller-saved \\
+\hline
+	{\tt u0-3}	& {\tt r60 - r63}	& Reserved for the assembler \\
+\hline
+
+\end{tabular}
+\end{center}
+
+\end{figure}
+
+The conventions are similar to the previous, except that the {\tt
+g}-registers have been partitioned into four different kinds of
+registers:  return value registers, argument value registers, saved
+registers, and temporary registers.  These registers are described in
+more detail below.
+
+\subsubsection{Return Value Registers: {\tt v0} - {\tt v1}}
+
+Values returned from a function.  If the return value of the function
+requires more than two registers to express, the remainder of the
+return value is returned via the stack.
+
+\subsubsection{Argument Value Registers: {\tt a0} - {\tt a5}}
+
+Parameters to a function.  If the function has more than six
+parameters, then the additional parameters are pushed onto the stack,
+in the opposite order that they appear (right to left).
+
+\subsubsection{Callee Saved Registers:  {\tt s0} - {\tt s23}}
+
+If any of these registers are used by a function, then the function is
+responsible for saving their original values and then restoring them
+when the function returns.
+
+How the values are preserved and restored is up to the implementation. 
+For implementations of languages that permit recursive or reentrant
+functions, using the stack is an appropriate method.
+
+\subsubsection{Temporary (Caller Saved) Registers:  {\tt t0} - {\tt t23}}
+
+If any of these registers contains live values when a function is
+called, they are preserved by the caller and then restored after the
+function has returned.
+
+How the values are preserved and restored is up to the implementation. 
+For implementations of languages that permit recursive or reentrant
+functions, using the stack is an appropriate method.
+
+The distinction between the saved registers and the temporary
+registers allows some useful optimizations, especially with leaf
+functions (functions that do not call any other functions) or the base
+case of recursive functions.  If these functions use can manage to
+exclusively use {\tt t}-registers, and their callers use only {\tt
+s}-registers, then these calls do not require saving and restoring any
+registers:  it is the responsibility of the caller to save any {\tt
+t}-registers it needs, and the callee to save any {\tt s}-registers it
+needs, so if the caller only uses {\tt s}-registers and the callee
+only uses {\tt t}-registers, a significant reduction in the overhead
+of function calls is obtained.
+

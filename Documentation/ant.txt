@@ -1,0 +1,368 @@
+$Id: ant.txt,v 1.2 2000/11/22 00:29:56 ellard Exp $
+
+
+                             THE ANT ARCHITECTURE
+                                       
+Overview
+
+   The ANT is a very small and simple processor.
+
+   It contains 16 user-visible registers: 14 general-purpose registers
+   and two special registers.
+
+   The instruction set consists of 12 general-purpose instructions.
+ 
+Memory Organization
+
+   The memory of the ANT processor consists of space for 256 8-bit
+   bytes for data and 256 16-bit instructions.  The data and
+   instruction memories are separate and do not overlap.  Data memory
+   can only be accessed as bytes, and instruction memory can only be
+   accessed as 16-bit instructions.
+
+Register Set
+
+   The ANT processor has 16 registers that can be accessed directly by
+   the programmer.  In ANT assembler, they are named r0 through r15. 
+   In ANT machine language, they are the 4-bit numbers 0x0 through 0xf
+   (0 through 15).
+
+   Registers r2 through r15 are general purpose registers; they can be
+   used as both the source and destination registers in any of the
+   instructions that use source and destination registers (i.e.  they
+   are read/write).  r0 and r1 are not general purpose registers,
+   however, and can only be used as source registers (they are
+   read-only); any attempt to use the registers as destination
+   registers causes the processor to halt with an error.
+ 
+   r0 is always filled with the constant zero.
+
+   r1 is filled with the value that is related to the value computed
+   in the previous instruction.  Some instructions do not modify r1
+   at all, but several use r1 to store useful results related to the
+   last instruction.  See the description of the instruction set for
+   details.
+
+Execution of Programs
+
+   Programs are executed in the following manner:
+   
+  INITIALIZATION
+
+  Note: steps 1 through 5 are implemented in the function
+  ant_load_text (defined in ant_load.c).
+
+    1.  Each location in instruction memory is filled with 0xffff, a
+       special value reserved to indicate that the memory does not
+       contain a valid instruction.
+       
+    2.  Each location in data memory is filled with zero.
+       
+    3.  All of the registers are set to zero.
+       
+    4.  The program counter (PC) is set to zero.
+       
+       The program counter is a special 8-bit register that contains
+       the offset (or index) into the instruction memory of the next
+       instruction to execute.  Note that the offset is interpreted as
+       an unsigned number and therefore ranges from 0 to 255.  The PC
+       is not accessible to the program.
+       
+    5.  The program is loaded into memory from a file.
+       
+       See the Format of Program Files section for information about
+       the program file format.
+       
+    6.  The fetch and execute loop (described below) is executed until
+       the program halts via the HALT syscall, or because of an error. 
+       NOTE: whenever the ANT processor halts due to any error, it
+       dumps core to a file named ant.core.  (ant_dump_text, a
+       function that does the work of dumping core has been provided
+       for you.)
+
+  THE FETCH AND EXECUTE LOOP
+
+    1.  Fetch the instruction specified by the PC.
+
+    2.  Increment the PC.
+
+    3.  Execute the instruction.  In general, execution is done as follows:
+         a. Get the value of the source registers (if any).
+         b. Perform the specified operation.
+         c. Place the results into the destination register (if any).
+         d. Update register r1, if necessary.
+
+       Note that execution of the instruction may change the PC.
+   
+Instruction Set
+
+  FORMATS
+  
+   Most of the instructions have the following general instruction format:
+   
+	---------------------------------------------------
+	| Operator | Register 1 | Register 2 | Register 3 |
+	| (4 bits) |  (4 bits)  |  (4 bits)  |  (4 bits)  |
+	---------------------------------------------------
+
+   The lc (load constant), inc (increment) and sys (system call)
+   instructions, have the following format:
+
+	---------------------------------------------------
+	| Operator | Register 1 |        Constant         |
+	| (4 bits) |  (4 bits)  |        (8 bits)         |
+	---------------------------------------------------
+
+   The final two exceptions to this are the ld (load) and st (store)
+   instructions, which have the following format:
+
+	---------------------------------------------------
+	| Operator | Register 1 | Register 2 |  Constant  |
+	| (4 bits) |  (4 bits)  |  (4 bits)  |  (4 bits)  |
+	---------------------------------------------------
+
+   The 4 bits of the Operator are a 1-digit hexadecimal number that
+   represents the name of the operator or instruction.  The 4 bits of
+   the Register(s) are the number of the register (i.e.  0x4 will
+   represent r4, register 4).
+   
+  THE INSTRUCTIONS
+  
+  NOTATION FOR INSTRUCTION DESCRIPTIONS
+  
+   Here's the notation we'll use to describe the operands of the
+   instructions:
+
+     * src - Source register. May be any of r0 through r15.
+     * des - Destination register. May be any of r2 through r15. If r0 or
+		r1 are used as des, an "invalid des" error occurs
+		and the processor halts.
+     * reg - A general register. May be any of r0 through r15.
+     * const - An 8-bit 2's complement integer constant (-128 .. 127).
+     * c4 - A 4-bit unsigned integer constant (0 .. 15).
+       
+   Note that the same register can serve as both a source and destination
+   in one command. For instance, you can double the contents of a
+   register by adding that register to itself and putting the result back
+   in that register, all in one command.
+   
+  INSTRUCTION DESCRIPTIONS
+  
+  add - 8-bit integer addition (with overflow)
+
+	|-------------------------------|
+	|  0x0  |  des  | src1  | src2  |
+	|-------------------------------|
+        
+              1. des = lower 8 bits of src1 + src2
+              2. r1 = upper 8 bits of src1 + src2
+                
+  sub - 8-bit integer subtraction (with underflow)
+
+	|-------------------------------|
+	|  0x1  |  des  | src1  | src2  |
+	|-------------------------------|
+        
+               1. des = lower 8 bits of src1 - src2
+               2. r1 = upper 8 bits of src1 - src2
+                
+  mul - Integer multiplication (with overflow)
+
+	|-------------------------------|
+	|  0x2  |  des  | src1  | src2  |
+	|-------------------------------|
+        
+               1. des = lower 8 bits of src1 * src2
+               2. r1 = upper 8 bits of src1 * src2
+                 
+  div - Integer division (with remainder)
+                
+	|-------------------------------|
+	|  0x3  |  des  | src1  | src2  |
+	|-------------------------------|
+        
+               1. If src2 is zero, a "division by zero" error occurs
+	          and the processor halts.
+               2. des = src1 / src2 (integer division)
+               3. The remainder (or modulus) of the integer division is
+                 placed in r1.
+
+  and -  Bitwise AND (with negation)
+
+	|-------------------------------|
+	|  0x4  |  des  | src1  | src2  |
+	|-------------------------------|
+        
+               1. des = src1 & src2
+               2. r1 = ~des (bitwise negation of des).
+
+  or - Bitwise OR (with negation)
+
+	|-------------------------------|
+	|  0x5  |  des  | src1  | src2  |
+	|-------------------------------|
+        
+               1. des = src1 | src2
+               2. r1 = ~des (bitwise negation of des).
+
+  beq - Branch if equal
+
+	|-------------------------------|
+	|  0x6  |  reg1 | reg2  | reg3  |
+	|-------------------------------|
+        
+	       1. temp = PC (store PC in a temporary variable).
+               2. If reg2 is equal to reg3, set PC to reg1.
+               3. r1 is set to the value of temp.
+                 
+  bgt - Branch if greater than
+                
+	|-------------------------------|
+	|  0x7  |  reg1 | reg2  | reg3  |
+	|-------------------------------|
+        
+	       1. temp = PC (store PC in a temporary variable).
+               2. If reg2 is greater than reg3, set PC to reg1.
+               3. r1 is set to the value of temp.
+                
+  ld - Load a value from memory into des
+
+	|-------------------------------|
+	|  0x8  |  des  | src1  |  c4   |
+	|-------------------------------|
+
+	       1.  If src1 + c4 is more than 255 or less than zero, an
+		 "invalid address" error occurs and the processor halts.
+	       2.  The 8-bit number located at memory position (src1 + c4)
+	         is loaded into des.
+
+  st - Store reg's value to memory
+
+	|-------------------------------|
+	|  0x9  |  reg  | src1  |  c4   |
+	|-------------------------------|
+
+	       1.  If src1 + c4 is more than 255 or less than zero, an
+		 "invalid address" error occurs and the processor halts.
+               2. Store the contents of reg into memory location (src1 + c4).
+
+  lc - Load constant
+
+	|-------------------------------|
+	|  0xa  |  des  |     const     |
+	|-------------------------------|
+
+               1. Load the 8-bit constant const into des.
+
+  jmp - Jump to label
+
+	|-------------------------------|
+	|  0xb  |  reg  |     const     |
+	|-------------------------------|
+
+               1. Branch unconditionally to the specified const.
+	          reg is ignored.
+
+  inc - Increment register
+
+	|-------------------------------|
+	|  0xc  |  des  |     const     |
+	|-------------------------------|
+
+               1. Add const to the specified register.
+
+  sys - System Call
+                
+	|-------------------------------|
+	|  0xf  |  reg  |  const code   |
+	|-------------------------------|
+                
+	       1.  If code is not a valid syscall, then an "invalid
+		 syscall" error occurs, and the processor halts.
+	       2.  Make the system call associated with the number in
+		 the contents of code.  The argument or destination of
+		 the system call is reg (and r1, in some cases).
+	       3.  r1 is modified, as described below.
+
+	System calls and their arguments are described in the next
+	section.
+
+System Calls
+
+   There are several system calls that allow the program to do things
+   outside the scope of the regular instruction set.  For instance,
+   system calls are needed for I/O.  Each system call has a unique
+   number to be used in the instruction (code in the description of
+   sys above).  The use of the register argument to each system call
+   is also unique.
+
+   Note that r1 is set to zero immediately when the syscall occurs, so
+   it is impossible to successfully use r1 as the argument of a
+   syscall.  In general, r1 is set to zero if the syscall succeeds,
+   or is set to a non-zero value if the syscall fails.
+
+   halt -- 0x0
+	This command halts the processor immediately.  reg is ignored.
+          
+   dump -- 0x1
+	This command dumps the contents of the ant_t structure that
+	describes the machine (instruction memory, data memory, the PC
+	and the contents of the registers), to a file named ant.core. 
+	reg is ignored.
+          
+   put_int -- 0x2
+	Print the contents of reg on the screen, in decimal.
+
+   put_char -- 0x3
+	Print the contents of reg on the screen, as an ASCII char.
+
+   put_str -- 0x4
+	Print a zero-terminated string (starting at the address
+	pointed to by reg) to the screen.  Note that the value
+	of reg is treated as unsigned (so it ranges from 0 to 255
+	instead of -128 to 127).
+
+   get_int -- 0x5
+	Read an integer from the keyboard and store it in reg (reg
+	must not be r0 or r1).  If end of file has been reached, then
+	r1 is filled with a non-zero value; otherwise r1 is zero.  (NO
+	error checking is performed to make sure that the user
+	actually typed a valid number.)
+
+   get_char -- 0x6
+	Read a single character from the keyboard and store it in reg
+	(reg must not be r0 or r1).  reg gets the ASCII value of the
+	character read in.  If end of file has been reached, then r1
+	is filled with a non-zero value; otherwise r1 is zero.
+
+Format of Program (.ant) Files
+
+   ANT program files are stored as text, as a sequence of hexadecimal
+   numbers, one per line.  Anything that appears after the number on
+   each line is ignored, and empty blank lines or lines that begin
+   with a # are ignored.  Each line in a program file must be less
+   than 512 characters in length, and each line must end with a
+   newline.
+   
+   The program begins with the instructions, which are written as
+   16-bit hexadecimal numbers.  If any of the hexadecimal numbers that
+   are supposed to represent instructions are too large to fit into 16
+   bits, then the program is invalid.  The instruction segment of the
+   program ends when any one of the following is true:
+
+     * End of file is reached.
+     * 256 instructions have been read.
+     * The special instruction 0xffff (which is defined to not correspond
+       to any legal ANT instruction) is read.
+       
+   If there are more than 256 instructions, then the program is
+   invalid.  If there are fewer than 256 instructions specified in the
+   file, the instructions not specified are implicitly 0xffff.
+   
+   Following the instructions are a sequence of 8-bit hexadecimal
+   numbers representing each byte in the data segment, starting with
+   the first.  If any of the hexadecimal numbers that are supposed to
+   represent data bytes are too large to fit into 8 bits, then the
+   program is invalid.  If there are more than 256 data bytes, then
+   the program is invalid.  If there are fewer than 256 data bytes
+   listed, the data bytes not specified are implicitly 0x0.

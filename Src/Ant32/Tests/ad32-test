@@ -1,0 +1,471 @@
+#!/usr/bin/perl
+#
+# test-ant -- A perl script for doing some tests
+# for ANT compatibility.
+#
+# $Id: ad32-test,v 1.1 2001/03/18 02:31:08 ellard Exp $
+# James Megquier -- jmegq@post.harvard.edu
+#
+# Based on the original test-ant by Dan Ellard
+#
+# The "program" is NOT the ANT machine program that you want to test,
+# it's the name of the ANT VM that you want to test.  This program
+# then fires up this VM, feeds it a bunch of programs, and compares
+# the output with "known" outputs.
+
+###
+# Constants
+###
+
+# Who ya gonna call?
+$Curator = "ant-devel\@eecs.harvard.edu";
+
+# Working directory for testing
+$MyTestDir	= "ad32-out";
+
+# Where to put the results
+$OutputFile	= "$MyTestDir/log";
+
+# Official test repository
+$OfficialTestDir="/home/lair/ant/Tests/3.1/Ant32/ad32";
+
+($OfficialTestDir = "."), warn("\n\nDEBUG - using local test dir\n\n")
+	if ($ENV{'DEBUG_TEST_ANT'});
+
+# List of test subsystems
+# The "all" option runs all of these tests in order.
+#
+# @AllTests  = qw( basic branch math memory side syscall verify );
+@AllTests  = qw( basic );
+
+$AllOption = "all";
+
+# Sanity check: verify that all tests actually exist
+foreach $test (@AllTests) {
+	my $dir = $OfficialTestDir.'/'.$test;
+	unless ( -d $dir ) {
+		&flame("Strange, I can't seem to find the test [$test] in $dir");
+	}
+	unless ( -r $dir ) {
+		&flame("Strange, test [$test] is unreadable ($dir)");
+	}
+	unless ( -x $dir ) {
+		&flame("Strange, test [$test] is not executable ($dir)");
+	}
+}
+
+# Names of outputs
+$Ant_Core = "ad32.core";
+$Ant_Out = "ad32.out";
+
+# Get the program name
+($ProgName = $0) =~ s%.*/%%;
+
+# Get ourselves a new process group, so
+# that we might control our own subprocesses
+setpgrp 0, $$;
+
+# I'm the leader of this pgrp
+$main_pid = $$;
+
+# Unbuffer stdout
+$|=1;
+
+# Assume verbose output
+$verbose = 1;
+
+# Cutoff for runaway subprocs
+$runawayTime = 5;
+
+###
+# Usage
+###
+
+# undocumented flag: --quiet makes quieter output
+
+sub usage {
+	(warn "\n",@_,"\n\n") if @_;
+	print <<EOM;
+usage: $ProgName [[+suite] [-suite] ... ] ad32
+
+     +suite       add "suite" to the list of test suites to run
+     -suite       remove "suite" from the list of test suites to run
+
+  Available test suites are:
+EOM
+	my $test;
+    foreach $test (@AllTests) {
+		print "      $test\n";
+	}
+	    print "      $AllOption (performs all tests)\n";
+	print "\n";
+
+	print "Example: $ProgName +$AllOption ./ad32\n";
+	
+	print "\n";
+	exit(1);
+}
+
+###
+### Initialization
+###
+#
+# Argument parsing
+#
+
+# Bail if no args
+&usage() unless (@ARGV > 0);
+
+# Grab the name of the ant to test
+$AdToTest = pop @ARGV;
+
+# Check ant-to-test
+unless (-x $AdToTest) {
+# if doesn't exist and starts with a -, it's probably a switch
+	if ($AdToTest =~ /^-/) {
+		&usage("No program was specified to test");
+	} else {
+		&usage("Program [$AdToTest] not found?");
+	}
+}
+
+while (@ARGV > 0) {
+	$_ = shift;
+	if ($_ eq '--quiet') {
+		$verbose = 0;
+	} elsif (/([+-])(\w+)/) {
+		my $add = ($1 eq '+');
+		my $suite = $2;
+		if ($suite eq $AllOption) {
+			@testList = $add ? @AllTests : ();
+		} elsif (grep {$_ eq $suite} @AllTests) {
+			if ($add) {
+				# Add the test, if unique
+				unless (grep {$_ eq $suite} @testList) {
+					push @testList, $suite;
+				}
+			} else {
+				# Remove the mentioned test
+				@testList = grep {$_ ne $suite} @testList;
+			}
+		} else {
+			&usage("Unknown test suite [$suite]")
+		}
+	} else {
+		&usage("Unrecognized option [$_]");
+	}
+}
+
+unless (@testList) {
+	&usage("You must specify at least one test suite to run.");
+}
+
+# If in quiet mode, let the users know where the output is going.
+print "Writing output to $OutputFile...\n" if (! $verbose);
+
+#
+# Create output file
+#
+unless (-d $MyTestDir) {
+	mkdir($MyTestDir,0777) || &fatal("Some problem creating $MyTestDir.");
+}
+
+if (-e $OutputFile) {
+	unlink($OutputFile) || &fatal("Some problem removing $OutputFile.");
+}
+
+open(OUT, ">$OutputFile") || &fatal("Some problem creating $OutputFile.");
+
+# Unbuffer OUT
+select((select(OUT), $|=1)[0]);
+
+$num_pass  = 0;
+$num_fail  = 0;
+$num_nocore= 0;
+undef(@failures);
+unlink $Ant_Core;
+unlink $Ant_Out;
+
+###
+### Run the tests
+###
+
+foreach $suite (@testList) {
+
+	# Tell them what kinds of tests we're doing
+	&output("\n#####\n##### $suite suite started\n#####\n\n");
+
+	@tests = &getTests($suite);
+
+	foreach $t (@tests) {
+		$test = $suite.'/'.$t;
+		$num_total++;
+
+		&output("### - - - - - $test - - - - - ###\n");
+
+		$shared = "$OfficialTestDir/$test";
+
+		$asm = $shared.".asm";
+		$ant = $shared.".ant";
+		$refcore = $shared.".core";
+		$refout  = $shared.".out";
+
+		# Print the description comments (those beginning with #@)
+		&output(`grep "^#@" $asm`);
+
+		# Run the test
+		&output(&infRun("grep '^#>>' $asm | $AdToTest $ant | tee $Ant_Out", $ant));
+
+		if (-e $Ant_Core && -e $refcore) {
+			if (&pass_ant($Ant_Core,$refcore,$Ant_Out,$refout) == 1) {
+			# it passed
+				$num_pass++;
+			} else {
+			# it failed
+				push(@failures,$test);
+				$num_fail++;
+			}
+		} else {
+			&output("$test NO CORE FILE.\n");
+			$num_nocore++;
+			push(@failures, "$test (no core)");
+			(-d "$MyTestDir/$suite") or mkdir("$MyTestDir/$suite",0777);
+			`cp $asm $MyTestDir/$suite`;
+		}
+		unlink($Ant_Core);
+		unlink($Ant_Out);
+	}
+}
+
+###
+### Summary at the end
+###
+&output("\n");
+&output("################\n");
+&output("Summary of tests\n");
+&output("################\n");
+&output("\n");
+
+&output("Failed: $num_fail\n");
+&output("NoCore: $num_nocore\n");
+&output("Passed: $num_pass\n");
+&output(" Total: $num_total\n");
+
+&output("\n");
+
+if (@failures) {
+	&foutput("The following tests failed:\n");
+	foreach $fail (@failures) {
+		&foutput("    $fail\n");
+	}
+} elsif ($num_pass == $num_total) {
+	&foutput("All $num_total attempted tests passed!\n");
+} else {
+	&foutput("Some errors occurred during testing\n",
+			"Please notify $Curator.\n");
+}
+
+&output("\n");
+&output("$ProgName finished.\n");
+
+close(OUT);
+
+if ($num_fail > 0) {
+	exit(1);
+}
+else {
+	exit(0);
+}
+
+################################################
+###
+### Subroutines
+###
+sub fatal {
+	die @_,"\n";
+}
+
+sub flame {
+	&fatal("\n",@_,"\nPlease notify $Curator\n");
+}
+
+# foutput is just forced-output (doesn't care about verbose)
+sub foutput {
+	print OUT @_;
+	print @_;
+}
+
+# output the args to the log file, and to screen if verbose
+sub output {
+	print OUT @_;
+	print @_ if ($verbose);
+}
+
+# getTests returns a list of all the test names, minus extensions
+sub getTests {
+	opendir(DIR, "$OfficialTestDir/$_[0]")
+		or &fatal("Hmm, can't open suite $_[0]\n");
+	my @result = grep { /\.asm$/ } readdir(DIR);
+	closedir DIR;
+	map { s/\.asm$// } @result;
+	return sort @result;
+}
+
+# compare the test ant to the solution set
+sub pass_ant {
+	my($mycore, $refcore, $myout, $refout) = @_;
+	unlink($dif);
+
+	$passed  = 1;
+
+	($my_pc, $my_reg, $my_data) = &read_core($mycore);
+	($ref_pc, $ref_reg, $ref_data) = &read_core($refcore);
+
+	my @my_reg  = split(/\s+/,$my_reg);
+	my @my_data = split(/\s+/,$my_data);
+	my @ref_reg  = split(/\s+/,$ref_reg);
+	my @ref_data = split(/\s+/,$ref_data);
+
+	my($h, $h2, $h3, $i);
+	if ($my_pc ne $ref_pc) {
+		$h  = $ref_pc;
+		$h2 = $my_pc;
+		&output("\n$test PC BROKEN: wanted 0x$h, got 0x$h2\n");
+		$passed = 0;
+	}
+
+	my $reg_good = 1;
+	for ($i = 0; $i < 16; $i++) {
+		if ($my_reg[$i] ne $ref_reg[$i]) {
+			if ($reg_good) {
+				$reg_good = 0;
+				$passed = 0;
+				&output("\n$test INCORRECT REGISTER(s):\n");
+			}
+			$h = sprintf("%2.2d",$i);
+			$h2 = $ref_reg[$i];
+			$h3 = $my_reg[$i];
+			&output("\t\tr$h: wanted 0x",$h2,", got 0x", $h3,"\n");
+		}
+	}
+
+	my $data_good = 1;
+	for ($i = 0; $i < 256; $i++) {
+		if ($my_data[$i] ne $ref_data[$i]) {
+			if ($data_good) {
+				$data_good = 0;
+				$passed = 0;
+				&output("\n$test INCORRECT DATA:\n");
+			}
+			$h = sprintf("%2.2x",$i);
+			$h2 = $ref_data[$i];
+			$h3 = $my_data[$i];
+			&output("\t\tLocation 0x$h: wanted 0x",$h2,", got 0x", $h3,"\n");
+		}
+	}
+
+	# Check that the outputs match
+	my @diffs = `diff $myout $refout`;
+	if (@diffs) {
+		&output("\n$test INCORRECT OUTPUT:\n");
+		&output(@diffs);
+		$passed = 0;
+	}
+
+	if ($passed) {
+		&output("$test PASSED\n");
+		unlink($mycore);
+		return 1;
+	} else {
+		(-d "$MyTestDir/$suite") or mkdir("$MyTestDir/$suite",0777);
+		`cp $asm $MyTestDir/$suite`;
+		&output("\n$test FAILED\n");
+	}
+	return 0;
+}
+
+#
+# read_core
+#
+#  Parses a core file.  Very hardwired at the moment.
+#
+sub read_core {
+	my $core = $_[0];
+	my($pc, $reg, $data);
+	open(CORE, $core) || (warn("Some problem reading $core.\n"), $passed=0);
+
+	$_ = <CORE>; # PC
+		($pc) = (/^PC = 0x([a-fA-F0-9]+)$/);
+
+	$_ = <CORE>; # <blank>
+		$_ = <CORE>; # Registers
+		$_ = <CORE>; # <blank>
+		$_ = <CORE>; # r00 ... r15
+		$_ = <CORE>; # hex
+		s/^\s*//;
+		$reg = $_;
+	$_ = <CORE>; # decimal
+
+		$_ = <CORE>; # <blank>
+		$_ = <CORE>; # <blank>
+		$_ = <CORE>; # Data Memory:
+		$_ = <CORE>; # <blank>
+		$_ = <CORE>; # labels
+		$_ = <CORE>; # <blank>
+		while (<CORE>) { # hex line
+			s/^\s*[A-Fa-f0-9]+:\s*//;
+				$data .= $_;
+			$_ = <CORE>; # dec line
+		}
+	close(CORE);
+	return($pc, $reg, $data);
+}
+
+# infRun(cmd)
+#
+# Protects cmd from running away by killing it off after awhile.
+# Returns the lines of output it managed to get.
+#
+sub infRun {
+	local $cmd = $_[0];
+	local $test = $_[1];
+	local @lines;
+
+	open SAVERR, ">&STDERR";
+	open STDERR, ">&STDOUT";
+
+	unlink 'core';
+	eval {
+		local $SIG{ALRM} = sub {
+			# Kill everyone but me!  A real hack.
+			local @goners = `ps -j`;
+			local $_;
+			foreach $_ (@goners) {
+				local($pid, $pgid) = /^\s*\w+\s+(\d+)\s+\d+\s+(\d+)\s+/;
+				if ($pgid == $main_pid && $pid != $pgid) {
+					system "kill -9 $pid";
+				}
+			}
+			die "$ProgName: $test timed out!\n";
+		};
+		alarm $runawayTime;
+		@lines = `$cmd`;
+		alarm 0;
+	};
+
+	$lines[0] = $@ unless (@lines > 0);
+
+	close STDERR;
+	open STDERR, ">&SAVERR";
+
+	if (-e 'core') {
+		push @lines, "$ProgName: $test caused real core dump!\n";
+		unlink 'core';
+	}
+
+	return @lines;
+}
+
+#
+# EOF
+#
