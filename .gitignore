@@ -1,1 +1,12 @@
 .DS_Store
+*.o
+*.a
+Documentation/*.pdf
+Documentation/*.idx
+Documentation/*.log
+Documentation/*.toc
+Documentation/*.aux
+Documentation/*.ilg
+Documentation/*.ind
+Documentation/Tut32/*.tex
+Documentation/Tutorial/*.tex
