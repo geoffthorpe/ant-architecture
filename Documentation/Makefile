@@ -36,7 +36,7 @@
 # seconds to rebuild EVERYTHING from scratch, (and most makes take
 # only a few seconds) so it's really not worth the risk or effort.
 
-PDFLATEX = pdflatex
+PDFLATEX = pdflatex -halt-on-error
 MAKEINDEX = makeindex
 
 # include ../Src/AntCommon/$(antHostType).mk
@@ -191,7 +191,7 @@ clean:
 	echo '\\begin{verbatim}'			>> $@
 	#cat -n $< | expand | sed -e s/"^   "/""/g	>> $@
 	cat $< | expand 				>> $@
-	echo '\end{verbatim}'				>> $@
+	echo '\\end{verbatim}'				>> $@
 	echo "}"					>> $@
 	
 .c.tex:
