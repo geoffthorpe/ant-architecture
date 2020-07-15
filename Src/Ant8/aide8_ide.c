@@ -98,7 +98,7 @@ int main (int argc, char *argv[])
 	}
 
 	printf("c\n");
-	argv [0] = find_exe_path (argv [0]);
+	//argv [0] = find_exe_path (argv [0]);
 
         /* Necessary because it forces setup of library search path based
            on executable path name */
@@ -106,12 +106,12 @@ int main (int argc, char *argv[])
 	printf("d\n");
 
 	if (Tcl_Init(interp) != TCL_OK) {
-		fprintf (stderr, "Tcl Failed: %s\n", interp->result);
+		fprintf (stderr, "Tcl Failed: %s\n", Tcl_GetStringResult(interp));
 		exit (1);
 	}
 
 	if (Tk_Init(interp) != TCL_OK) {
-		fprintf (stderr, "tk Failed %s\n", interp->result);
+		fprintf (stderr, "tk Failed %s\n", Tcl_GetStringResult(interp));
 		exit (1);
 	}
 
@@ -126,7 +126,7 @@ int main (int argc, char *argv[])
 	printf("h\n");
 
 	if (mainWindow == NULL) {
-		fprintf (stderr, "ERROR: %s: %s\n", argv [0], interp->result);
+		fprintf (stderr, "ERROR: %s: %s\n", argv [0], Tcl_GetStringResult(interp));
 		exit (1);
 	}  
 

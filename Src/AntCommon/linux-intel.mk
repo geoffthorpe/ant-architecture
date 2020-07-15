@@ -38,8 +38,8 @@ LFLAGS		= $(CFLAGS)
 #			-ltk8.0 -ltcl8.0 \
 #			-L/usr/lib -lX11 -lm -ldl
 
-#TK_INC		= -I/groups/ant/usr/linux-intel/include
+TK_INC		= -I/usr/include/tcl8.6
 TK_LIBS		= \
-			-ltk8.4 -ltcl8.4 \
+			-ltk8.6 -ltcl8.6 \
 			-L/usr/lib -lX11 -lm -ldl
 
