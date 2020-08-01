@@ -129,7 +129,6 @@ static	int	ant_asm_find_char (char *str, char **next, int *val);
 static	int	ant_asm_find_string (char *str, char **next, char **res, unsigned int *reslen);
 
 static	ant_asm_str_id_t *Mnemonics	= NULL;
-static	ant_asm_str_id_t *RegNames	= NULL;
 
 int ant_parse_setup (ant_asm_str_id_t *mnemonics)
 {
