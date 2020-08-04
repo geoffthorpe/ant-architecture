@@ -65,14 +65,6 @@ ant_asm_str_id_t commands [] = {
 	{ NULL, 0		}
 };
 
-static	ant_asm_str_id_t	reg_names []	= {
-	{ "r0",  0 }, { "r1",  1 }, { "r2",  2 }, { "r3",  3 },
-	{ "r4",  4 }, { "r5",  5 }, { "r6",  6 }, { "r7",  7 },
-	{ "r8",  8 }, { "r9",  9 }, { "r10",10 }, { "r11",11 },
-	{ "r12",12 }, { "r13",13 }, { "r14",14 }, { "r15",15 },
-	{ NULL,	 0 }
-};
-
 /*
  * ant_debug --
  *
@@ -86,7 +78,6 @@ int		ant_debug (ant_t *ant, char *filename)
 	unsigned int	i;
 	int		trace	= 0;
 	char		buf [MAX_CMD_LEN];
-	ant_arg_type_t arg_type;
 	ant_asm_stmnt_t stmnt;
 	int errors;
 	int value;
@@ -102,8 +93,6 @@ int		ant_debug (ant_t *ant, char *filename)
 
 	for (;;) {
 		char *copy;
-
-		arg_type = UNKNOWN_ARG;
 
 		inst = ant_fetch_instruction (ant, ant->pc);
 		ant_disasm_inst (inst, ant->pc, ant->reg, dis_buf, 1);
@@ -129,22 +118,6 @@ int		ant_debug (ant_t *ant, char *filename)
 			else {
 				break;
 			}
-		}
-
-		/*
-		 * &&& Handle "help" as a special case.  This is necessary,
-		 * at least right now, because the statement parser does
-		 * not know how to deal with anything that doesn't look like
-		 * an asm language line, and help requests don't!
-		 *
-		 * It's a help request, p
-		 */
-
-		rc = ad_parse_help (copy, &cmd, commands);
-		if (rc == 0) {
-			ad_help (cmd);
-			free (copy);
-			continue;
 		}
 
 		rc = parse_stmnt (copy, &stmnt, commands, 0, 1);
@@ -199,8 +172,7 @@ int		ant_debug (ant_t *ant, char *filename)
 
 		switch (cmd) {
 		case DBG_HELP:
-			/* &&& help should be handled above. */
-			ANT_ASSERT (0);
+			ant_debug_help (&stmnt);
 			break;
 
 		case DBG_QUIT:
@@ -524,10 +496,11 @@ static	void	ant_debug_help (ant_asm_stmnt_t *stmnt)
 	return ;
 }
 
+static int absorb_unused_var;
+
 void ant8_dbg_catch_intr (int code)
 {
-
-	if (&code) (void) 0 /* unused param */ ;
+	absorb_unused_var += code; /* unused param */
 
 	signal (SIGINT, ant8_dbg_catch_intr);
 
