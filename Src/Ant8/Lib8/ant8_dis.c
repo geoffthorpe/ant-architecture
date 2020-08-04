@@ -32,7 +32,7 @@ typedef	enum {
 
 static void print_reg (int reg_idx, ant_data_t *values, char *buf);
 static void print_constant (int constant, char *buf);
-static char *find_io_mnemonic (int periph);
+static const char *find_io_mnemonic (int periph);
 
 /*
  * Uses ant_disasm_i_mem to create a string representing the
@@ -347,7 +347,7 @@ int		ant_disasm_inst (ant_inst_t inst, unsigned int offset,
 		case IO_OP :
 			print_reg (r1, regs, buf + strlen (buf));
 			sprintf (buf + strlen (buf), ", ");
-			sprintf (buf + strlen (buf),
+			sprintf (buf + strlen (buf), "%s",
 					find_io_mnemonic (constant));
 			break;
 
@@ -529,7 +529,7 @@ static void print_constant (int constant, char *buf)
 	return ;
 }
 
-static char *find_io_mnemonic (int periph)
+static const char *find_io_mnemonic (int periph)
 {
 	switch (periph) {
 		case 0 : return ("Hex");	break;
