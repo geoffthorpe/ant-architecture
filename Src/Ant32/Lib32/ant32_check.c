@@ -9,7 +9,9 @@
  * ant32_aa_check.c --
  *
  */
- 
+
+#include	<stdlib.h>
+
 #include	"ant32_external.h"
 #include	"ant_external.h"
 
@@ -24,7 +26,6 @@ static	int	check_reg (ant_asm_arg_t *a, char *desc);
 static	int	check_imm (ant_asm_stmnt_t *s, int bits);
 static	int	check_const (ant_asm_stmnt_t *s, int size);
 static	int	check_string (ant_asm_stmnt_t *s);
-static	int	check_jmp (ant_asm_stmnt_t *s);;
 
 static	int	check_3reg (ant_asm_stmnt_t *s);
 
@@ -542,37 +543,6 @@ static int check_imm (ant_asm_stmnt_t *s, int bits)
 		}
 		else if (s->args [1].val < min_signed) {
 			sprintf (AntErrorStr, "illegal %d-bit constant", bits);
-			return (-1);
-		}
-	}
-
-	return (0);
-}
-
-static int check_jmp (ant_asm_stmnt_t *s)
-{
-
-	/*
-	 * 1 const.  Const can be integer or label.
-	 */
-
-	if (s->num_args != 1) {
-		sprintf (AntErrorStr, "invalid number of operands");
-		return (-1);
-	}
-
-	if ((s->args [0].type != INT_ARG) &&
-			(s->args [0].type != LABEL_ARG)) {
-		sprintf (AntErrorStr,
-				"operand must be an integer or label.\n");
-		return (-1);
-	}
-
-	if (s->args [0].type == INT_ARG) {
-		if (s->args [0].val > 255 ||
-				s->args [0].val < 0) {
-			sprintf (AntErrorStr,
-					"illegal unsigned 8-bit constant");
 			return (-1);
 		}
 	}
