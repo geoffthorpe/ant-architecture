@@ -23,8 +23,9 @@
 
 void ant32_srand (ant_reg_t a, ant_reg_t b, ant_reg_t c)
 {
-
-	srand ((unsigned int) a);
+	srand ((unsigned int)a ^
+		((unsigned int)b << 11) ^
+		((unsigned int)c << 22));
 
 	return ;
 }
