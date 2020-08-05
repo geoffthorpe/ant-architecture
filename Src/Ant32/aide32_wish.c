@@ -68,7 +68,7 @@ static int getword(ant_t *ant, int address, unsigned int *result);
 static char *find_exe_path (char *argv0);
 static char *find_script_path (char *ide_path, char *script);
 
-main(argc, argv)
+int main(argc, argv)
 int argc;
 char **argv;
 {
@@ -1434,7 +1434,7 @@ int address;
 unsigned int *result;
 {
   int physaddr, seg, vpn, po, ientry;
-  int *pointer;
+  unsigned int *pointer;
   ant_exc_t fault;
 
   if (! (address & 0x80000000)) {
@@ -1452,7 +1452,7 @@ unsigned int *result;
 
   physaddr &= 0x3fffffff;
 
-  pointer=ant32_p2vm(physaddr, ant->pmem, ANT_MEM_READ);
+  pointer=(unsigned int *)ant32_p2vm(physaddr, ant->pmem, ANT_MEM_READ);
   if (pointer == NULL) {
     /* address is larger than available memory */
     return(ANT_EXC_BUS_ERR); 
