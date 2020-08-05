@@ -23,7 +23,7 @@
 char *antgGetRegByIndex (ant_t *ant, int ind)
 {
 	char buf [MAX_BUF_LEN];
-	char rbuf [MAX_BUF_LEN];
+	char rbuf [2 * MAX_BUF_LEN]; /* x2 otherwise smart sprintf's complain */
 
 	ANT_ASSERT (ant != NULL);
 
