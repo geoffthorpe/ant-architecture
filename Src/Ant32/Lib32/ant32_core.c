@@ -545,14 +545,18 @@ int ant_asm_assemble_inst (ant_asm_stmnt_t *stmnt, char *b_memory,
 
 	/* Constant Instructions */
 
-	case OP_LCH:
+	case OP_LCH: {
+		int hi_hword;
+
+		hi_hword = HI_16 (stmnt->args [1].val);
+
 		/* Put in the opcode and register number... */
 		s = PUT_BYTE(s, stmnt->op, 3);
 		s = PUT_BYTE(s, stmnt->args[0].reg, 2);
 
 		/* Followed by the constant, if known */
 		if (stmnt->args[1].type == INT_ARG) {
-			s = PUT_HWORD (s, stmnt->args [1].val, 0);
+			s = PUT_HWORD (s, hi_hword, 0);
 		}
 		else if (stmnt->args[1].type == LABEL_ARG) {
 			int value;
@@ -575,12 +579,12 @@ int ant_asm_assemble_inst (ant_asm_stmnt_t *stmnt, char *b_memory,
 		}
 
 		break;
+	}
 
 	case OP_LCL: {
-		int lo_hword, hi_hword;
+		int lo_hword;
 
 		lo_hword = LO_16 (stmnt->args [1].val);
-		hi_hword = HI_16 (stmnt->args [1].val);
 
 		s = PUT_BYTE(s, stmnt->op, 3);
 		s = PUT_BYTE(s, stmnt->args [0].reg, 2);
