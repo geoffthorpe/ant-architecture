@@ -11,6 +11,7 @@
 
 #include	<stdlib.h>
 #include	<stdio.h>
+#include	<string.h>
 
  	/* Yeccch */
 #include	"ant_external.h"

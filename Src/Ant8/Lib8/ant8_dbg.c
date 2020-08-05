@@ -110,7 +110,7 @@ int ant_exec_inst_dbg (ant_t *ant, ant_dbg_bp_t *dbg, int trace)
 	return (rc);
 }
 
-int ant_load_dbg (char *filename, ant_t *ant, ant_symtab_t **table)
+int ant_load_dbg (const char *filename, ant_t *ant, ant_symtab_t **table)
 {
 	int rc;
 

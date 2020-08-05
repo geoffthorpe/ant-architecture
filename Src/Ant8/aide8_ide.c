@@ -21,6 +21,8 @@
 
 #include "ant8_external.h"
 
+#include "aide8_wish.h"
+
 void show_version (char *progname);
 static void aide8_show_usage (char *progname);
 static char *find_script_path (char *aide_path, char *script);

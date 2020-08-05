@@ -33,7 +33,7 @@ int read_option_lines (FILE *fin, ant_t *ant);
  * Returns 0 upon success, non-zero on failure.
  */
 
-int ant_load_text (char *filename, ant_t *ant)
+int ant_load_text (const char *filename, ant_t *ant)
 {
 	int		i;
 	FILE		*fin;
@@ -169,7 +169,7 @@ static	int	read_prog_line (FILE *fin, char *line, int max_len, int *lineno)
  * Returns 0 upon success, non-zero on failure.
  */
 
-int ant_load_labels (char *filename, ant_symtab_t **table)
+int ant_load_labels (const char *filename, ant_symtab_t **table)
 {
 	FILE		*fin;
 	int		rc;

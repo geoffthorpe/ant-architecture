@@ -575,7 +575,7 @@ int asm_expand_op(ant_op_t op_code, ant_asm_stmnt_t *stmnt, char *b_memory,
     return (1);
   }
 
-  if (remaining < pseudo_op[op_id].size) {
+  if (remaining < (unsigned int)pseudo_op[op_id].size) {
     sprintf(AntErrorStr, "instruction memory overflow");
     return (1);
   }

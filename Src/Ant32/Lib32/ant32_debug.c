@@ -16,6 +16,7 @@
 
 #include	"ant_external.h"
 #include	"ant32_external.h"
+#include	"ant32_exec.h"
 
 /*
  * Print out a bunch of stuff that might be useful for debugging an
@@ -542,6 +543,8 @@ char *ant32_dump_vmem_bytes (ant_t *ant, int base, int count, int fmt)
 	return (str);
 }
 
+static int absorb_unused;
+
 char *ant32_dump_vmem_insts (ant_t *ant, int base, int count, int fmt)
 {
 	int i;
@@ -549,6 +552,8 @@ char *ant32_dump_vmem_insts (ant_t *ant, int base, int count, int fmt)
 	int rc;
 	char *str, *ptr;
 	unsigned int len;
+
+	absorb_unused += fmt;
 
 	/*
 	 * perhaps over-generous, but that's better than the

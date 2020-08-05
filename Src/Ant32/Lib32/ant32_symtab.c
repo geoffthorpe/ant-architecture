@@ -17,14 +17,19 @@
 #include	"ant_external.h"
 #include	"ant32_external.h"
 
+static unsigned long absorb_unused;
+
 void symtab2array (ant_symtab_t *symtab, char **array)
 {
+	absorb_unused += (unsigned long)symtab;
+	absorb_unused += (unsigned long)array;
 
 	return ;
 }
 
 void free_label_array (char **array)
 {
+	absorb_unused += (unsigned long)array;
 
 	return ;
 }

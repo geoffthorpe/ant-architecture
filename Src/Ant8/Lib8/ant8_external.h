@@ -118,7 +118,6 @@ typedef	enum	{
 
 #define	BITS_PER_NIBBLE		4
 #define	BITS_PER_BYTE		(2 * BITS_PER_NIBBLE)
-#define	BITS_PER_SHORT		(2 * BITS_PER_BYTE)
 
 	/*
 	 * ASSUMPTION:  the machine that we're using uses standard
@@ -127,9 +126,8 @@ typedef	enum	{
 	 * fail on some old and/or weird machines.
 	 */
 
-#define	NIBBLE_MASK		((1 << BITS_PER_NIBBLE) - 1)
-#define	BYTE_MASK		((1 << BITS_PER_BYTE) - 1)
-#define	SHORT_MASK		((1 << BITS_PER_SHORT) - 1)
+#define	NIBBLE_MASK		(unsigned int)((1 << BITS_PER_NIBBLE) - 1)
+#define	BYTE_MASK		(unsigned int)((1 << BITS_PER_BYTE) - 1)
 
 	/*
 	 * Macros to GET the n'th nibble or byte (counting from the
@@ -138,7 +136,6 @@ typedef	enum	{
 
 #define	GET_NIBBLE(x,n)		(((x) >> (n * BITS_PER_NIBBLE)) & NIBBLE_MASK)
 #define	GET_BYTE(x,n)		(((x) >> (n * BITS_PER_BYTE)) & BYTE_MASK)
-#define	GET_SHORT(x,n)		(((x) >> (n * BITS_PER_SHORT)) & SHORT_MASK)
 
 #define	LOWER_BYTE(x)		GET_BYTE((x),0)
 #define	UPPER_BYTE(x)		GET_BYTE((x),1)
@@ -174,7 +171,7 @@ typedef	unsigned char	ant_pc_t;
 
 typedef	struct	{
 	ant_pc_t	pc;
-	ant_data_t	reg [ANT_REG_RANGE];
+	ant_reg_t	reg [ANT_REG_RANGE];
 	ant_data_t	data [ANT_DATA_ADDR_RANGE];
 
 		/*
@@ -194,7 +191,7 @@ typedef	struct	{
 /*
  * in ant8_load.c
  */
-int		ant_load_text (char *filename, ant_t *ant);
+int		ant_load_text (const char *filename, ant_t *ant);
 void		ant_clear (ant_t *ant);
 
 /*
@@ -286,7 +283,7 @@ int		ant_exec_dbg (ant_t *ant, ant_dbg_bp_t *dbg, int trace);
 int		ant_exec_inst_dbg (ant_t *ant, ant_dbg_bp_t *dbg, int trace);
 void 		ant_dbg_clear_bp (ant_dbg_bp_t *a);
 void		ant8_dbg_bp_set (ant_dbg_bp_t *b, int offset, int val);
-int		ant_load_dbg (char *filename, ant_t *ant,
+int		ant_load_dbg (const char *filename, ant_t *ant,
 			ant_symtab_t **table);
 
 extern	ant_symtab_t	*labelTable;

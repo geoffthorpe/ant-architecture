@@ -18,10 +18,11 @@
 
 #include	"ant_external.h"
 #include	"ant32_external.h"
+#include	"ant32_exec.h"
 
 #include	"arith32.h"
 
-static ant_pc_t increment_pc (ant_t *ant, ant_pc_t pc);
+static ant_pc_t increment_pc (/* ant_t *ant, */ ant_pc_t pc);
 static int ant_arith (int op, u_int des, u_int src1, u_int src2, ant_t *ant);
 static int ant_aritho (int op, u_int des, u_int src1, u_int src2, ant_t *ant);
 static int ant_arithi (int op, u_int des, u_int src1, int imm, ant_t *ant);
@@ -29,7 +30,7 @@ static int ant_arithio (int op, u_int des, u_int src1, int imm, ant_t *ant);
 static int ant_lc (int op, u_int des, int imm, ant_t *ant);
 
 static int ant_special (int op, u_int des, int imm, ant_t *ant);
-static int ant_opt_usr (int op, u_int reg1, u_int reg2, u_int reg3, ant_t *ant);
+static int ant_opt_usr (int op, u_int reg1, u_int reg2, ant_t *ant);
 static int ant_opt_sys (int op, u_int reg1, u_int reg2, u_int reg3, ant_t *ant);
 
 static int ant_compare (int op, u_int des, u_int src1, u_int src2, ant_t *ant);
@@ -38,7 +39,6 @@ static int ant_branch (int op, u_int reg1, u_int reg2, u_int reg3,
 static int ant_load_store (int op, u_int reg1, u_int reg2, int offset, ant_t *ant);
 static int ant_sys_ops (int op, u_int reg1, u_int reg2, u_int reg3, ant_t *ant);
 int check_des_reg (ant_t *ant, u_int des);
-int check_src_reg (ant_t *ant, u_int src);
 int set_des_reg (ant_t *ant, u_int des, ant_reg_t val);
 
 static int ant32_check_intr (ant_t *ant);
@@ -103,7 +103,6 @@ int ant_exec_inst (ant_t *ant)
 {
 	u_int op, r1, r2, r3;
 	int const8, const16;
-	u_int const8u;
 	ant_pc_t old_pc;
 	ant_inst_t inst;
 	ant_exc_t rc;
@@ -158,14 +157,13 @@ int ant_exec_inst (ant_t *ant)
 		goto throw;
 	}
 
-	ant->pc = increment_pc (ant, ant->pc);
+	ant->pc = increment_pc (ant->pc);
 
 	op = ant_get_op (inst);
 	r1 = ant_get_reg1 (inst);
 	r2 = ant_get_reg2 (inst);
 	r3 = ant_get_reg3 (inst);
 	const8 = ant_get_const8 (inst);
-	const8u = ant_get_const8u (inst);
 	const16 = ant_get_const16 (inst);
 
 	switch (GET_OP_PREF (op)) {
@@ -197,7 +195,7 @@ int ant_exec_inst (ant_t *ant)
 		rc = ant_special (op, r1, const16, ant);
 		break;
 	case ANT_OPT_USR_PREF:
-		rc = ant_opt_usr (op, r1, r2, r3, ant);
+		rc = ant_opt_usr (op, r1, r2, ant);
 		break;
 	case ANT_OPT_SYS_PREF:
 		rc = ant_opt_sys (op, r1, r2, r3, ant);
@@ -286,7 +284,7 @@ ant_inst_t ant32_fetch_inst (ant_t *ant, ant_pc_t pc, ant_exc_t *fault,
 	return ((ant_inst_t) inst);
 }
 
-static ant_pc_t increment_pc (ant_t *ant, ant_pc_t pc)
+static ant_pc_t increment_pc (/* ant_t *ant, */ ant_pc_t pc)
 {
 
 	return (pc + sizeof (ant_inst_t));
@@ -568,7 +566,7 @@ static int ant_special (int op, u_int des, int imm, ant_t *ant)
 	return (ANT_EXC_OK);
 }
 
-static int ant_opt_usr (int op, u_int reg1, u_int reg2, u_int reg3, ant_t *ant)
+static int ant_opt_usr (int op, u_int reg1, u_int reg2, ant_t *ant)
 {
 	int val;
 

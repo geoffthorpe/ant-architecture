@@ -78,7 +78,6 @@ int ant_debug (ant_t *ant, char *filename)
 	char		buf [MAX_CMD_LEN];
 	int showTrace	= 0;
 	int showSurface	= 1;
-	ant_arg_type_t arg_type;
 	ant_asm_stmnt_t stmnt;
 	int errors;
 	int value;
@@ -95,7 +94,6 @@ int ant_debug (ant_t *ant, char *filename)
 		printf ("\n");
 		ant_dbg_show_curr_inst (ant, showSurface);
 
-		arg_type = UNKNOWN_ARG;
 		ant_asm_stmnt_clear (&stmnt);
 
 		for (;;) {
@@ -457,6 +455,8 @@ int ant_debug (ant_t *ant, char *filename)
 	}
 }
 
+static unsigned long absorb_unused;
+
 static	void	ant_debug_help (ant_asm_stmnt_t *stmnt)
 {
 char *help = 
@@ -498,15 +498,25 @@ char *help =
 "\tAll addresses are virtual addresses, unless otherwise specified.\n"
 "\n";
 
-	printf ("%s", help);
+	absorb_unused += (unsigned long)stmnt;
+
+/* XXX: ad_help() doesn't exist yet, it exists in Ant8 though */
+//	if (stmnt->num_args == 1) {
+//		ad_help (stmnt->args [0].val);
+//	}
+//	else {
+		printf ("%s", help);
+//	}
 
 	return ;
 }
 
+static unsigned long absorb_unused;
+
 void ant32_dbg_catch_intr (int code)
 {
 
-	if (&code) (void) 0 /* unused param */ ;
+	absorb_unused += code;
 
 	signal (SIGINT, ant32_dbg_catch_intr);
 
@@ -551,11 +561,8 @@ static int get_cmd (FILE *in, FILE *out, char *buf, unsigned int buflen)
 
 static void print_labels (ant_asm_stmnt_t *stmnt, int all)
 {
-	char buf [MAX_STRING_LEN];
 	char *str;
 	unsigned int i;
-
-	buf [0] = '\0';
 
 	if (stmnt->num_args < 1) {
 		str = dump32_symtab_human (labelTable, all);

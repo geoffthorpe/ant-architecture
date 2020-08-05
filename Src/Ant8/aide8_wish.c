@@ -13,6 +13,7 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <ctype.h>
 
 #ifdef macintosh
 	#include <Xlib.h>
@@ -28,58 +29,60 @@
 
 #include "aide8_gui.h"
 
+#include "aide8_wish.h"
+
 int makeBindings (Tcl_Interp *interp);
 
 int gantInitialize (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantExecSingleStep (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantBufferInput (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantBufferInputFlush (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantConsoleSeenEOI (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantDisasmInst (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantDisasmData (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetReg (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetPC (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetInst (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetBreakPoints (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetBreakPoint (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantSetBreakPoint (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantToggleBreakPoint (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetLabels (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetInstCount (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetStatus (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetInstSrc (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantAssemble (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantLoadLastGoodAnt (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantLoadFromAssembler (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantLoadFromFile (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetAntErrorStr (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetArgvElem (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 int gantGetArgc (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv []);
+		int argc, const char *argv []);
 
 void val2periph (char *buf, int periph, int value);
 
@@ -93,8 +96,8 @@ ant_t		*gantCurrentAnt		= &_gantAnt;
 int		gantCurrentAntInputReg	= 0;
 int		gantCurrentAntInputType	= 0;
 ant_dbg_bp_t	gantBreakPoints;
-char		*gantAntFileName	= NULL;
-char		*gantAsmFileName	= NULL;
+const char	*gantAntFileName	= NULL;
+const char	*gantAsmFileName	= NULL;
 
 	/*
 	 * If CurrValid is zero, then none of these are valid. 
@@ -186,7 +189,7 @@ int makeBindings (Tcl_Interp *interp)
 }
 
 int gantInitialize (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 
 	ant_dbg_clear_bp (&gantBreakPoints);
@@ -199,7 +202,7 @@ int gantInitialize (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantExecSingleStep (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int rc;
 
@@ -214,7 +217,7 @@ int gantExecSingleStep (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantBufferInput (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int rc;
 
@@ -240,7 +243,7 @@ int gantBufferInput (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantBufferInputFlush (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int rc;
 
@@ -254,7 +257,7 @@ int gantBufferInputFlush (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantConsoleSeenEOI (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int rc;
 
@@ -274,7 +277,7 @@ int gantConsoleSeenEOI (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantDisasmInst (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 
         Tcl_ResetResult (interp);
@@ -328,7 +331,7 @@ int gantDisasmInst (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantDisasmData (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int len;
 
@@ -362,7 +365,7 @@ int gantDisasmData (ClientData client_data, Tcl_Interp *interp,
 			addr = 0;
 		}
 
-		sprintf (buf, "%.2", gantCurrentAnt->data [addr]);
+		sprintf (buf, "%.2x", gantCurrentAnt->data [addr]);
 
 		Tcl_SetResult (interp, buf, TCL_VOLATILE);
 		return (TCL_OK);
@@ -374,7 +377,7 @@ int gantDisasmData (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetInst (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int inst_ind;
 
@@ -400,7 +403,7 @@ int gantGetInst (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetReg (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 
         Tcl_ResetResult(interp);
@@ -425,7 +428,7 @@ int gantGetReg (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetPC (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	char buf [1024];
 
@@ -438,7 +441,7 @@ int gantGetPC (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetBreakPoints (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	char *str = antgGetBreakPoints (&gantBreakPoints);
 
@@ -451,7 +454,7 @@ int gantGetBreakPoints (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetBreakPoint (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int ind;
 
@@ -475,7 +478,7 @@ int gantGetBreakPoint (ClientData client_data, Tcl_Interp *interp,
 
 
 int gantToggleBreakPoint (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int ind;
 
@@ -505,7 +508,7 @@ int gantToggleBreakPoint (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetInstCount (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	char *ptr = antgGetInstCount (gantCurrentAnt);
 
@@ -519,7 +522,7 @@ int gantGetInstCount (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetStatus (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 
 	char *status = ant_get_status_str ();
@@ -532,7 +535,7 @@ int gantGetStatus (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetInstSrc (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	ant_inst_t inst;
 	char buf [1024];
@@ -601,7 +604,7 @@ int gantGetInstSrc (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantLoadFromFile (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int rc;
 
@@ -634,7 +637,7 @@ int gantLoadFromFile (ClientData client_data, Tcl_Interp *interp,
 
 
 int gantLoadLastGoodAnt (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 
 	Tcl_ResetResult (interp);
@@ -648,7 +651,7 @@ int gantLoadLastGoodAnt (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantLoadFromAssembler (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int rc;
 	extern ant_symtab_t *knownList;
@@ -704,7 +707,7 @@ int gantLoadFromAssembler (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantAssemble (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	char **lines;
 	int line_cnt;
@@ -735,7 +738,7 @@ int gantAssemble (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetAntErrorStr (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
         Tcl_ResetResult (interp);
 
@@ -745,7 +748,7 @@ int gantGetAntErrorStr (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetArgc (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	char buf [20];
 
@@ -759,7 +762,7 @@ int gantGetArgc (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetArgvElem (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int i;
 
@@ -837,7 +840,7 @@ void val2periph (char *buf, int periph, int value)
  */
 
 int gantSetBreakPoint (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	int ind;
 	int val;
@@ -864,7 +867,7 @@ int gantSetBreakPoint (ClientData client_data, Tcl_Interp *interp,
 }
 
 int gantGetLabels (ClientData client_data, Tcl_Interp *interp,
-		int argc, char *argv [])
+		int argc, const char *argv [])
 {
 	char *ptr = antgGetLabels ();
 

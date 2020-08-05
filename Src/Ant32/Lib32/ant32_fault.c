@@ -23,9 +23,14 @@ void	ant_status (ant_exc_t code)
 	CurrentAntStatus	= code;
 }
 
+static unsigned long absorb_unused;
+
 void	ant_fault (ant_exc_t code, int pc, ant_t *ant, int dump)
 {
 	char *description;
+
+	absorb_unused += (unsigned long)ant;
+	absorb_unused += dump;
 
 	ant_status (code);
 

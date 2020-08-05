@@ -75,7 +75,7 @@ char **file2lines (char *filename, int *line_cnt)
  * The original buffer is unchanged.
  */
 
-char **buf2lines (char *orig_buf, int *line_cnt)
+char **buf2lines (const char *orig_buf, int *line_cnt)
 {
 	char *buf = strdup (orig_buf);
 	int count;

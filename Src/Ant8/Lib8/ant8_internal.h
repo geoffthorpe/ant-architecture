@@ -70,9 +70,6 @@
 #define	PUT_BYTE(x,q,n)		\
 	((((q) & BYTE_MASK) << (n * BITS_PER_BYTE)) | \
 			((x) & ~(BYTE_MASK) << (n * BITS_PER_BYTE)))
-#define	PUT_SHORT(x,q,n)		\
-	((((q) & SHORT_MASK) << (n * BITS_PER_SHORT)) | \
-			((x) & ~(SHORT) << (n * BITS_PER_SHORT)))
 
 /*
  * in ant8_bits.c
@@ -87,7 +84,7 @@ int		ant_get_const8 (long inst);
 /*
  * in ant8_load.c
  */
-int		ant_load_labels (char *filename, ant_symtab_t **table);
+int		ant_load_labels (const char *filename, ant_symtab_t **table);
 
 /*
  * in ant8_dump.c

@@ -61,7 +61,7 @@ typedef	enum	{
  * in ant_file.c
  */
 char **file2lines (char *filename, int *line_cnt);
-char **buf2lines (char *buffer, int *line_cnt);
+char **buf2lines (const char *buffer, int *line_cnt);
 
 /*
  * from llist.h
@@ -205,7 +205,7 @@ int		match_str_id (char *str, unsigned int len,
  */
 
 void		ant_console_reset (void);
-int		ant_console_enqueue (char *str, unsigned int len);
+int		ant_console_enqueue (const char *str, unsigned int len);
 int		ant_console_dequeue (void);
 int		ant_console_peek (void);
 int		ant_console_qlen (void);

@@ -367,8 +367,8 @@ int		ant_get_const16 (ant_inst_t inst);
 
 #define	BITS_PER_BYTE		8
 #define	BITS_PER_HWORD		(2 * BITS_PER_BYTE)
-#define	BYTE_MASK		((1 << BITS_PER_BYTE) - 1)
-#define	HWORD_MASK		((1 << BITS_PER_HWORD) - 1)
+#define	BYTE_MASK		(unsigned int)((1 << BITS_PER_BYTE) - 1)
+#define	HWORD_MASK		(unsigned int)((1 << BITS_PER_HWORD) - 1)
 
 	/*
 	 * Macros to GET the n'th byte (counting from the RIGHT) from
@@ -907,6 +907,13 @@ int		ant_inst_src (ant_inst_t inst, ant_reg_t *reg,
 			int *_des1, int *_des2,
 			int *_waddr, int *_raddr, int *_ovalue,
 			char **buf);
+
+/*
+ * in ant32_exec.c
+ */
+
+int		ant_load_dbg (char *filename, ant_t *ant,
+			ant_symtab_t **table);
 
 /* the following were in ant8_external.h and are needed for aide32 ...SS */
 

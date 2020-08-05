@@ -23,9 +23,7 @@
 
 #define	DATA_PER_LINE	16
 
-static void print_reg (int reg_idx, ant_reg_t *values, char *buf);
 static void print_constant (int constant, char *buf);
-static char *find_io_mnemonic (int periph);
 
 /*
  * ant_disasm_inst --
@@ -37,11 +35,15 @@ static char *find_io_mnemonic (int periph);
  * efficiently, but it doesn't matter for small programs...
  */
 
+static unsigned long absorb_unused;
+
 int		ant_disasm_inst (ant_inst_t inst, unsigned int offset,
 			ant_reg_t *regs, char *buf, int show_pc)
 {
 	int op, r1, r2, r3, const8, const16;
 	char *r1_str, *r2_str, *r3_str;
+
+	absorb_unused += (unsigned long)regs;
 
 	op = ant_get_op (inst);
 	r1 = ant_get_reg1 (inst);
@@ -465,21 +467,6 @@ int ant_inst_src (ant_inst_t inst, ant_reg_t *reg,
 	}
 
 	return (0);
-}
-
-/*
- * Print the register (and its value, if the values array is non-NULL)
- * to the given buf (which is ASSUMED to be large enough).
- */
-
-static void print_reg (int reg_idx, ant_reg_t values [], char *buf)
-{
-	char *fmt = "=(0x%-.8x)";
-
-	sprintf (buf, "r%d", reg_idx);
-	if (values != NULL) {
-		sprintf (buf + strlen (buf), fmt, values [reg_idx]);
-	}
 }
 
 /*

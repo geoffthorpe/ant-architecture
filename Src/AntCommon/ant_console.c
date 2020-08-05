@@ -35,7 +35,7 @@ void ant_console_reset (void)
 	return ;
 }
 
-int ant_console_enqueue (char *str, unsigned int len)
+int ant_console_enqueue (const char *str, unsigned int len)
 {
 
 	if (con_end + len > conInBuffLen) {
