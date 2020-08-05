@@ -37,7 +37,6 @@ ant_paddr_t ant32_v2p (ant_vaddr_t v, ant_t *ant,
 	ant_addr_t paddr; 
 	ant_addr_t phys_page;
 	int index;
-	int cached;
 
 	ANT_ASSERT (fault != NULL);
 
@@ -65,7 +64,6 @@ ant_paddr_t ant32_v2p (ant_vaddr_t v, ant_t *ant,
 	if ((seg == ANT_MMU_SEG_SUP_NOMAP) ||
 			(seg == ANT_MMU_SEG_SUP_NOMAP_NOCACHE)) {
 		paddr = v & (ANT_MMU_PAGE_MASK | ANT_MMU_OFFSET_MASK);
-		cached = 1;
 		return (paddr);
 	}
 

@@ -135,7 +135,6 @@ int ant_exec_inst_dbg (ant_t *ant, int trace, int surface)
 {
 	int rc;
 	int pc = ant->pc;
-	ant_exc_t fault;
 
 	if (trace) {
 		ant_dbg_show_curr_inst (ant, surface);
